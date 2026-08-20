@@ -1,0 +1,112 @@
+{
+  "name": "DocumentVersion",
+  "type": "object",
+  "description": "Worldz Visa Document Vault (Phase 4): an IMMUTABLE version of a Document. Every upload or replacement creates a new row; previous versions are never overwritten (SUPERSEDED, never mutated). Storage key is the opaque private file_uri from UploadPrivateFile; never a public URL. traveler_id is denormalized so access control can resolve ownership without a join. Owner-or-admin.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "document_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized owner for fast access checks."
+    },
+    "version_number": {
+      "type": "number",
+      "default": 1
+    },
+    "storage_uri": {
+      "type": "string",
+      "description": "Opaque private file_uri (UploadPrivateFile). Never expose publicly."
+    },
+    "mime_type": {
+      "type": "string"
+    },
+    "file_size": {
+      "type": "number"
+    },
+    "checksum": {
+      "type": "string",
+      "description": "Detected content hash; not trusted from the client filename."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "uploaded",
+        "processing",
+        "available",
+        "rejected",
+        "superseded",
+        "deleted"
+      ],
+      "default": "available"
+    },
+    "uploaded_by": {
+      "type": "string"
+    },
+    "source_version_id": {
+      "type": "string",
+      "description": "Immutable original version used to create this derivative. Null for an original upload."
+    },
+    "derivative_kind": {
+      "type": "string",
+      "enum": [
+        "ENHANCED_SCAN"
+      ],
+      "description": "Transformation class. Presence never changes or deletes the source original."
+    },
+    "transformation": {
+      "type": "object",
+      "description": "Auditable non-secret transformation parameters such as crop, contrast, brightness and perspective handling."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "document_id",
+    "traveler_id",
+    "version_number",
+    "storage_uri",
+    "mime_type"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "name": "Prompt",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "prompt_id": {
+      "type": "string",
+      "description": "Stable logical id, e.g. blueprint.generate"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "capability": {
+      "type": "string",
+      "description": "Capability key this prompt serves"
+    },
+    "module": {
+      "type": "string",
+      "description": "Owning module id"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "published",
+        "rejected"
+      ],
+      "default": "approved"
+    },
+    "content": {
+      "type": "string",
+      "description": "Prompt template with {{variables}} and {{business_context}}"
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "compatible_models": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "default_model": {
+      "type": "string",
+      "default": "automatic"
+    },
+    "fallback_models": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "response_schema": {
+      "type": "object"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "created_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "prompt_id",
+    "version",
+    "capability",
+    "module",
+    "content"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

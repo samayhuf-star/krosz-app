@@ -1,0 +1,85 @@
+{
+  "name": "AppointmentLocation",
+  "type": "object",
+  "description": "Worldz Visa (Phase 9): an appointment location operated by a provider. A VAC may be operated by a third party \u2014 location != embassy. Pinned to a provider so location validation can ensure a location belongs to the provider and supports the appointment type. Public read (catalog); admin-managed writes.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "external_location_id": {
+      "type": "string",
+      "description": "Provider-side location id (identity)."
+    },
+    "name": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string",
+      "description": "ISO alpha-2 (upper-case)."
+    },
+    "postal_code": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "timezone": {
+      "type": "string",
+      "description": "IANA TZ, e.g. Asia/Kolkata."
+    },
+    "appointment_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Supported appointment types at this location."
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "provider_id",
+    "name",
+    "country",
+    "timezone"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

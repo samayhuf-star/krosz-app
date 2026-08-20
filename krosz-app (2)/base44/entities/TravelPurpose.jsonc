@@ -1,0 +1,70 @@
+{
+  "name": "TravelPurpose",
+  "type": "object",
+  "description": "Worldz Visa catalog: a structured travel purpose (tourism, business, study, transit, family visit, medical, conference, work, other). The discovery engine accepts a purpose key and uses it to resolve VisaRoutes. Public read, admin-managed.",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Stable identifier, e.g. tourism."
+    },
+    "label": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "leisure",
+        "business",
+        "education",
+        "family",
+        "medical",
+        "event",
+        "work",
+        "transit",
+        "other"
+      ]
+    },
+    "order": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "key",
+    "label",
+    "category",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

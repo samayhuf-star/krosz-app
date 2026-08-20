@@ -1,0 +1,99 @@
+{
+  "name": "AppointmentEvent",
+  "type": "object",
+  "description": "Worldz Visa (Phase 9): an append-only history event for an Appointment. Reschedule/cancel/completion record the transition WITHOUT overwriting the prior booking, so an appointment's full history is preserved for audit + ops. Owner-of-appointment-or-admin (application_id denormalized).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "appointment_id": {
+      "type": "string"
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "CREATED",
+        "SLOT_SELECTED",
+        "HELD",
+        "BOOKED",
+        "RESCHEDULED",
+        "CANCELLED",
+        "COMPLETED",
+        "NO_SHOW",
+        "FAILED"
+      ]
+    },
+    "old_status": {
+      "type": "string"
+    },
+    "new_status": {
+      "type": "string"
+    },
+    "actor": {
+      "type": "string"
+    },
+    "provider_reference": {
+      "type": "string"
+    },
+    "external_reference": {
+      "type": "string"
+    },
+    "old_appointment_id": {
+      "type": "string",
+      "description": "For RESCHEDULED: the appointment this replaced."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "appointment_id",
+    "event_type",
+    "new_status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

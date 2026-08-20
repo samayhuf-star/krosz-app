@@ -1,0 +1,89 @@
+{
+  "name": "RequirementRule",
+  "type": "object",
+  "description": "Worldz Visa knowledge graph: a deterministic conditional rule that overrides a requirement's applicability when a fact about the traveler (previous_refusal, duration, nationality, purpose ...) holds. DAG-style: evaluated in deterministic order; never decided by an LLM. effect replaces the referenced requirement's mandatory_level when the condition matches.",
+  "properties": {
+    "rule_id": {
+      "type": "string"
+    },
+    "requirements_version": {
+      "type": "string"
+    },
+    "destination": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "condition_field": {
+      "type": "string",
+      "description": "Traveler/run fact key, e.g. previous_refusal, duration_days, nationality."
+    },
+    "operator": {
+      "type": "string",
+      "enum": [
+        "eq",
+        "neq",
+        "gt",
+        "lt",
+        "gte",
+        "lte",
+        "in",
+        "exists"
+      ],
+      "default": "eq"
+    },
+    "value": {
+      "type": "string"
+    },
+    "applies_to_category": {
+      "type": "string",
+      "description": "Which requirement category this rule overrides."
+    },
+    "effect": {
+      "type": "string",
+      "enum": [
+        "required",
+        "not_required",
+        "optional",
+        "recommended"
+      ],
+      "default": "required"
+    },
+    "description": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "rule_id",
+    "requirements_version",
+    "condition_field",
+    "effect"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

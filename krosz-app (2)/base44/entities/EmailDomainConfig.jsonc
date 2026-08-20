@@ -1,0 +1,115 @@
+{
+  "name": "EmailDomainConfig",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "domain_id": {
+      "type": "string",
+      "description": "Reference to the Domain entity (Domain Engine). Never replaces it."
+    },
+    "domain_name": {
+      "type": "string"
+    },
+    "provider_config_id": {
+      "type": "string"
+    },
+    "records": {
+      "type": "object",
+      "description": "mx[], spf{}, dkim{}, dmarc{}, autodiscover{}, return_path{} \u2014 provider-specific DNS blueprint."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "configured",
+        "partial",
+        "failed",
+        "healthy"
+      ],
+      "default": "pending"
+    },
+    "health": {
+      "type": "object",
+      "description": "score 0-100, checks[{id,check,pass,message}], last_checked_at."
+    },
+    "provisioning_state": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "configured",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "domain_name"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

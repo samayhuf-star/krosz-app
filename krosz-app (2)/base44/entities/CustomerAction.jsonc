@@ -1,0 +1,152 @@
+{
+  "name": "CustomerAction",
+  "type": "object",
+  "description": "The single customer-facing Action Contract: one customer request \u2192 one executable action. This is a LEDGER record, not an execution system \u2014 it links a customer request to a real Workflow Engine Run (LaunchPlan) or an executed read, and stores its status. The actual work is performed by the existing Workflow Engine / factories / entity reads; this record only interprets intent and reflects truthful run state.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "intent": {
+      "type": "string",
+      "description": "The original natural-language request (normalized)."
+    },
+    "capability": {
+      "type": "string",
+      "description": "Resolved capability key from the fixed registry, or 'not_available'."
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Resolved intent parameters (e.g. target entity, scope)."
+    },
+    "confidence": {
+      "type": "number",
+      "default": 0
+    },
+    "requires_approval": {
+      "type": "boolean",
+      "default": false
+    },
+    "approval_reason": {
+      "type": "string",
+      "description": "Plain-language reason approval is required, if any."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "understanding",
+        "preparing",
+        "queued",
+        "running",
+        "waiting_for_approval",
+        "awaiting_clarification",
+        "completed",
+        "failed",
+        "blocked",
+        "capability_not_available"
+      ],
+      "default": "understanding"
+    },
+    "run_id": {
+      "type": "string",
+      "description": "The LaunchPlan run this action dispatched (for workflow/standalone-task capabilities)."
+    },
+    "task_id": {
+      "type": "string",
+      "description": "The awaiting-approval LaunchTask id, when status = waiting_for_approval."
+    },
+    "recommended_option": {
+      "type": "number",
+      "description": "Recommended option index from the approval gate payload."
+    },
+    "reply": {
+      "type": "string",
+      "description": "The customer-friendly reply shown in Ask AI."
+    },
+    "progress": {
+      "type": "number",
+      "default": 0
+    },
+    "result": {
+      "type": "object",
+      "description": "Real execution result (read data or run summary). Never fabricated."
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "object"
+        }
+      }
+    },
+    "actor": {
+      "type": "string"
+    },
+    "provenance": {
+      "type": "object",
+      "description": "{ actor, classifier, capability_kind, idempotent, resumed_run_id, ... }."
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "intent",
+    "capability",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

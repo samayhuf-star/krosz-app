@@ -1,0 +1,105 @@
+{
+  "name": "Document",
+  "type": "object",
+  "description": "Worldz Visa Document Vault (Phase 4): a reusable traveler-owned document asset (Passport, Photo, Bank Statement...). One Document may serve many VisaApplications via ApplicationDocument. Immutable versions live in DocumentVersion; current_version_id points to the latest available version. Owner-or-admin.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Owner traveler."
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Optional enterprise scope."
+    },
+    "document_type": {
+      "type": "string",
+      "description": "Catalog key from DOCUMENT_TYPES (PASSPORT, PHOTO, BANK_STATEMENT...)."
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived",
+        "deleted"
+      ],
+      "default": "active"
+    },
+    "current_version_id": {
+      "type": "string",
+      "description": "Latest available DocumentVersion id."
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "traveler_id",
+    "document_type",
+    "display_name"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

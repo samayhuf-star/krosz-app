@@ -1,0 +1,89 @@
+{
+  "name": "DataRetentionPolicy",
+  "type": "object",
+  "description": "Worldz Visa (Phase 31 \u00a724/\u00a725): explicit, configurable data-retention policy per data category. Replaces ad-hoc deletion with a deterministic, audited rule. The retention job reads these policies and deletes/anonymizes/archives expired records, NEVER deleting CaseEvent history (\u00a725.5). legal_hold suspends processing for that category. Admin-managed.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "PASSPORT",
+        "IDENTITY_DOCUMENT",
+        "APPLICATION_DOCUMENT",
+        "PAYMENT_SUPPORT",
+        "AUDIT_DATA",
+        "CASE_EVENT",
+        "DOCUMENT_INTELLIGENCE"
+      ],
+      "description": "Data category the policy governs."
+    },
+    "retention_days": {
+      "type": "number",
+      "description": "Days to retain from created_date (or completed_date where applicable). -1 = indefinite."
+    },
+    "behavior": {
+      "type": "string",
+      "enum": [
+        "DELETE",
+        "ANONYMIZE",
+        "ARCHIVE"
+      ],
+      "default": "ANONYMIZE",
+      "description": "Action taken when retention expires."
+    },
+    "reason": {
+      "type": "string",
+      "description": "Why this period is used (legal/operational)."
+    },
+    "owner": {
+      "type": "string"
+    },
+    "legal_hold": {
+      "type": "boolean",
+      "default": false,
+      "description": "Suspends all retention processing while true."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "category",
+    "retention_days",
+    "behavior",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,196 @@
+{
+  "name": "Traveler",
+  "type": "object",
+  "description": "Worldz Visa (Phase 20): a reusable traveler profile. Scoped to an owning user (consumer) or organization (enterprise). The relationship (SELF/SPOUSE/CHILD/PARENT/...) belongs to the owner\u2194traveler pair (\u00a74) and lives on this row because each Traveler record is owned by exactly one user. A user manages multiple travelers (\u00a72/\u00a73); one is designated primary (\u00a73) and used as the default for new applications. Profiles are reusable prefill sources \u2014 changing a profile never mutates historical application snapshots (\u00a77). Passport records are separate versioned Passport entities (\u00a78); this profile stores identity + contact only. Owner-or-admin RLS.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Owning app user (account owner). Equals the creator."
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Optional enterprise scope."
+    },
+    "first_name": {
+      "type": "string"
+    },
+    "middle_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "other",
+        "prefer_not_to_say"
+      ]
+    },
+    "nationality": {
+      "type": "string",
+      "description": "ISO alpha-2 primary nationality."
+    },
+    "country_of_birth": {
+      "type": "string",
+      "description": "ISO alpha-2 country of birth."
+    },
+    "residence_country": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "address_line1": {
+      "type": "string"
+    },
+    "address_line2": {
+      "type": "string"
+    },
+    "address_city": {
+      "type": "string"
+    },
+    "address_state": {
+      "type": "string"
+    },
+    "address_country": {
+      "type": "string",
+      "description": "ISO alpha-2."
+    },
+    "address_postal_code": {
+      "type": "string"
+    },
+    "employment_status": {
+      "type": "string",
+      "enum": [
+        "employed",
+        "self_employed",
+        "student",
+        "retired",
+        "unemployed",
+        "other"
+      ]
+    },
+    "employer": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "employment_start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "relationship": {
+      "type": "string",
+      "enum": [
+        "SELF",
+        "SPOUSE",
+        "CHILD",
+        "PARENT",
+        "SIBLING",
+        "FAMILY",
+        "FRIEND",
+        "OTHER"
+      ],
+      "default": "SELF",
+      "description": "Relationship of this traveler to the account owner (\u00a74)."
+    },
+    "is_primary": {
+      "type": "boolean",
+      "default": false,
+      "description": "Primary traveler for this account (\u00a73). Used as the default for new applications. Exactly one active primary per account."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "ARCHIVED"
+      ],
+      "default": "ACTIVE",
+      "description": "Archived travelers are excluded from new-application flows but retained for history (\u00a713)."
+    },
+    "profile_completeness": {
+      "type": "number",
+      "default": 0,
+      "description": "Convenience indicator 0-100 (\u00a76). NEVER a visa-eligibility metric."
+    },
+    "archived_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "user_id",
+    "first_name",
+    "nationality",
+    "relationship",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

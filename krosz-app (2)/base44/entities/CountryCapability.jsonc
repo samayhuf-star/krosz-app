@@ -1,0 +1,866 @@
+{
+  "name": "CountryCapability",
+  "type": "object",
+  "description": "Worldz Visa (Phase 22/23/24): India-first Travel Entry Engine country capability matrix. ONE row per destination x nationality x departure x purpose captures the journey type, publishing/freshness state, application capability, submission/tracking capability, automation level, official portal, fees, checklist config, extension/overstay info, source provenance, and Phase 24 verification metadata. This is CONFIGURATION over the existing Visa Intelligence domain \u2014 it never duplicates regulatory rules; it pins a normalized, versioned, verified view of them for the MVP (Indian passport, departure India). Phase 24 adds claim-level evidence (CapabilityEvidence), a research-workflow queue (ResearchTask), and a deterministic execution-capability + verification-score derivation that no admin can hand-set. Public read (non-PII regulatory config); admin-managed so content editors cannot touch regulatory rules. Only VERIFIED+PUBLISHED rows with passing two-source evidence surface as authoritative MVP results.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "country_code": {
+      "type": "string",
+      "description": "Destination ISO alpha-2 (Country.code)."
+    },
+    "nationality": {
+      "type": "string",
+      "description": "Passport ISO alpha-2. Defaults to IN for the MVP.",
+      "default": "IN"
+    },
+    "departure_country": {
+      "type": "string",
+      "description": "Departure ISO alpha-2. Defaults to IN for the MVP.",
+      "default": "IN"
+    },
+    "purpose": {
+      "type": "string",
+      "enum": [
+        "tourism",
+        "business",
+        "study",
+        "transit"
+      ],
+      "default": "tourism"
+    },
+    "journey_type": {
+      "type": "string",
+      "enum": [
+        "VISA_FREE",
+        "VISA_ON_ARRIVAL",
+        "ETA",
+        "EVISA",
+        "OTHER_LOW_FRICTION",
+        "EMBASSY_VISA",
+        "CONSULAR_VISA",
+        "TRANSIT_VISA",
+        "WORK_VISA",
+        "STUDENT_VISA",
+        "OTHER"
+      ],
+      "description": "Canonical MVP journey (\u00a73)."
+    },
+    "alternate_journeys": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional legitimate pathways (\u00a714) when multiple mechanisms exist."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "RESEARCHING",
+        "VERIFIED",
+        "PUBLISHED",
+        "NEEDS_REVIEW",
+        "SUSPENDED"
+      ],
+      "default": "DRAFT",
+      "description": "Publishing state (\u00a712). Only VERIFIED+PUBLISHED surface as authoritative."
+    },
+    "freshness": {
+      "type": "string",
+      "enum": [
+        "FRESH",
+        "STALE",
+        "REQUIRES_REVIEW",
+        "EXPIRED"
+      ],
+      "default": "REQUIRES_REVIEW",
+      "description": "Freshness state (\u00a711), recomputed at read from verified_at/effective_at."
+    },
+    "visa_required": {
+      "type": "boolean",
+      "default": true
+    },
+    "max_stay_days": {
+      "type": "number",
+      "description": "Maximum stay per entry, in days. -1 = unlimited."
+    },
+    "entries": {
+      "type": "number",
+      "default": 1,
+      "description": "Permitted entries (0 = visa-free none required; -1 = unlimited multiple)."
+    },
+    "validity_days": {
+      "type": "number",
+      "description": "Visa validity window in days from issue."
+    },
+    "passport_validity_min_months": {
+      "type": "number",
+      "description": "Minimum passport validity at entry, in months (commonly 6)."
+    },
+    "return_ticket_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "accommodation_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "proof_of_funds_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "insurance_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "application_required": {
+      "type": "string",
+      "enum": [
+        "NOT_REQUIRED",
+        "PREPARE_ONLY",
+        "REQUIRED",
+        "OPTIONAL",
+        "UNKNOWN"
+      ],
+      "default": "REQUIRED"
+    },
+    "application_capability": {
+      "type": "object",
+      "description": "\u00a725 explicit platform capabilities. Each: YES | NO | PROVIDER | MANUAL.",
+      "default": {
+        "prepare": "YES",
+        "prefill": "YES",
+        "pay": "NO",
+        "submit": "NO",
+        "track": "NO"
+      }
+    },
+    "submission_capability": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "OFFICIAL_PORTAL",
+        "PROVIDER",
+        "MANUAL",
+        "API_SUBMISSION",
+        "PARTNER_SUBMISSION",
+        "MANUAL_OPERATOR",
+        "TRAVELER_SUBMISSION",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN",
+      "description": "Submission channel (\u00a716). Never claim API_PARTNER if only informational APIs exist."
+    },
+    "tracking_capability": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "TRIP_ONLY",
+        "MANUAL",
+        "PROVIDER",
+        "WEB_PORTAL",
+        "EMAIL",
+        "API_TRACKING",
+        "WEB_PORTAL_TRACKING",
+        "EMAIL_TRACKING",
+        "MANUAL_TRACKING",
+        "NO_TRACKING",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN",
+      "description": "Tracking channel (\u00a717). UNKNOWN until a verified channel is recorded."
+    },
+    "appointment_requirement": {
+      "type": "string",
+      "enum": [
+        "NO_APPOINTMENT",
+        "OPTIONAL_APPOINTMENT",
+        "MANDATORY_APPOINTMENT",
+        "BIOMETRICS",
+        "INTERVIEW",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN",
+      "description": "Appointment requirement classification (\u00a718)."
+    },
+    "appointment_required": {
+      "type": "boolean",
+      "default": false,
+      "description": "Legacy boolean flag; appointment_requirement is the canonical classification."
+    },
+    "manual_operations_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "automation_level": {
+      "type": "string",
+      "enum": [
+        "FULLY_AUTOMATED",
+        "SEMI_AUTOMATED",
+        "GUIDED",
+        "MANUAL",
+        "UNSUPPORTED"
+      ],
+      "default": "GUIDED",
+      "description": "Normalized automation level (\u00a720). UNSUPPORTED = no verified capability."
+    },
+    "official_portal_url": {
+      "type": "string",
+      "description": "Verified official portal. Never invented (\u00a727)."
+    },
+    "official_portal_name": {
+      "type": "string"
+    },
+    "api_available": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "YES",
+        "NO"
+      ],
+      "default": "UNKNOWN",
+      "description": "Machine-accessible integration exists (\u00a710). UNKNOWN until verified \u2014 never YES on a website alone."
+    },
+    "api_provider": {
+      "type": "string",
+      "description": "Provider key backing any API access (optional)."
+    },
+    "api_documentation": {
+      "type": "string",
+      "description": "URL of API documentation."
+    },
+    "api_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "REQUIREMENTS/ELIGIBILITY/APPLICATION/SUBMISSION/TRACKING \u2014 what the API actually does."
+    },
+    "commercial_access_required": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "FREE",
+        "PAID",
+        "PARTNER_ONLY",
+        "ENTERPRISE",
+        "REQUEST_DEMO"
+      ],
+      "default": "UNKNOWN",
+      "description": "Commercial access model (\u00a714)."
+    },
+    "credentials_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "sandbox_available": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "YES",
+        "NO"
+      ],
+      "default": "UNKNOWN"
+    },
+    "production_available": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "YES",
+        "NO"
+      ],
+      "default": "UNKNOWN"
+    },
+    "mcp_available": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "YES",
+        "NO"
+      ],
+      "default": "UNKNOWN",
+      "description": "MCP integration capability (\u00a711). NO unless evidence exists; never invented."
+    },
+    "mcp_provider": {
+      "type": "string"
+    },
+    "mcp_endpoint": {
+      "type": "string"
+    },
+    "mcp_tools": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mcp_read_only": {
+      "type": "boolean"
+    },
+    "mcp_auth": {
+      "type": "string",
+      "description": "e.g. api_key, oauth, none."
+    },
+    "provider_capabilities": {
+      "type": "object",
+      "description": "Verified capability map (\u00a712). Each: YES | NO | PARTIAL | UNKNOWN.",
+      "properties": {
+        "requirements": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ],
+          "default": "UNKNOWN"
+        },
+        "eligibility": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ],
+          "default": "UNKNOWN"
+        },
+        "application": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ],
+          "default": "UNKNOWN"
+        },
+        "prefill": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ],
+          "default": "UNKNOWN"
+        },
+        "documents": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ],
+          "default": "UNKNOWN"
+        },
+        "payment": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ],
+          "default": "UNKNOWN"
+        },
+        "submission": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ],
+          "default": "UNKNOWN"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ],
+          "default": "UNKNOWN"
+        },
+        "tracking": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ],
+          "default": "UNKNOWN"
+        },
+        "refund": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ],
+          "default": "UNKNOWN"
+        },
+        "appointment": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ],
+          "default": "UNKNOWN"
+        },
+        "notifications": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ],
+          "default": "UNKNOWN"
+        }
+      },
+      "default": {}
+    },
+    "provider_composition": {
+      "type": "object",
+      "description": "Source vs execution composition (\u00a724/\u00a725). Provider keys per role.",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "application": {
+          "type": "string"
+        },
+        "submission": {
+          "type": "string"
+        },
+        "tracking": {
+          "type": "string"
+        },
+        "operations": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "fallback_strategy": {
+      "type": "object",
+      "description": "Provider failure strategy (\u00a733).",
+      "properties": {
+        "primary": {
+          "type": "string"
+        },
+        "fallback": {
+          "type": "string"
+        },
+        "last_resort": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "passport_policy": {
+      "type": "object",
+      "description": "Phase-1 engine policy for passport validation. Versioned with this CountryCapability row; never treated as verified unless the capability verification gate passes.",
+      "default": {}
+    },
+    "photo_policy": {
+      "type": "object",
+      "description": "Phase-1 country/route photo-compliance policy consumed by the shared Photo Compliance engine.",
+      "default": {}
+    },
+    "arrival_policy": {
+      "type": "object",
+      "description": "Phase-1 arrival/declaration policy (TDAC/MDAC/eArrival/etc.) consumed by the shared Arrival Card engine.",
+      "default": {}
+    },
+    "travel_policy": {
+      "type": "object",
+      "description": "Phase-1 deterministic travel-consistency policy for stay, accommodation and onward-travel checks.",
+      "default": {}
+    },
+    "supporting_visa_policy": {
+      "type": "object",
+      "description": "Conditional supporting visa/residence-permit policy. Empty when the route does not require one.",
+      "default": {}
+    },
+    "document_requirements": {
+      "type": "object",
+      "description": "Document handling classification (\u00a719).",
+      "properties": {
+        "digital_documents": {
+          "type": "boolean",
+          "default": true
+        },
+        "physical_documents": {
+          "type": "boolean",
+          "default": false
+        },
+        "passport_submission": {
+          "type": "boolean",
+          "default": false
+        },
+        "photo_requirements": {
+          "type": "boolean",
+          "default": true
+        },
+        "biometrics": {
+          "type": "boolean",
+          "default": false
+        },
+        "document_translation": {
+          "type": "boolean",
+          "default": false
+        },
+        "document_attestation": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "default": {
+        "digital_documents": true,
+        "photo_requirements": true
+      }
+    },
+    "data_confidence": {
+      "type": "string",
+      "enum": [
+        "VERIFIED",
+        "CROSS_CHECKED",
+        "SINGLE_SOURCE",
+        "CONFLICT",
+        "STALE",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN",
+      "description": "Internal data-quality state (\u00a726). CONFLICT rows never auto-publish."
+    },
+    "automation_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Internal platform-capability score 0-100 (\u00a721). NEVER a visa approval probability."
+    },
+    "research_status": {
+      "type": "string",
+      "enum": [
+        "NOT_STARTED",
+        "RESEARCHING",
+        "DATA_FOUND",
+        "CROSS_CHECKING",
+        "CONFLICT",
+        "READY_FOR_REVIEW",
+        "VERIFIED",
+        "PUBLISHED"
+      ],
+      "default": "RESEARCHING",
+      "description": "Research queue state (\u00a731). The queue IS the set of non-published capabilities."
+    },
+    "research_assignee": {
+      "type": "string"
+    },
+    "research_notes": {
+      "type": "string"
+    },
+    "research_updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "final_classification": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN",
+      "description": "Final country classification (\u00a739). A=Fully automated opp, B=Semi, C=Guided, D=Manual, E=Not yet supported."
+    },
+    "api_provider_key": {
+      "type": "string",
+      "description": "Optional convenience key for the provider backing API/MCP."
+    },
+    "fee_government_minor": {
+      "type": "number",
+      "description": "Government fee, integer minor units."
+    },
+    "fee_currency": {
+      "type": "string",
+      "description": "ISO-4217 upper-case."
+    },
+    "fee_notes": {
+      "type": "string"
+    },
+    "extension_supported": {
+      "type": "boolean",
+      "default": false
+    },
+    "extension_max_days": {
+      "type": "number"
+    },
+    "extension_notes": {
+      "type": "string"
+    },
+    "extension_fee_minor": {
+      "type": "number"
+    },
+    "overstay_notes": {
+      "type": "string"
+    },
+    "overstay_penalty_notes": {
+      "type": "string"
+    },
+    "overstay_authority": {
+      "type": "string"
+    },
+    "checklist": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "\u00a728/\u00a729 checklist config."
+    },
+    "source_name": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "secondary_source_name": {
+      "type": "string",
+      "description": "Cross-check source (\u00a76)."
+    },
+    "secondary_source_url": {
+      "type": "string"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "government",
+        "embassy",
+        "official_portal",
+        "official_provider",
+        "verified_internal",
+        "secondary_reference",
+        "dev_seed"
+      ],
+      "default": "secondary_reference"
+    },
+    "retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "effective_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "provider": {
+      "type": "string",
+      "description": "Legacy provider key. Use provider_composition for structured composition."
+    },
+    "provider_version": {
+      "type": "string"
+    },
+    "rule_version": {
+      "type": "number",
+      "default": 1,
+      "description": "Per-destination rule version (\u00a710). Bumped on verified config change."
+    },
+    "priority_score": {
+      "type": "number",
+      "default": 0,
+      "description": "\u00a746 prioritization weight."
+    },
+    "data_quality_score": {
+      "type": "number",
+      "default": 0,
+      "description": "\u00a740 internal completeness 0-100."
+    },
+    "mvp_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Surfaces in MVP India-first surfaces."
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "INVENTORIED",
+        "RESEARCHING",
+        "PARTIALLY_VERIFIED",
+        "VERIFIED",
+        "STALE",
+        "BLOCKED",
+        "NEEDS_REVIEW"
+      ],
+      "default": "INVENTORIED",
+      "description": "Phase 24 \u00a73 destination-verification lifecycle. Derived/managed \u2014 a destination reaches VERIFIED only via evidence satisfying the two-source rule, never by a dropdown flip."
+    },
+    "source_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Count of attached CapabilityEvidence rows (derived)."
+    },
+    "primary_source": {
+      "type": "string",
+      "description": "Highest-precedence evidence source name (derived)."
+    },
+    "primary_source_type": {
+      "type": "string",
+      "enum": [
+        "GOVERNMENT",
+        "OFFICIAL_IMMIGRATION",
+        "EMBASSY_CONSULATE",
+        "OFFICIAL_AIRLINE_IATA",
+        "VERIFIED_COMMERCIAL_PROVIDER",
+        "SECONDARY_SOURCE"
+      ],
+      "description": "Highest-precedence source type (derived)."
+    },
+    "last_verified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Phase 24: last time verification completed (distinct from verified_at which mirrors publish)."
+    },
+    "next_review_at": {
+      "type": "string",
+      "format": "date",
+      "description": "Phase 24 \u00a714: scheduled re-verification date (30/60/90d by change_risk)."
+    },
+    "verified_by": {
+      "type": "string",
+      "description": "Researcher/admin who completed verification."
+    },
+    "verification_notes": {
+      "type": "string"
+    },
+    "source_freshness": {
+      "type": "string",
+      "enum": [
+        "FRESH",
+        "STALE",
+        "EXPIRED",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN",
+      "description": "Phase 24 \u00a714: freshness of the underlying evidence sources."
+    },
+    "evidence_completeness": {
+      "type": "number",
+      "default": 0,
+      "description": "Phase 24 \u00a713: 0-100 derived completeness of attached evidence across required claims."
+    },
+    "change_risk": {
+      "type": "string",
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN",
+      "description": "Phase 24 \u00a715: derived volatility of this destination's source data."
+    },
+    "execution_capability": {
+      "type": "string",
+      "enum": [
+        "GUIDANCE_ONLY",
+        "INTELLIGENCE_ONLY",
+        "PARTIAL_ASSIST",
+        "DOCUMENT_ASSIST",
+        "APPLICATION_ASSIST",
+        "END_TO_END",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN",
+      "description": "Phase 24 \u00a711: deterministic OUR execution state, derived from verified facts. Never derived from provider marketing claims."
+    },
+    "verification_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Phase 24 \u00a713: internal verification score 0-100, RECOMPUTED at read \u2014 admins cannot hand-set it. NOT a visa approval probability."
+    },
+    "verification_class": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN",
+      "description": "Phase 24 \u00a713: human-readable verification grade derived from verification_score."
+    },
+    "admin_override_record": {
+      "type": "object",
+      "description": "Phase 24 \u00a77: recorded admin override when the two-source rule's second source is unavailable.",
+      "properties": {
+        "admin_id": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "source_fingerprint": {
+      "type": "string",
+      "description": "Phase 24 \u00a715: change-detection foundation \u2014 fingerprint of the primary source for future diffing."
+    },
+    "previous_verification_status": {
+      "type": "string",
+      "description": "Phase 24 \u00a715: previous verification_status, kept to detect changes."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "country_code",
+    "nationality",
+    "departure_country",
+    "journey_type",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

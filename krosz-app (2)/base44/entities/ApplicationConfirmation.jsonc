@@ -1,0 +1,85 @@
+{
+  "name": "ApplicationConfirmation",
+  "type": "object",
+  "description": "Worldz Visa (Phase 18): the traveler's final-review attestation that the information in a VisaApplication is accurate and complete (\u00a75). Pinned to an application_version \u2014 a new confirmation is required whenever a material change bumps the version. Declaration text is configurable per VisaProduct (declaration_code/declaration_text); this row stores the exact text shown at confirmation time so the attestation is reproducible. One confirmation per application_version (managed upsert). Owner-or-admin read; owner-or-admin create; admin update/delete.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "application_version": {
+      "type": "number",
+      "description": "The application version the traveler attested to."
+    },
+    "declaration_code": {
+      "type": "string",
+      "description": "Stable key for the declaration used, e.g. DEFAULT_ATTESTATION."
+    },
+    "declaration_text": {
+      "type": "string",
+      "description": "Exact declaration text presented to the traveler at confirmation."
+    },
+    "confirmed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "The user who confirmed (auditable)."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "traveler_id",
+    "application_version",
+    "declaration_code",
+    "declaration_text",
+    "confirmed_at"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

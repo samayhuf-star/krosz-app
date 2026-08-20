@@ -1,0 +1,112 @@
+{
+  "name": "ReviewRule",
+  "type": "object",
+  "description": "Worldz Visa (Phase 13): a configurable, versioned review rule (\u00a746). The engine implements rules in code; this catalog surfaces them for admin visibility and enables/disables/versioning. Severity here is the default; the engine may override per context. Public read so the engine + UI can resolve; admin-managed.",
+  "properties": {
+    "rule_code": {
+      "type": "string",
+      "description": "Stable identifier, version-suffixed, e.g. IDENTITY_NAME_V1, PASSPORT_EXPIRY_V1, FORM_STALE_V1."
+    },
+    "version": {
+      "type": "string",
+      "default": "v1"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "COMPLETENESS",
+        "CONSISTENCY",
+        "DOCUMENT",
+        "IDENTITY",
+        "DATE",
+        "FINANCIAL",
+        "TRAVEL",
+        "EMPLOYMENT",
+        "ADDRESS",
+        "APPLICATION",
+        "FORM",
+        "SUBMISSION",
+        "PAYMENT",
+        "APPOINTMENT"
+      ]
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Identity",
+        "Documents",
+        "Travel",
+        "Financial",
+        "Employment",
+        "Accommodation",
+        "Forms",
+        "Appointments",
+        "Submission",
+        "Payment",
+        "Application"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "INFO",
+        "WARNING",
+        "BLOCKING",
+        "CRITICAL"
+      ],
+      "default": "WARNING"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "object",
+      "description": "Optional predicates: { purposes: [...], destinations: [...], channels: [...] }."
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "DEPRECATED"
+      ],
+      "default": "ACTIVE"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "rule_code",
+    "version",
+    "type",
+    "category",
+    "severity",
+    "enabled",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

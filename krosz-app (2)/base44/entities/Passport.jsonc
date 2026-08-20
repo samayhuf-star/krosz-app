@@ -1,0 +1,130 @@
+{
+  "name": "Passport",
+  "type": "object",
+  "description": "Worldz Visa: a passport for a traveler. Supports manual entry + document extraction (verification_status, confidence). Manual verified data is never silently overwritten. Owner-or-admin.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "traveler_id": {
+      "type": "string"
+    },
+    "passport_number": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "surname": {
+      "type": "string"
+    },
+    "given_names": {
+      "type": "string"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date"
+    },
+    "place_of_birth": {
+      "type": "string"
+    },
+    "nationality": {
+      "type": "string"
+    },
+    "issue_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "sex": {
+      "type": "string"
+    },
+    "mrz": {
+      "type": "string"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "extracted",
+        "verified",
+        "needs_review"
+      ],
+      "default": "manual"
+    },
+    "confidence": {
+      "type": "number",
+      "default": 0
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "extraction"
+      ],
+      "default": "manual"
+    }
+  },
+  "required": [
+    "traveler_id",
+    "passport_number",
+    "country",
+    "surname",
+    "given_names",
+    "nationality"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

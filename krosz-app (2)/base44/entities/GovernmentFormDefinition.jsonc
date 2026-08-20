@@ -1,0 +1,93 @@
+{
+  "name": "GovernmentFormDefinition",
+  "type": "object",
+  "description": "Worldz Visa (Phase 7): a versioned, deterministic government application form definition (e.g. FRANCE_SCHENGEN_SHORT_STAY). Versioned lifecycle (draft/review/published/superseded/archived); only PUBLISHED can generate production packages. Provenance stored in source. Public read (catalog); admin-managed.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "form_code": {
+      "type": "string",
+      "description": "Stable machine code, e.g. FRANCE_SCHENGEN_SHORT_STAY."
+    },
+    "form_name": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string",
+      "description": "Destination ISO alpha-2 (upper-case)."
+    },
+    "visa_type_key": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string",
+      "enum": [
+        "tourism",
+        "business",
+        "study",
+        "transit"
+      ]
+    },
+    "provider": {
+      "type": "string",
+      "description": "e.g. government, vac, embassy."
+    },
+    "version": {
+      "type": "string",
+      "description": "e.g. v1, v2."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "published",
+        "superseded",
+        "archived"
+      ],
+      "default": "draft"
+    },
+    "effective_from": {
+      "type": "string",
+      "format": "date"
+    },
+    "effective_until": {
+      "type": "string",
+      "format": "date"
+    },
+    "source": {
+      "type": "object",
+      "description": "Provenance: { source_type, source_name, source_url, retrieved_at, verified_at, verified_by }."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "form_code",
+    "form_name",
+    "country",
+    "version",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

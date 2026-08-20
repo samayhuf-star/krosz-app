@@ -1,0 +1,113 @@
+{
+  "name": "AdiologyGoogleAdsAccount",
+  "type": "object",
+  "description": "Workspace-scoped Google Ads account binding. Stores identifiers and sync state only; OAuth tokens and developer credentials remain in Base44 connector/secret management.",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "workspace_id": {
+      "type": "string"
+    },
+    "customer_id": {
+      "type": "string"
+    },
+    "manager_customer_id": {
+      "type": "string"
+    },
+    "descriptive_name": {
+      "type": "string"
+    },
+    "currency_code": {
+      "type": "string"
+    },
+    "time_zone": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "connected",
+        "disconnected",
+        "error",
+        "suspended"
+      ],
+      "default": "pending"
+    },
+    "is_default": {
+      "type": "boolean",
+      "default": false
+    },
+    "connector_key": {
+      "type": "string",
+      "default": "googleads"
+    },
+    "last_sync_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_health_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_error": {
+      "type": "string"
+    },
+    "sync_cursor": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "workspace_id",
+    "customer_id",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

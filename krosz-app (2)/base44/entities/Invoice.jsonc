@@ -1,0 +1,120 @@
+{
+  "name": "Invoice",
+  "type": "object",
+  "description": "Worldz Visa (Phase 10): an immutable financial invoice for an Order (\u00a736). Invoice number generated server-side (\u00a737) \u2014 never client-supplied. Issued on successful payment; VOID on cancellation/refund. Owner-or-admin read; system/admin create.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "order_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "invoice_number": {
+      "type": "string",
+      "description": "Server-generated, e.g. INV-2026-000123."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "ISSUED",
+        "PAID",
+        "VOID",
+        "REFUNDED"
+      ],
+      "default": "DRAFT"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "subtotal_minor": {
+      "type": "number"
+    },
+    "tax_minor": {
+      "type": "number",
+      "default": 0
+    },
+    "discount_minor": {
+      "type": "number",
+      "default": 0
+    },
+    "total_minor": {
+      "type": "number"
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "due_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "paid_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "voided_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "order_id",
+    "traveler_id",
+    "invoice_number",
+    "status",
+    "currency",
+    "total_minor"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

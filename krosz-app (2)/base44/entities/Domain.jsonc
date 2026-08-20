@@ -1,0 +1,132 @@
+{
+  "name": "Domain",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "domain_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "selected",
+        "pending",
+        "registered",
+        "active",
+        "expired",
+        "failed"
+      ],
+      "default": "selected"
+    },
+    "registration_price": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "registered_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "auto_renew": {
+      "type": "boolean",
+      "default": false
+    },
+    "transfer_lock": {
+      "type": "boolean",
+      "default": true
+    },
+    "nameservers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dns_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "configured",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "ai_score": {
+      "type": "number"
+    },
+    "external_reference": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "domain_name"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

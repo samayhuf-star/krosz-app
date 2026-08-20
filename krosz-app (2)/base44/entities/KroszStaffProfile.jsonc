@@ -1,0 +1,63 @@
+{
+  "type": "object",
+  "description": "Krosz internal staff authorization for high-trust visa operations. Separates Visa Approver Manager and CEO authority from generic Base44 admin access.",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "staff_role": {
+      "type": "string",
+      "enum": [
+        "VISA_APPROVER_MANAGER",
+        "VISA_OPS",
+        "CEO"
+      ],
+      "default": "VISA_OPS"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "assigned_by": {
+      "type": "string"
+    },
+    "assigned_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "user_id",
+    "staff_role",
+    "active"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "name": "KroszStaffProfile"
+}

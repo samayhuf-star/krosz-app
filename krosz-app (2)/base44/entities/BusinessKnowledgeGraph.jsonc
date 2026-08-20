@@ -1,0 +1,124 @@
+{
+  "name": "BusinessKnowledgeGraph",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "fresh",
+        "stale",
+        "rebuilding",
+        "failed",
+        "superseded"
+      ],
+      "default": "draft"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "module_coverage": {
+      "type": "object"
+    },
+    "context_snapshot": {
+      "type": "object"
+    },
+    "stats": {
+      "type": "object"
+    },
+    "source_versions": {
+      "type": "object"
+    },
+    "is_stale": {
+      "type": "boolean",
+      "default": false
+    },
+    "stale_reason": {
+      "type": "string"
+    },
+    "last_rebuilt_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_rebuilt_by": {
+      "type": "string"
+    },
+    "rebuild_duration_ms": {
+      "type": "number"
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "version"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

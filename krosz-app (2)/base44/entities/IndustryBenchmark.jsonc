@@ -1,0 +1,88 @@
+{
+  "name": "IndustryBenchmark",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string",
+      "description": "'system' for the public benchmark store."
+    },
+    "industry_key": {
+      "type": "string"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "region": {
+      "type": "string",
+      "description": "Geographic scope (country/region) or 'global'."
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Architecture placeholder for future external data collection: conversion_rates, seo_benchmarks, lead_costs, customer_acquisition_cost, website_structure, marketing_cadence, industry_kpis."
+    },
+    "data_source": {
+      "type": "string",
+      "description": "Where the benchmark came from: 'ai_estimate' (default architecture) or a future external provider."
+    },
+    "collected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ai_generated": {
+      "type": "boolean",
+      "default": true
+    },
+    "confidence": {
+      "type": "number",
+      "default": 0.5
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "tenant_id",
+    "industry_key",
+    "version",
+    "region"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "system"
+        },
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "name": "PortalDefinition",
+  "type": "object",
+  "description": "Worldz Visa (Phase 11): a configurable external visa portal bound to a Provider. Owns base_url, execution_strategy, authentication strategy, automation_allowed, and the allowed-domain list (\u00a7\u00a78/33). Never hard-coded URLs in browser code \u2014 the provider references this definition. Workflow steps live in versioned PortalWorkflow rows. Public read (catalog); admin-managed.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "The Provider this portal is served by."
+    },
+    "portal_name": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string",
+      "description": "Destination ISO alpha-2 (upper-case)."
+    },
+    "visa_type_key": {
+      "type": "string"
+    },
+    "base_url": {
+      "type": "string",
+      "description": "Canonical portal entry URL. The browser provider may only navigate to base_url + paths on allowed_domains."
+    },
+    "version": {
+      "type": "string",
+      "default": "v1"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "TESTING",
+        "ACTIVE",
+        "PAUSED",
+        "DEPRECATED"
+      ],
+      "default": "DRAFT"
+    },
+    "execution_strategy": {
+      "type": "string",
+      "enum": [
+        "API",
+        "BROWSER_AUTOMATION",
+        "HUMAN_ASSISTED",
+        "MANUAL"
+      ],
+      "default": "MANUAL"
+    },
+    "auth_strategy": {
+      "type": "string",
+      "enum": [
+        "PUBLIC",
+        "CREDENTIAL",
+        "OAUTH",
+        "MANUAL_LOGIN",
+        "API_KEY"
+      ],
+      "default": "PUBLIC"
+    },
+    "automation_allowed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Provider terms/portal policy flag (\u00a722). If false, BROWSER_AUTOMATION is forbidden and HUMAN_ASSISTED/manual is used."
+    },
+    "allowed_domains": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Approved domains. Any redirect off this list pauses execution as UNEXPECTED_DOMAIN (\u00a733)."
+    },
+    "credential_id": {
+      "type": "string",
+      "description": "Reference to a ProviderCredential row (\u00a718). Never stores the secret itself."
+    },
+    "max_concurrent_sessions": {
+      "type": "number",
+      "default": 4
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "provider_id",
+    "portal_name",
+    "country",
+    "base_url",
+    "execution_strategy",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

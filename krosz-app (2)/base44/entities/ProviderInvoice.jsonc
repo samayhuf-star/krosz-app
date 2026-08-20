@@ -1,0 +1,108 @@
+{
+  "name": "ProviderInvoice",
+  "type": "object",
+  "description": "Worldz Visa (Phase 38 \u00a733/\u00a734): an invoice a provider issues TO Orizn for services rendered. ONE row per provider invoice references the period, amount, currency, and matching status against Orizn's records. Orizn does NOT auto-release provider payment solely because an application exists \u2014 configured settlement rules govern payment (\u00a734). Admin-managed; internal-only.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "provider_key": {
+      "type": "string"
+    },
+    "invoice_reference": {
+      "type": "string",
+      "description": "Provider's invoice number."
+    },
+    "invoice_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "period_from": {
+      "type": "string",
+      "format": "date"
+    },
+    "period_to": {
+      "type": "string",
+      "format": "date"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "amount_minor": {
+      "type": "number"
+    },
+    "expected_amount_minor": {
+      "type": "number",
+      "description": "What Orizn computed it should owe for the period."
+    },
+    "case_count": {
+      "type": "number",
+      "description": "Number of cases covered in the period."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "RECEIVED",
+        "MATCHED",
+        "PARTIAL",
+        "MISMATCH",
+        "PAID",
+        "DISPUTED"
+      ],
+      "default": "RECEIVED"
+    },
+    "paid_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payment_reference": {
+      "type": "string"
+    },
+    "difference_minor": {
+      "type": "number"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "CSV",
+        "JSON",
+        "API",
+        "SFTP",
+        "MANUAL"
+      ]
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "provider_key",
+    "invoice_reference",
+    "currency",
+    "amount_minor",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

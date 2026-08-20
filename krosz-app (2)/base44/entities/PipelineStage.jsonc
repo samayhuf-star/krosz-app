@@ -1,0 +1,117 @@
+{
+  "name": "PipelineStage",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "crm_project_id": {
+      "type": "string"
+    },
+    "crm_version_id": {
+      "type": "string"
+    },
+    "crm_version": {
+      "type": "number"
+    },
+    "pipeline_id": {
+      "type": "string"
+    },
+    "key": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "order": {
+      "type": "number"
+    },
+    "probability": {
+      "type": "number"
+    },
+    "entry_criteria": {
+      "type": "string"
+    },
+    "exit_criteria": {
+      "type": "string"
+    },
+    "owner_role": {
+      "type": "string"
+    },
+    "automation_hint": {
+      "type": "string"
+    },
+    "sla_hours": {
+      "type": "number"
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "crm_project_id",
+    "crm_version_id",
+    "pipeline_id",
+    "key",
+    "name",
+    "order"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

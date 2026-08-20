@@ -1,0 +1,169 @@
+{
+  "name": "AIAgent",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short human description of what the agent does, shown in the Agent UI."
+    },
+    "purpose": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "instructions": {
+      "type": "string",
+      "description": "System prompt / role description for the agent loop."
+    },
+    "config": {
+      "type": "object",
+      "description": "Agent Runtime configuration (Phase 13). Consumed by the run_agent adapter via executeAgent.",
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "Model key resolved by the Provider Runtime ('automatic' by default)."
+        },
+        "temperature": {
+          "type": "number"
+        },
+        "max_iterations": {
+          "type": "number",
+          "description": "Bound on the tool-call to answer loop (1-5, default 2)."
+        },
+        "max_tool_calls": {
+          "type": "number",
+          "description": "Hard cap on tool executions inside one agent run (default 5, 0 = use default)."
+        },
+        "timeout_ms": {
+          "type": "number",
+          "description": "Per-run wall-clock timeout; exceeded becomes AGENT_TIMEOUT (retryable)."
+        },
+        "budget_limit": {
+          "type": "number",
+          "description": "Per-run cost ceiling (USD). Cumulative estimated_cost above this aborts the run with BUDGET_EXCEEDED. 0 = unlimited."
+        },
+        "approval_required": {
+          "type": "boolean",
+          "description": "If true, the agent's action should be gated by an approval_gate task in its workflow template. The engine owns the gate; the agent never self-approves."
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Capability keys (from the CAPABILITIES registry) the agent may invoke as tools. Requests for capabilities not listed here are rejected with TOOL_NOT_ALLOWED."
+        },
+        "input_schema": {
+          "type": "object",
+          "description": "JSON schema describing the agent's expected input (objective + arguments)."
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "JSON schema the final structured answer must satisfy."
+        },
+        "system_prompt_override": {
+          "type": "string"
+        }
+      }
+    },
+    "version": {
+      "type": "number",
+      "default": 1,
+      "description": "Agent definition version. Increments whenever instructions/config/tools change. Historical executions retain the version + config_hash that produced them, so past runs remain reproducible after the agent is edited."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "training",
+        "active",
+        "paused",
+        "failed"
+      ],
+      "default": "draft"
+    },
+    "human_escalation_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "lead_capture_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "external_reference": {
+      "type": "string"
+    },
+    "last_run_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "name"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

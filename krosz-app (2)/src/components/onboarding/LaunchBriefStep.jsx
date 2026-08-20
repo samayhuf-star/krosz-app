@@ -1,0 +1,4 @@
+import Field from '@/components/onboarding/Field';
+export default function LaunchBriefStep({ data, update }) {
+  return <div className="grid gap-5 sm:grid-cols-2"><Field id="contact_name" label="Contact name" value={data.contact_name} onChange={e=>update('contact_name',e.target.value)} required/><Field id="contact_email" type="email" label="Contact email" value={data.contact_email} onChange={e=>update('contact_email',e.target.value)} required/><Field id="contact_phone" type="tel" label="Contact phone" value={data.contact_phone} onChange={e=>update('contact_phone',e.target.value)}/><div/><div className="sm:col-span-2"><Field as="textarea" rows={5} id="website_requirements" label="Website requirements" placeholder="Describe goals, preferred style, essential sections, and any special functionality." value={data.website_requirements} onChange={e=>update('website_requirements',e.target.value)}/></div></div>;
+}

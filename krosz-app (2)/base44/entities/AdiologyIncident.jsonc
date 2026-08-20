@@ -1,0 +1,105 @@
+{
+  "name": "AdiologyIncident",
+  "type": "object",
+  "description": "Production incident record for orchestral self-healing and operator follow-up.",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "workspace_id": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "sev1",
+        "sev2",
+        "sev3",
+        "sev4"
+      ],
+      "default": "sev3"
+    },
+    "category": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "investigating",
+        "mitigated",
+        "resolved"
+      ],
+      "default": "open"
+    },
+    "source": {
+      "type": "string"
+    },
+    "correlation_id": {
+      "type": "string"
+    },
+    "affected_resource": {
+      "type": "string"
+    },
+    "affected_resource_id": {
+      "type": "string"
+    },
+    "auto_remediation": {
+      "type": "object"
+    },
+    "resolution": {
+      "type": "string"
+    },
+    "opened_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "workspace_id",
+    "severity",
+    "title",
+    "status",
+    "opened_at"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

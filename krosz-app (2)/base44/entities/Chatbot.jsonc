@@ -1,0 +1,251 @@
+{
+  "name": "Chatbot",
+  "type": "object",
+  "description": "A customer-facing AI assistant configuration for a business. The chatbot is a conversational interface over the existing Business OS \u2014 it references a real AIAgent (Agent Runtime) and routes customer actions through the existing Action Engine / Workflow Engine / CRM / Support systems. No duplicate runtime, memory, context or tool registry.",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "agent_id": {
+      "type": "string",
+      "description": "The AIAgent (Agent Runtime) backing this chatbot. Auto-created on chatbot creation."
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "paused",
+        "archived"
+      ],
+      "default": "draft"
+    },
+    "brand": {
+      "type": "object",
+      "description": "Brand voice + visual identity the widget inherits.",
+      "properties": {
+        "voice": {
+          "type": "string"
+        },
+        "tone": {
+          "type": "string"
+        },
+        "primary_color": {
+          "type": "string"
+        },
+        "accent_color": {
+          "type": "string"
+        },
+        "avatar_url": {
+          "type": "string"
+        },
+        "logo_url": {
+          "type": "string"
+        }
+      }
+    },
+    "welcome_message": {
+      "type": "string"
+    },
+    "supported_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "answer_questions",
+          "capture_leads",
+          "book_appointment",
+          "send_info",
+          "support",
+          "escalate"
+        ]
+      },
+      "description": "What the chatbot is allowed to help customers with."
+    },
+    "escalation_policy": {
+      "type": "object",
+      "properties": {
+        "auto_escalate_keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notify_email": {
+          "type": "string"
+        },
+        "out_of_hours_message": {
+          "type": "string"
+        }
+      }
+    },
+    "approval_policy": {
+      "type": "object",
+      "description": "Which customer actions require business approval before execution. Default: none (lead capture is safe).",
+      "properties": {
+        "require_approval_for": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "allowed_channels": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "web",
+          "whatsapp",
+          "instagram",
+          "messenger",
+          "sms",
+          "api"
+        ]
+      },
+      "default": [
+        "web"
+      ],
+      "description": "Channels this chatbot may operate through. Only 'web' is implemented in Phase 14; the rest are architecture-only."
+    },
+    "business_hours": {
+      "type": "object",
+      "description": "Operating hours. mode 'always' = 24/7, 'none' = no hours configured, 'set' = per-day schedule.",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "always",
+            "none",
+            "set"
+          ],
+          "default": "none"
+        },
+        "timezone": {
+          "type": "string",
+          "description": "IANA timezone, e.g. Asia/Calcutta."
+        },
+        "days": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "day": {
+                "type": "string"
+              },
+              "open": {
+                "type": "string"
+              },
+              "close": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "language": {
+      "type": "string",
+      "default": "en"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "last_activity_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "stats": {
+      "type": "object",
+      "description": "Cached aggregate stats (refreshed periodically). Not authoritative \u2014 computed from conversations/messages.",
+      "properties": {
+        "conversations": {
+          "type": "number"
+        },
+        "messages": {
+          "type": "number"
+        },
+        "leads": {
+          "type": "number"
+        },
+        "escalations": {
+          "type": "number"
+        },
+        "last_activity_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "name",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "name": "VisaType",
+  "type": "object",
+  "description": "Worldz Visa catalog: a reusable visa category for a destination x purpose (tourist/business/student/transit/eVisa/VoA/ETA...). Carries stay/validity/processing/entry/authority metadata used by the discovery engine to synthesize VisaOptions. Versioned status. Public read, admin-managed.",
+  "properties": {
+    "country_code": {
+      "type": "string",
+      "description": "Destination ISO alpha-2."
+    },
+    "purpose": {
+      "type": "string",
+      "enum": [
+        "tourism",
+        "business",
+        "study",
+        "transit",
+        "family_visit",
+        "medical",
+        "conference",
+        "work",
+        "other"
+      ]
+    },
+    "visa_type_key": {
+      "type": "string",
+      "description": "Stable catalog key, e.g. FR-tourism."
+    },
+    "name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "evisa",
+        "visa_on_arrival",
+        "eta",
+        "embassy_visa",
+        "sticker_visa",
+        "visa_free",
+        "transit",
+        "other"
+      ],
+      "description": "Catalog category shown in discovery (eVisa / Visa on Arrival / ETA / Embassy / Visa-Free...).",
+      "default": "evisa"
+    },
+    "description": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "evisa",
+        "vac",
+        "embassy",
+        "onsite"
+      ],
+      "default": "evisa"
+    },
+    "entry_type": {
+      "type": "string",
+      "enum": [
+        "single",
+        "double",
+        "multiple"
+      ],
+      "default": "single"
+    },
+    "entries": {
+      "type": "number",
+      "default": 1,
+      "description": "Number of entries permitted (0 = visa-free; -1 = unlimited multiple)."
+    },
+    "max_stay_days": {
+      "type": "number",
+      "description": "Maximum stay per entry, in days."
+    },
+    "validity_days": {
+      "type": "number",
+      "description": "Visa validity window from issue, in days."
+    },
+    "processing_type": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "expedited",
+        "both"
+      ],
+      "default": "standard"
+    },
+    "processing_min_days": {
+      "type": "number"
+    },
+    "processing_max_days": {
+      "type": "number"
+    },
+    "expedited_processing_days": {
+      "type": "number"
+    },
+    "typical_duration_days": {
+      "type": "number"
+    },
+    "application_method": {
+      "type": "string",
+      "description": "How the traveler applies, e.g. 'Online eVisa portal', 'VAC appointment', 'Embassy interview'."
+    },
+    "authority": {
+      "type": "string",
+      "description": "Official adjudicating authority, e.g. 'Department of State', 'Schengen consulate'."
+    },
+    "appointment_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "superseded",
+        "archived"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "country_code",
+    "purpose",
+    "visa_type_key",
+    "name"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "name": "DocumentRequirement",
+  "type": "object",
+  "description": "Worldz Visa knowledge graph: which document category a route demands, pinned to a requirements_version. Maps to the TravelerDocument vault (Phase 4). mandatory_level mirrors VisaRequirement; conditional rows reference a RequirementRule.rule_id.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "requirements_version": {
+      "type": "string"
+    },
+    "destination": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "mandatory_level": {
+      "type": "string",
+      "enum": [
+        "mandatory",
+        "conditional",
+        "optional",
+        "recommended",
+        "na"
+      ],
+      "default": "mandatory"
+    },
+    "rule_id": {
+      "type": "string"
+    },
+    "source_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "requirements_version",
+    "destination",
+    "purpose",
+    "category",
+    "name",
+    "mandatory_level"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

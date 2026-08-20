@@ -1,0 +1,147 @@
+{
+  "name": "ApplicationAction",
+  "type": "object",
+  "description": "Worldz Visa (Phase 12): a concrete action the traveler (or operator) must take on a VisaApplication (\u00a715). Deterministically derived from real application state \u2014 never LLM-decided (\u00a711). Priority ordering drives next_action (\u00a711). Lifecycle OPEN\u2192IN_PROGRESS\u2192COMPLETED (or EXPIRED/CANCELLED) (\u00a716). Deduplicated by action_key so the same requirement isn't surfaced twice (\u00a74 principle). Owner-of-application-or-admin.",
+  "properties": {
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "action_key": {
+      "type": "string",
+      "description": "Stable dedup key: source + ref + type."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "DOCUMENT",
+        "QUESTION",
+        "PAYMENT",
+        "APPOINTMENT",
+        "APPROVAL",
+        "VERIFICATION",
+        "HUMAN_HANDOFF",
+        "OTHER"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "SECURITY_VERIFICATION",
+        "PAYMENT",
+        "MISSING_REQUIRED_DATA",
+        "DOCUMENTS",
+        "APPOINTMENT",
+        "APPROVAL",
+        "SUBMISSION"
+      ],
+      "description": "Deterministic priority (\u00a711). Lower index = higher priority."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "OPEN",
+        "IN_PROGRESS",
+        "COMPLETED",
+        "EXPIRED",
+        "CANCELLED"
+      ],
+      "default": "OPEN"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "REQUIREMENT",
+        "DOCUMENT",
+        "PAYMENT",
+        "SUBMISSION",
+        "APPOINTMENT",
+        "PROVIDER",
+        "ORCHESTRATOR",
+        "SYSTEM"
+      ]
+    },
+    "source_ref": {
+      "type": "string",
+      "description": "Id of the originating object (requirement_id, order_id, appointment_id...)."
+    },
+    "due_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Optional deadline from the underlying source (\u00a732). Absent = no deadline."
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "cta_link": {
+      "type": "string",
+      "description": "Deep link the traveler follows to complete the action (\u00a730)."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "traveler_id",
+    "action_key",
+    "type",
+    "title",
+    "priority",
+    "status",
+    "source"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

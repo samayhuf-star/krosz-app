@@ -1,0 +1,130 @@
+{
+  "name": "ApplicationQuestionDefinition",
+  "type": "object",
+  "description": "Worldz Visa (Phase 6): a versioned, deterministic application question definition. Stable machine-readable question_code is the identity (never the UI label). Options for SELECT/MULTI_SELECT are stored as a JSON array. data_source links a question to a verified document field for prepopulation. visibility_rule + validation_rule are deterministic (no LLM). Public read (catalog, no PII); admin-managed.",
+  "properties": {
+    "question_code": {
+      "type": "string",
+      "description": "Stable machine-readable code, e.g. personal.surname."
+    },
+    "label": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "TEXT",
+        "TEXTAREA",
+        "NUMBER",
+        "DATE",
+        "SELECT",
+        "MULTI_SELECT",
+        "BOOLEAN",
+        "COUNTRY",
+        "CURRENCY",
+        "PHONE",
+        "EMAIL",
+        "ADDRESS",
+        "DOCUMENT_REFERENCE"
+      ]
+    },
+    "section": {
+      "type": "string",
+      "description": "Section key, e.g. PERSONAL_INFORMATION."
+    },
+    "required": {
+      "type": "boolean",
+      "default": false
+    },
+    "order": {
+      "type": "number",
+      "default": 100
+    },
+    "data_source": {
+      "type": "object",
+      "description": "Prepopulation source: { source_type, document_type, field }. null = user-only."
+    },
+    "visibility_rule": {
+      "type": "object",
+      "description": "Deterministic visibility condition. null/empty = always visible. Reuses Phase 2 rule semantics: { field, operator, value }."
+    },
+    "validation_rule": {
+      "type": "object",
+      "description": "Deterministic validation: { min_length, max_length, pattern, email, phone, min, max, date }."
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "For SELECT/MULTI_SELECT: [{ value, label }]."
+    },
+    "applies_to_purposes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Empty/omitted = all purposes. Otherwise e.g. ['business']."
+    },
+    "applies_to_destinations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Empty/omitted = all destinations. Uppercase ISO codes."
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "GOVERNMENT_FORM",
+        "GOVERNMENT_REQUIREMENT",
+        "VISA_RULE",
+        "INTERNAL_OPERATIONAL",
+        "USER_PROFILE"
+      ],
+      "default": "INTERNAL_OPERATIONAL"
+    },
+    "source_reference": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "default": "visa.application.questions.v1"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "question_code",
+    "label",
+    "type",
+    "section"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

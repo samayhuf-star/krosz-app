@@ -1,0 +1,204 @@
+{
+  "name": "AIExecution",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "module_id": {
+      "type": "string",
+      "description": "Module that triggered (telemetry); ai_orchestration by default"
+    },
+    "capability": {
+      "type": "string",
+      "description": "Capability key served"
+    },
+    "stage": {
+      "type": "string",
+      "description": "Stage id (checkpoint) used as usage.operation AND the resumable checkpoint pointer."
+    },
+    "prompt_id": {
+      "type": "string"
+    },
+    "prompt_version": {
+      "type": "number"
+    },
+    "run_id": {
+      "type": "string",
+      "description": "LaunchPlan (Run) this execution belongs to. NULL for legacy direct-engine calls."
+    },
+    "task_id": {
+      "type": "string",
+      "description": "LaunchTask (Task) this execution is an attempt of."
+    },
+    "attempt": {
+      "type": "number",
+      "default": 1,
+      "description": "1-based attempt number; a retry creates a new Execution with attempt+1, NOT a new Task."
+    },
+    "operation": {
+      "type": "string"
+    },
+    "context_version": {
+      "type": "string"
+    },
+    "kg_version": {
+      "type": "number"
+    },
+    "cache_key": {
+      "type": "string"
+    },
+    "cache_hit": {
+      "type": "boolean",
+      "default": false
+    },
+    "provider": {
+      "type": "string",
+      "description": "Runtime provider_key that actually executed (truthful provenance)."
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "Runtime Provider entity id that actually executed."
+    },
+    "adapter_key": {
+      "type": "string",
+      "description": "Runtime provider adapter_key that actually executed."
+    },
+    "provider_capability": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string",
+      "description": "Runtime model that actually executed."
+    },
+    "fallback_used": {
+      "type": "boolean",
+      "default": false
+    },
+    "retry_count": {
+      "type": "number",
+      "default": 0
+    },
+    "input_hash": {
+      "type": "string"
+    },
+    "output_hash": {
+      "type": "string"
+    },
+    "input_snapshot": {
+      "type": "object"
+    },
+    "retryable": {
+      "type": "boolean",
+      "default": false
+    },
+    "tokens": {
+      "type": "number",
+      "default": 0
+    },
+    "latency_ms": {
+      "type": "number"
+    },
+    "duration_ms": {
+      "type": "number"
+    },
+    "estimated_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "actual_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "success": {
+      "type": "boolean",
+      "default": true
+    },
+    "failure_reason": {
+      "type": "string"
+    },
+    "error_code": {
+      "type": "string"
+    },
+    "error_detail": {
+      "type": "string"
+    },
+    "validation_status": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail",
+        "none"
+      ],
+      "default": "none"
+    },
+    "validation_errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "output": {
+      "type": "object"
+    },
+    "actor": {
+      "type": "string"
+    },
+    "version_id": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "module_id",
+    "capability",
+    "prompt_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

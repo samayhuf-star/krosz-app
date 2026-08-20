@@ -1,0 +1,147 @@
+{
+  "name": "BusinessGoal",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "description": "The outcome the user wants, e.g. 'Get 100 leads', 'Improve SEO', 'Expand to another city'."
+    },
+    "description": {
+      "type": "string"
+    },
+    "target_metric": {
+      "type": "string",
+      "description": "What to measure, e.g. new_leads, organic_traffic, revenue."
+    },
+    "target_value": {
+      "type": "number"
+    },
+    "current_value": {
+      "type": "number",
+      "default": 0
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    },
+    "owner_role": {
+      "type": "string",
+      "enum": [
+        "ceo",
+        "cmo",
+        "sales",
+        "operations",
+        "support",
+        "finance"
+      ],
+      "description": "Which executive owns execution of this goal."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "planning",
+        "executing",
+        "completed",
+        "failed",
+        "paused",
+        "cancelled"
+      ],
+      "default": "draft"
+    },
+    "plan_template_id": {
+      "type": "string",
+      "description": "The PlanTemplate the AI generated to execute this goal (orchestrator DAG)."
+    },
+    "plan_version": {
+      "type": "number"
+    },
+    "run_id": {
+      "type": "string",
+      "description": "The LaunchPlan run executing this goal."
+    },
+    "task_count": {
+      "type": "number",
+      "default": 0
+    },
+    "progress": {
+      "type": "number",
+      "default": 0
+    },
+    "decomposed_by": {
+      "type": "string",
+      "description": "Executive role that planned the goal."
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "title",
+    "owner_role",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

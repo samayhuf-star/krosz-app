@@ -1,0 +1,79 @@
+{
+  "name": "DiscoverExperiment",
+  "type": "object",
+  "description": "Worldz Visa (Phase 21): an experimentation boundary for the discovery/conversion surface (\u00a734). Key + variant + audience + window + status. Only the boundary is built this phase \u2014 not dozens of experiments. Active experiments are readable publicly so the client can pick a variant; admin manages them.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "key": {
+      "type": "string",
+      "description": "Stable experiment key, e.g. homepage_hero_copy."
+    },
+    "variant": {
+      "type": "string",
+      "description": "Variant identifier within the experiment, e.g. A / B / control."
+    },
+    "audience": {
+      "type": "string",
+      "enum": [
+        "all",
+        "anonymous",
+        "authenticated",
+        "indian_passport",
+        "internal"
+      ],
+      "default": "all"
+    },
+    "weight": {
+      "type": "number",
+      "default": 50,
+      "description": "0-100 traffic allocation weight for this variant."
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "ACTIVE",
+        "PAUSED",
+        "COMPLETED"
+      ],
+      "default": "DRAFT"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "key",
+    "variant",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

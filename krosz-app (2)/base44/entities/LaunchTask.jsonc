@@ -1,0 +1,242 @@
+{
+  "name": "LaunchTask",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "launch_id": {
+      "type": "string"
+    },
+    "step_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "dependency": {
+      "type": "string",
+      "description": "Single step_id this task depends on (legacy). Prefer depends_on[]."
+    },
+    "depends_on": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "task_keys this task depends on; all must have SUCCEEDED (completed) or been skipped before this task becomes READY. A failed/blocked dependency puts this task in BLOCKED."
+    },
+    "owner": {
+      "type": "string",
+      "description": "Module/function that owns execution."
+    },
+    "action": {
+      "type": "string",
+      "description": "The module action to dispatch (generate, approve, publish, etc.)."
+    },
+    "task_key": {
+      "type": "string",
+      "description": "Stable logical key within the plan (e.g. blueprint, website, seo, crm, marketing, domain, *_approval)."
+    },
+    "type": {
+      "type": "string",
+      "description": "Task type: generate_* | configure_* | activate_* | approval_gate | verify_* | boundary_*."
+    },
+    "provider_capability": {
+      "type": "string",
+      "description": "Capability key requested from the registry (ai_generation, email, domain_registrar...). Factories never request vendor names."
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "Resolved provider for the most recent execution."
+    },
+    "module_label": {
+      "type": "string"
+    },
+    "needs_approval": {
+      "type": "boolean",
+      "default": false
+    },
+    "money_spending": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, an approval_gate MUST gate this task unless explicitly excepted."
+    },
+    "ai_required": {
+      "type": "boolean",
+      "default": true
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "ready",
+        "running",
+        "awaiting_approval",
+        "approved",
+        "rejected",
+        "completed",
+        "failed",
+        "blocked",
+        "retrying",
+        "skipped",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "First-class dependency-aware lifecycle: PENDING \u2192 READY (deps satisfied) \u2192 RUNNING \u2192 SUCCEEDED(completed). Failure states: FAILED, BLOCKED (a dependency failed), CANCELLED. A task is only ever dispatched from PENDING/READY by the persisted DAG scheduler \u2014 never because an LLM requested it."
+    },
+    "order": {
+      "type": "number",
+      "default": 0
+    },
+    "retryable": {
+      "type": "boolean",
+      "default": true
+    },
+    "retry_count": {
+      "type": "number",
+      "default": 0
+    },
+    "max_retries": {
+      "type": "number",
+      "default": 3
+    },
+    "attempt": {
+      "type": "number",
+      "default": 0,
+      "description": "Current execution attempt number."
+    },
+    "last_execution_id": {
+      "type": "string",
+      "description": "id of the most recent Execution (AIExecution) for this task."
+    },
+    "input_context": {
+      "type": "object",
+      "description": "Immutable context snapshot slice this task was dispatched with."
+    },
+    "input_hash": {
+      "type": "string"
+    },
+    "output": {
+      "type": "object"
+    },
+    "approval_payload": {
+      "type": "object",
+      "description": "For approval_gate tasks: {decision_type, title, options[], recommended_option}."
+    },
+    "approval_decision": {
+      "type": "string",
+      "enum": [
+        "approved",
+        "rejected",
+        "custom"
+      ],
+      "description": "Set when an approval_gate is decided."
+    },
+    "error_code": {
+      "type": "string",
+      "description": "Structured failure code (PROVIDER_UNAVAILABLE, PROVIDER_TIMEOUT, DEPENDENCY_BLOCKED, VALIDATION_FAILED, FACTORY_FAILED...)."
+    },
+    "error_detail": {
+      "type": "string"
+    },
+    "duration_ms": {
+      "type": "number",
+      "default": 0
+    },
+    "retries": {
+      "type": "number",
+      "default": 0
+    },
+    "result": {
+      "type": "object"
+    },
+    "logs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ts": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "error_message": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "launch_id",
+    "step_id",
+    "name",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

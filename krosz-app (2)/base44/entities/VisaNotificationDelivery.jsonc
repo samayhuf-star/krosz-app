@@ -1,0 +1,130 @@
+{
+  "name": "VisaNotificationDelivery",
+  "type": "object",
+  "description": "Worldz Visa (Phase 12): an auditable per-channel delivery record for a VisaNotification (\u00a764/\u00a765). One row per channel attempt; failed attempts stay append-only for retry history (\u00a766). Never stores sensitive message contents beyond delivery metadata. Owner-or-admin read; system/admin create.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "notification_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "IN_APP",
+        "EMAIL",
+        "SMS",
+        "WHATSAPP",
+        "PUSH"
+      ]
+    },
+    "template_code": {
+      "type": "string"
+    },
+    "recipient": {
+      "type": "string",
+      "description": "Address/identifier for the channel (not stored for IN_APP)."
+    },
+    "provider_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "QUEUED",
+        "SENT",
+        "DELIVERED",
+        "FAILED",
+        "INVALID_RECIPIENT",
+        "READ"
+      ],
+      "default": "QUEUED"
+    },
+    "provider_reference": {
+      "type": "string"
+    },
+    "error_code": {
+      "type": "string"
+    },
+    "error_category": {
+      "type": "string",
+      "enum": [
+        "TRANSIENT",
+        "PERMANENT",
+        "INVALID_RECIPIENT",
+        "UNKNOWN"
+      ]
+    },
+    "attempt": {
+      "type": "number",
+      "default": 1
+    },
+    "queued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "delivered_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "notification_id",
+    "traveler_id",
+    "channel",
+    "template_code",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "name": "VisaNotificationRule",
+  "type": "object",
+  "description": "Worldz Visa (Phase 12): a configurable event\u2192channel\u2192template rule (\u00a758). The NotificationService resolves matching rules for a domain event and dispatches via the configured channel. Conditions are simple deterministic predicates (object), never LLM-evaluated. Admin-managed; public read.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "rule_code": {
+      "type": "string",
+      "description": "Stable identifier, e.g. APPOINTMENT_BOOKED_EMAIL."
+    },
+    "event_type": {
+      "type": "string",
+      "description": "Canonical event_type (see ApplicationTimelineEvent.event_type)."
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "IN_APP",
+        "EMAIL",
+        "SMS",
+        "WHATSAPP",
+        "PUSH"
+      ]
+    },
+    "template_code": {
+      "type": "string",
+      "description": "VisaNotificationTemplate.template_code to render."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "application_updates",
+        "appointment_reminders",
+        "payment_updates",
+        "document_updates",
+        "support_messages",
+        "marketing"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "CRITICAL",
+        "ACTION_REQUIRED",
+        "IMPORTANT",
+        "INFO"
+      ],
+      "default": "INFO"
+    },
+    "conditions": {
+      "type": "object",
+      "description": "Optional deterministic predicates (e.g. {appointment_required:true})."
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "rule_code",
+    "event_type",
+    "channel",
+    "template_code",
+    "category",
+    "enabled"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

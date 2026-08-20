@@ -1,0 +1,82 @@
+{
+  "name": "VisaNotificationTemplate",
+  "type": "object",
+  "description": "Worldz Visa (Phase 12): a versioned notification template (\u00a722). Variables use {{traveler.first_name}} style placeholders, replaced by simple string interpolation only \u2014 never code execution (\u00a723). Admin-managed; public read so the engine can resolve templates.",
+  "properties": {
+    "template_code": {
+      "type": "string",
+      "description": "e.g. APPLICATION_CREATED_EMAIL, APPOINTMENT_REMINDER_WHATSAPP."
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "IN_APP",
+        "EMAIL",
+        "SMS",
+        "WHATSAPP",
+        "PUSH"
+      ]
+    },
+    "language": {
+      "type": "string",
+      "default": "en"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Email subject / push title; may be empty for channels without a subject."
+    },
+    "body": {
+      "type": "string",
+      "description": "Template body with {{variable}} placeholders."
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Declared variables the renderer accepts."
+    },
+    "version": {
+      "type": "string",
+      "default": "v1"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "ACTIVE",
+        "ARCHIVED"
+      ],
+      "default": "DRAFT"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "template_code",
+    "channel",
+    "language",
+    "body",
+    "version",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

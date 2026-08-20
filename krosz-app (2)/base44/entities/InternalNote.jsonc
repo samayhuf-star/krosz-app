@@ -1,0 +1,61 @@
+{
+  "name": "InternalNote",
+  "type": "object",
+  "description": "Worldz Visa (Phase 12/32): an operator-only internal note on an application / support ticket / operations task (\u00a717/\u00a736). NEVER surfaces in the customer conversation or customer-facing UI. Admin/operator-only; travelers have no read access. Pinned notes rise to the top of the operator console. Phase 32 adds optional task_id to scope a note to an OperationsTask.",
+  "properties": {
+    "application_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Optional; scope to an OperationsTask (Phase 32)."
+    },
+    "ticket_id": {
+      "type": "string",
+      "description": "Optional; scope to a SupportTicket."
+    },
+    "author_id": {
+      "type": "string"
+    },
+    "author_name": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "pinned": {
+      "type": "boolean",
+      "default": false
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "author_id",
+    "body"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "name": "SupportMessage",
+  "type": "object",
+  "description": "Worldz Visa (Phase 12): a message in a SupportConversation (\u00a734). Customer-visible messages only; internal operator notes go in InternalNote and never surface to the traveler (\u00a736). Attachments reuse the private Document/storage infrastructure (\u00a771). Owner-of-conversation-or-admin (traveler_id denormalized for access checks).",
+  "properties": {
+    "conversation_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks (from the conversation)."
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Denormalized for access checks + filtering."
+    },
+    "sender_type": {
+      "type": "string",
+      "enum": [
+        "TRAVELER",
+        "OPERATOR",
+        "SYSTEM"
+      ]
+    },
+    "sender_id": {
+      "type": "string",
+      "description": "User id of the sender (operator/system) or traveler id."
+    },
+    "body": {
+      "type": "string"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "{storage_uri, mime_type, display_name, file_size} referencing existing private file storage (\u00a771)."
+      }
+    },
+    "read_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the recipient read this message."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "conversation_id",
+    "traveler_id",
+    "sender_type",
+    "body"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

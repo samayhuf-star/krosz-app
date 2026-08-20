@@ -1,0 +1,91 @@
+{
+  "name": "AccountAuditEvent",
+  "type": "object",
+  "description": "Worldz Visa (Phase 20): an immutable, append-only audit event for account/traveler lifecycle actions (\u00a744). Records actor, action, target traveler/application id, metadata. NEVER logs sensitive document contents. Owner-or-admin read; owner-or-admin create (service role); admin update/delete (immutable in practice).",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Account owner (actor)."
+    },
+    "actor_id": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "TRAVELER_CREATED",
+        "TRAVELER_UPDATED",
+        "TRAVELER_ARCHIVED",
+        "TRAVELER_PRIMARY_CHANGED",
+        "PASSPORT_ADDED",
+        "PASSPORT_UPDATED",
+        "APPLICATION_STARTED",
+        "APPLICATION_LINKED",
+        "DOCUMENT_LINKED",
+        "NOTIFICATION_READ",
+        "ACCOUNT_SETTING_CHANGED",
+        "ACCOUNT_DELETION_REQUESTED",
+        "ACCOUNT_DELETION_CANCELLED",
+        "GROUP_CREATED",
+        "GROUP_UPDATED"
+      ]
+    },
+    "target_traveler_id": {
+      "type": "string"
+    },
+    "target_application_id": {
+      "type": "string"
+    },
+    "target_group_id": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Human-readable summary (no sensitive contents)."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "user_id",
+    "actor_id",
+    "action"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "name": "SyncRun",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "connector_id": {
+      "type": "string"
+    },
+    "definition_key": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "scheduled",
+        "webhook",
+        "incremental"
+      ]
+    },
+    "trigger": {
+      "type": "string",
+      "enum": [
+        "user",
+        "schedule",
+        "webhook"
+      ],
+      "default": "user"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "running",
+        "completed",
+        "failed",
+        "partial"
+      ],
+      "default": "queued"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "duration_ms": {
+      "type": "number",
+      "default": 0
+    },
+    "objects_synced": {
+      "type": "object",
+      "description": "Per object type: {count, created, updated, conflicts}."
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "resume_cursor": {
+      "type": "string"
+    },
+    "webhook_event_id": {
+      "type": "string"
+    },
+    "webhook_event_type": {
+      "type": "string"
+    },
+    "webhook_payload_summary": {
+      "type": "string"
+    },
+    "triggered_run_id": {
+      "type": "string",
+      "description": "The Workflow Engine run dispatched by this sync (webhook event workflows)."
+    },
+    "observation_id": {
+      "type": "string",
+      "description": "The BusinessObservation emitted by this sync."
+    },
+    "actors": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "connector_id",
+    "definition_key",
+    "kind",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

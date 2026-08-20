@@ -1,0 +1,111 @@
+{
+  "name": "BrowserExecutionEvent",
+  "type": "object",
+  "description": "Worldz Visa (Phase 11): append-only structured execution evidence (\u00a7\u00a731/32). One event per executed step. NEVER logs passwords, OTP, session cookies, or full sensitive field values \u2014 only step/action/status/refs/\turl/timings/screenshot reference. Screenshots containing PII are protected like the application itself. Owner-of-application-or-admin (application_id + traveler_id denormalized).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "execution_session_id": {
+      "type": "string"
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "step": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "STARTED",
+        "COMPLETED",
+        "PAUSED",
+        "FAILED",
+        "SKIPPED",
+        "BLOCKED"
+      ]
+    },
+    "checkpoint": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string",
+      "description": "Approved-domain URL at the time of the event (no tokens)."
+    },
+    "screenshot_reference": {
+      "type": "string"
+    },
+    "external_reference": {
+      "type": "string"
+    },
+    "duration_ms": {
+      "type": "number"
+    },
+    "error_code": {
+      "type": "string"
+    },
+    "error_category": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "execution_session_id",
+    "traveler_id",
+    "step",
+    "action",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

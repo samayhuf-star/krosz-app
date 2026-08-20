@@ -1,0 +1,106 @@
+{
+  "name": "PlanTemplate",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string",
+      "description": "Use 'system' for platform-level templates available to all tenants."
+    },
+    "template_id": {
+      "type": "string",
+      "description": "Stable logical id, e.g. launch_business, relaunch_marketing, add_channel, rotate_provider."
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "lifecycle_goal": {
+      "type": "string",
+      "description": "Target lifecycle_stage the plan drives the business toward."
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Ordered DAG nodes: {key, type, capability, depends_on[], needs_approval, money_spending, retryable, max_retries, approval_required}. type \u2208 generate_* | configure_* | activate_* | approval_gate."
+    },
+    "validation_rules": {
+      "type": "object",
+      "description": "DAG + approval validation config (computed at activation; authoritative copy is the validated DAG).",
+      "properties": {
+        "circular_dependencies": {
+          "type": "boolean"
+        }
+      }
+    },
+    "approval_rules": {
+      "type": "object",
+      "description": "Which task types require approval gates; money-spending tasks require approval by default."
+    },
+    "retry_policy": {
+      "type": "object",
+      "description": "Default retry policy: {max_retries, backoff_ms, fallback_enabled}.",
+      "properties": {
+        "max_retries": {
+          "type": "number"
+        },
+        "backoff_ms": {
+          "type": "number"
+        },
+        "fallback_enabled": {
+          "type": "boolean"
+        }
+      }
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "tenant_id",
+    "template_id",
+    "version",
+    "name",
+    "tasks"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "system"
+        },
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

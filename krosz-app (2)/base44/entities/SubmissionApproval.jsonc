@@ -1,0 +1,96 @@
+{
+  "name": "SubmissionApproval",
+  "type": "object",
+  "description": "Worldz Visa (Phase 8): the explicit, audited user approval of a submission package before submission (\u00a724/\u00a752). Records the actor, timestamp, pinned package_hash + form_version, and any warnings. A Submission cannot be created without an approval for the same package. Owner-of-application-or-admin (traveler_id denormalized).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "submission_package_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "package_hash": {
+      "type": "string",
+      "description": "Pinned hash of the approved package (integrity-verified)."
+    },
+    "form_code": {
+      "type": "string"
+    },
+    "form_version": {
+      "type": "string"
+    },
+    "actor": {
+      "type": "string",
+      "description": "User who confirmed submission readiness."
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "confirmed": {
+      "type": "boolean",
+      "default": true,
+      "description": "User confirmed: 'I confirm this application is ready for submission.'"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "submission_package_id",
+    "traveler_id",
+    "package_hash",
+    "actor"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

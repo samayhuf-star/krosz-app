@@ -1,0 +1,9 @@
+import { Check, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+const stages = ['Business info','Domain','Website','SEO','Email','Forms','CRM','Chatbot','Support','Launch'];
+export default function LaunchProgress({ stage = 'business_info' }) {
+  const keys = ['business_info','domain','website','seo','email','forms','crm','chatbot','support','launched'];
+  const current = Math.max(0, keys.indexOf(stage));
+  return <section className="rounded-3xl bg-[#102a2a] p-6 text-white sm:p-8"><div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[#b8f34a]">Launch workflow</p><h2 className="mt-2 text-2xl font-semibold">One connected path to launch</h2><p className="mt-2 max-w-xl text-sm leading-6 text-emerald-50/65">Every module inherits the same verified business context and tenant boundary.</p></div><Link to="/onboarding" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#b8f34a] px-4 text-sm font-semibold text-[#102a2a] hover:bg-[#c8fa69]">Continue setup <ChevronRight size={17}/></Link></div><div className="mt-7 grid grid-cols-2 gap-2 sm:grid-cols-5">{stages.map((label,index) => <div key={label} className={`rounded-xl border px-3 py-3 text-xs ${index <= current ? 'border-[#b8f34a]/40 bg-[#b8f34a]/10 text-white' : 'border-white/10 text-emerald-50/45'}`}><span className="mb-2 flex h-5 w-5 items-center justify-center rounded-full border border-current">{index < current ? <Check size={12}/> : index + 1}</span>{label}</div>)}</div></section>;
+}

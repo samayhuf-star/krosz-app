@@ -1,0 +1,90 @@
+{
+  "name": "CostLog",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "usage_log_id": {
+      "type": "string"
+    },
+    "service": {
+      "type": "string"
+    },
+    "operation": {
+      "type": "string"
+    },
+    "cost_amount": {
+      "type": "number"
+    },
+    "estimated_amount": {
+      "type": "number"
+    },
+    "is_estimated": {
+      "type": "boolean",
+      "default": false
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "billable_amount": {
+      "type": "number"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "provider_id",
+    "service",
+    "operation"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

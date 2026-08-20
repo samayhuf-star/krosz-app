@@ -1,0 +1,103 @@
+{
+  "name": "OrderItem",
+  "type": "object",
+  "description": "Worldz Visa (Phase 10): one line item on an Order, derived deterministically from the price snapshot (\u00a710). Each item maps to a price component so partial refunds can show exactly what was refunded (\u00a735). Immutable after the order is PAID (\u00a711). Owner-or-admin.",
+  "properties": {
+    "order_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "product_id": {
+      "type": "string"
+    },
+    "item_type": {
+      "type": "string",
+      "enum": [
+        "GOVERNMENT_FEE",
+        "SERVICE_FEE",
+        "PROCESSING_FEE",
+        "APPOINTMENT_FEE",
+        "COURIER_FEE",
+        "DOCUMENT_SERVICE_FEE",
+        "OPTIONAL_SERVICE",
+        "TAX",
+        "DISCOUNT"
+      ]
+    },
+    "component_code": {
+      "type": "string",
+      "description": "Snapshot of the price component code this item represents."
+    },
+    "description": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 1
+    },
+    "unit_price_minor": {
+      "type": "number"
+    },
+    "tax_minor": {
+      "type": "number",
+      "default": 0
+    },
+    "discount_minor": {
+      "type": "number",
+      "default": 0
+    },
+    "total_minor": {
+      "type": "number"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "order_id",
+    "traveler_id",
+    "item_type",
+    "description",
+    "unit_price_minor",
+    "total_minor"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

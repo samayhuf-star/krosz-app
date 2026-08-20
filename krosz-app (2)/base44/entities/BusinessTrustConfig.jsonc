@@ -1,0 +1,69 @@
+{
+  "name": "BusinessTrustConfig",
+  "type": "object",
+  "description": "Krosz Trust & Compliance (\u00a718/\u00a719): a single configurable business-identity + grievance record used by legal pages, the Trust Center and checkout disclosures. Public read so legal/trust pages render anonymously; admin-managed. Missing required fields render as 'ACTION REQUIRED' in admin readiness and on pages (never invented).",
+  "properties": {
+    "brand_name": {
+      "type": "string",
+      "default": "Krosz"
+    },
+    "legal_entity_name": {
+      "type": "string"
+    },
+    "registered_address": {
+      "type": "string"
+    },
+    "support_email": {
+      "type": "string"
+    },
+    "grievance_email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "gstin": {
+      "type": "string"
+    },
+    "cin": {
+      "type": "string"
+    },
+    "business_hours": {
+      "type": "string"
+    },
+    "grievance_officer_name": {
+      "type": "string"
+    },
+    "grievance_officer_designation": {
+      "type": "string"
+    },
+    "grievance_response_timeline_days": {
+      "type": "number",
+      "default": 7
+    },
+    "website_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "brand_name"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

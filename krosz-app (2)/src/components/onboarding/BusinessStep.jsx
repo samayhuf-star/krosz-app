@@ -1,0 +1,4 @@
+import Field from '@/components/onboarding/Field';
+export default function BusinessStep({ data, update }) {
+  return <div className="grid gap-5 sm:grid-cols-2"><Field id="name" label="Business name" value={data.name} onChange={e=>update('name',e.target.value)} required/><Field id="industry" label="Industry" value={data.industry} onChange={e=>update('industry',e.target.value)} required/><Field id="country" label="Country" value={data.country} onChange={e=>update('country',e.target.value)} required/><Field id="state" label="State / Region" value={data.state} onChange={e=>update('state',e.target.value)}/><Field id="city" label="City" value={data.city} onChange={e=>update('city',e.target.value)}/><Field id="service_area" label="Service area" value={data.service_area} onChange={e=>update('service_area',e.target.value)}/></div>;
+}

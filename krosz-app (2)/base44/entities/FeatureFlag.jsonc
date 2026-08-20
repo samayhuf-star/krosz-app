@@ -1,0 +1,86 @@
+{
+  "name": "FeatureFlag",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "key": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "platform",
+        "workspace",
+        "module"
+      ],
+      "default": "platform"
+    },
+    "value": {
+      "type": "boolean",
+      "default": true
+    },
+    "workspace_id": {
+      "type": "string"
+    },
+    "module_id": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "updated_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "key",
+    "scope",
+    "value"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

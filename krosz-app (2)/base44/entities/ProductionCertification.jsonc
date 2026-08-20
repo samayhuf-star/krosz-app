@@ -1,0 +1,102 @@
+{
+  "name": "ProductionCertification",
+  "type": "object",
+  "description": "Immutable-ish production readiness snapshot for Adiology. One run records architecture, security, tenancy, build, functional, performance and dependency checks with explicit blockers; launch is green only when blocker_count=0.",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "workspace_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "source_commit": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "running",
+        "green",
+        "yellow",
+        "red"
+      ],
+      "default": "running"
+    },
+    "score": {
+      "type": "number",
+      "default": 0
+    },
+    "blocker_count": {
+      "type": "number",
+      "default": 0
+    },
+    "warning_count": {
+      "type": "number",
+      "default": 0
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "summary": {
+      "type": "object"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "run_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "version",
+    "status",
+    "started_at"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

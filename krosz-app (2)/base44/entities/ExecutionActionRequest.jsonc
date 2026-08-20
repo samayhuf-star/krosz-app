@@ -1,0 +1,123 @@
+{
+  "name": "ExecutionActionRequest",
+  "type": "object",
+  "description": "Worldz Visa (Phase 11): a first-class human-in-the-loop action request (\u00a724). Created when execution pauses for OTP/MFA, CAPTCHA, login, portal error, field ambiguity, confirmation, or policy restriction (\u00a723). Operator/traveler may Resolve / Retry / Cancel / Switch to Manual (\u00a725) \u2014 never arbitrary plan edits. Owner-of-application-or-admin; admin resolves.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "execution_session_id": {
+      "type": "string"
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "OTP_REQUIRED",
+        "CAPTCHA_REQUIRED",
+        "LOGIN_REQUIRED",
+        "PORTAL_ERROR",
+        "FIELD_AMBIGUITY",
+        "CONFIRMATION_REQUIRED",
+        "POLICY_RESTRICTION",
+        "MANUAL_REVIEW",
+        "WORKFLOW_DRIFT",
+        "UNEXPECTED_DOMAIN",
+        "UNKNOWN_EXTERNAL_STATE"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "description": "Human-readable reason shown to operator/traveler."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "OPEN",
+        "IN_PROGRESS",
+        "RESOLVED",
+        "CANCELLED",
+        "EXPIRED"
+      ],
+      "default": "OPEN"
+    },
+    "instructions": {
+      "type": "string"
+    },
+    "step": {
+      "type": "string",
+      "description": "Workflow step at which the pause occurred."
+    },
+    "resolution_action": {
+      "type": "string",
+      "enum": [
+        "RESUME",
+        "RETRY",
+        "CANCEL",
+        "SWITCH_MANUAL"
+      ],
+      "description": "How the operator resolved the request."
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "resolved_by": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "execution_session_id",
+    "traveler_id",
+    "type",
+    "reason",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

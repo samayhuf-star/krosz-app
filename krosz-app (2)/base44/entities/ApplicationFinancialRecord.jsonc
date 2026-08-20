@@ -1,0 +1,260 @@
+{
+  "name": "ApplicationFinancialRecord",
+  "type": "object",
+  "description": "Worldz Visa (Phase 38 \u00a79/\u00a710): the per-application financial reconciliation record. ONE row per VisaApplication case, created when the order is PAID from the immutable Order price_snapshot (\u00a73). Holds the separated fee buckets (government / provider / platform / tax / discount / payment processing), traveler total, amounts paid/refunded, provider cost + due + paid, and reconciliation status. NEVER duplicates payment transaction records (the Order/Payment/Refund system remains authoritative for payment state \u00a74/\u00a75). Fee separation is explicit; UNKNOWN stays UNKNOWN \u2014 never estimated as fact (\u00a746). Owner-or-admin read; admin write (reconciliation/settlement).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "case_id": {
+      "type": "string",
+      "description": "VisaApplication.id (the case)."
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Denormalized (== case_id) for fast filtering."
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "order_id": {
+      "type": "string",
+      "description": "Existing Order.id this record reconciles against (\u00a74)."
+    },
+    "order_number": {
+      "type": "string"
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "provider_key": {
+      "type": "string"
+    },
+    "provider_binding_id": {
+      "type": "string"
+    },
+    "provider_application_id": {
+      "type": "string",
+      "description": "External provider application reference (\u00a78)."
+    },
+    "currency": {
+      "type": "string",
+      "description": "ISO-4217 upper-case."
+    },
+    "commercial_snapshot": {
+      "type": "object",
+      "description": "Immutable commercial snapshot captured at order PAID (\u00a73). { government_fee, provider_fee, platform_fee, tax, discount, payment_processing_fee, traveler_total, currency, pricing_version, provider_version, effective_at, component_classes, unknown_buckets }. Never mutated by later price changes."
+    },
+    "government_fee_minor": {
+      "type": "number"
+    },
+    "provider_fee_minor": {
+      "type": "number"
+    },
+    "platform_fee_minor": {
+      "type": "number"
+    },
+    "tax_minor": {
+      "type": "number"
+    },
+    "discount_minor": {
+      "type": "number"
+    },
+    "payment_processing_fee_minor": {
+      "type": "number"
+    },
+    "traveler_total_minor": {
+      "type": "number"
+    },
+    "government_fee_source": {
+      "type": "string",
+      "description": "Provenance of the government fee (\u00a77): verified intelligence data_version / order price snapshot / UNKNOWN."
+    },
+    "government_fee_data_version": {
+      "type": "string"
+    },
+    "accounting_basis": {
+      "type": "string",
+      "enum": [
+        "CASH",
+        "ACCRUAL",
+        "UNKNOWN"
+      ],
+      "default": "CASH",
+      "description": "When the government fee was actually paid to government (cash) vs accrued."
+    },
+    "amount_paid_minor": {
+      "type": "number",
+      "description": "Actually captured from the traveler (from Payment SUCCEEDED) \u2014 not the order total."
+    },
+    "amount_refunded_minor": {
+      "type": "number",
+      "description": "Total traveler refund COMPLETED (\u00a720/\u00a722)."
+    },
+    "refund_status": {
+      "type": "string",
+      "enum": [
+        "NO_REFUND",
+        "REFUND_PENDING",
+        "PARTIAL_REFUND",
+        "FULL_REFUND",
+        "REFUND_FAILED"
+      ],
+      "default": "NO_REFUND"
+    },
+    "provider_cost_minor": {
+      "type": "number",
+      "description": "What the provider charged Orizn (\u00a76). UNKNOWN until a provider statement/invoice records it."
+    },
+    "provider_cost_source": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "STATEMENT",
+        "INVOICE",
+        "BINDING_ESTIMATE",
+        "WEBHOOK"
+      ],
+      "default": "UNKNOWN"
+    },
+    "provider_cost_data_version": {
+      "type": "string"
+    },
+    "provider_amount_due_minor": {
+      "type": "number",
+      "description": "What Orizn owes the provider (expected)."
+    },
+    "provider_amount_paid_minor": {
+      "type": "number",
+      "description": "What Orizn has paid the provider (settlement)."
+    },
+    "provider_refund_minor": {
+      "type": "number",
+      "description": "\u00a722: amount the provider refunded TO ORIZN (separate from traveler refund)."
+    },
+    "reconciliation_status": {
+      "type": "string",
+      "enum": [
+        "UNRECONCILED",
+        "MATCHED",
+        "PARTIAL_MATCH",
+        "MISMATCH",
+        "REFUND_PENDING",
+        "REFUND_MATCHED",
+        "DISPUTED",
+        "CLOSED"
+      ],
+      "default": "UNRECONCILED",
+      "description": "Provider reconciliation status (\u00a710)."
+    },
+    "reconciliation_version": {
+      "type": "number",
+      "default": 1,
+      "description": "Monotonic reconciliation version bumped each recompute."
+    },
+    "reconciliation_match": {
+      "type": "object",
+      "description": "Structured match detail (\u00a710/\u00a711). { expected_provider_fee, actual_provider_fee, diff, fields_matched, fields_mismatched, statement_id, matched_at }."
+    },
+    "chargeback_minor": {
+      "type": "number",
+      "default": 0
+    },
+    "chargeback_status": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "OPEN",
+        "WON",
+        "LOST",
+        "RESOLVED"
+      ],
+      "default": "NONE"
+    },
+    "net_platform_economics_minor": {
+      "type": "number",
+      "description": "Internal-only net economics (\u00a78/\u00a730). NEVER exposed to travelers."
+    },
+    "net_economics_basis": {
+      "type": "string",
+      "enum": [
+        "ACTUAL",
+        "ESTIMATE",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN"
+    },
+    "anomalies": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Detected anomalies (\u00a745). Each { type, severity, detail, detected_at }."
+    },
+    "settlement_period": {
+      "type": "string",
+      "description": "Settlement period reference when allocated (\u00a735)."
+    },
+    "settlement_status": {
+      "type": "string",
+      "enum": [
+        "UNSETTLED",
+        "ALLOCATED",
+        "SETTLED",
+        "PARTIAL",
+        "DISPUTED"
+      ],
+      "default": "UNSETTLED"
+    },
+    "provider_invoice_reference": {
+      "type": "string",
+      "description": "Provider invoice reference (\u00a733)."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "case_id",
+    "currency",
+    "traveler_total_minor",
+    "reconciliation_status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.traveler_id": "{{user.id}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
