@@ -1,0 +1,117 @@
+{
+  "name": "ChatMessage",
+  "type": "object",
+  "description": "One message in a chatbot conversation. role: customer | assistant | system | action. Action messages record a tool/action the chatbot executed (lead capture, escalation) with a reference to the real execution.",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "chatbot_id": {
+      "type": "string"
+    },
+    "conversation_id": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "customer",
+        "assistant",
+        "system",
+        "action"
+      ],
+      "default": "customer"
+    },
+    "content": {
+      "type": "string"
+    },
+    "tool": {
+      "type": "string",
+      "description": "Capability key if this message records a tool/action (e.g. capture_lead, escalate_to_human)."
+    },
+    "tool_result": {
+      "type": "object",
+      "description": "Structured result of the action (lead_id, ticket_id, etc.)."
+    },
+    "execution_id": {
+      "type": "string",
+      "description": "The AIExecution checkpoint for the agent turn that produced this message."
+    },
+    "run_id": {
+      "type": "string",
+      "description": "The run_agent LaunchPlan run for this conversation turn."
+    },
+    "trace_id": {
+      "type": "string",
+      "description": "Langfuse trace id for this turn (observability link)."
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "chatbot_id",
+    "conversation_id",
+    "role",
+    "content"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

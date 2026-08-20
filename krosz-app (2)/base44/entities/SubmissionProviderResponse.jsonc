@@ -1,0 +1,111 @@
+{
+  "name": "SubmissionProviderResponse",
+  "type": "object",
+  "description": "Worldz Visa (Phase 8): one normalized provider response for a Submission operation (validate/created/submitted/status/cancelled/external_reference_entered/receipt_uploaded/failed). Stores only the normalized envelope + response_metadata; never full external PII payloads, credentials, or OTP. Owner-of-submission-or-admin (application_id + traveler_id denormalized for access checks).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "submission_id": {
+      "type": "string"
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "provider_key": {
+      "type": "string"
+    },
+    "operation": {
+      "type": "string",
+      "description": "validate | created | submitted | status | cancelled | external_reference_entered | receipt_uploaded | failed"
+    },
+    "status": {
+      "type": "string",
+      "description": "Normalized submission status the provider returned, if any."
+    },
+    "external_reference": {
+      "type": "string"
+    },
+    "response_code": {
+      "type": "string",
+      "description": "Normalized error_code, if any."
+    },
+    "response_metadata": {
+      "type": "object",
+      "description": "Provider-specific envelope only \u2014 no secrets/full payloads."
+    },
+    "error_category": {
+      "type": "string",
+      "enum": [
+        "TRANSIENT",
+        "PERMANENT",
+        "REQUIRES_USER",
+        "REQUIRES_OPERATOR",
+        "UNKNOWN"
+      ]
+    },
+    "retryable": {
+      "type": "boolean",
+      "default": false
+    },
+    "success": {
+      "type": "boolean",
+      "default": false
+    },
+    "received_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "submission_id",
+    "provider_id",
+    "operation",
+    "received_at"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

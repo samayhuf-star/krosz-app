@@ -1,0 +1,84 @@
+{
+  "name": "AdiologyUsageMeter",
+  "type": "object",
+  "description": "Workspace-scoped usage ledger for quota enforcement and cost attribution. Backend/service-role writes; workspace can read its own usage.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "workspace_id": {
+      "type": "string"
+    },
+    "metric": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 0
+    },
+    "unit": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "operation": {
+      "type": "string"
+    },
+    "period_key": {
+      "type": "string"
+    },
+    "cost_estimate": {
+      "type": "number",
+      "default": 0
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "workspace_id",
+    "metric",
+    "quantity",
+    "unit",
+    "occurred_at"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

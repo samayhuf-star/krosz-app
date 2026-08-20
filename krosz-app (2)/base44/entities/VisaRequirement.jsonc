@@ -1,0 +1,96 @@
+{
+  "name": "VisaRequirement",
+  "type": "object",
+  "description": "Worldz Visa knowledge graph: a single requirement row pinned to a requirements_version. mandatory_level drives the consumer checklist; conditional rows reference a RequirementRule.rule_id. category classifies the checklist bucket; document_category points a requirement at a DocumentRequirement (null = no document, e.g. biometrics).",
+  "properties": {
+    "requirements_version": {
+      "type": "string"
+    },
+    "destination": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "visa_type_key": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "passport",
+        "photo",
+        "travel",
+        "financial",
+        "accommodation",
+        "identity",
+        "insurance",
+        "invitation",
+        "education",
+        "employment",
+        "health",
+        "other"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "mandatory_level": {
+      "type": "string",
+      "enum": [
+        "mandatory",
+        "conditional",
+        "optional",
+        "recommended",
+        "na"
+      ],
+      "default": "mandatory"
+    },
+    "document_category": {
+      "type": "string"
+    },
+    "rule_id": {
+      "type": "string"
+    },
+    "source_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "requirements_version",
+    "destination",
+    "purpose",
+    "category",
+    "title",
+    "mandatory_level"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

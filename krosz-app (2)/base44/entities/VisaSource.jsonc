@@ -1,0 +1,76 @@
+{
+  "name": "VisaSource",
+  "type": "object",
+  "description": "Worldz Visa knowledge graph: provenance source for a requirements version (government page, embassy, visa centre, official provider, verified-internal, secondary reference, or dev seed). Mandatory source_url + retrieved_at + verified_at + confidence for any non-dev source.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "name": {
+      "type": "string"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "government",
+        "embassy",
+        "visa_center",
+        "official_provider",
+        "verified_internal",
+        "secondary_reference",
+        "dev_seed"
+      ],
+      "default": "dev_seed"
+    },
+    "url": {
+      "type": "string"
+    },
+    "retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "confidence": {
+      "type": "number",
+      "default": 0.5
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "stale",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "name",
+    "source_type"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

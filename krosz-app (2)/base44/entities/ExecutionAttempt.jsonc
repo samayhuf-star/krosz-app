@@ -1,0 +1,197 @@
+{
+  "name": "ExecutionAttempt",
+  "type": "object",
+  "description": "Worldz Visa (Phase 33): a durable, idempotent record of a single provider/government execution operation against a case. ONE row per (case_id, provider_binding_id, operation) attempt \u2014 idempotency collapses duplicate retries into the same row's lifecycle (PENDING \u2192 RUNNING \u2192 SUCCEEDED/FAILED/RETRYING/WAITING/CANCELLED). Stores references + structured metadata ONLY: NEVER provider secrets, raw credentials, full passport data, or raw document contents (\u00a713/\u00a739). The Case Engine remains the sole authority for application lifecycle; ExecutionAttempt is an observability + idempotency record, NOT a second state machine (\u00a714). Admin/operator-only; travelers have no access.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "case_id": {
+      "type": "string",
+      "description": "VisaApplication.id (the case)."
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Denormalized (== case_id) for fast filtering."
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized."
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "provider_key": {
+      "type": "string",
+      "description": "Provider.key backing this attempt."
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "Provider.id (denormalized)."
+    },
+    "provider_binding_id": {
+      "type": "string",
+      "description": "CountryProviderBinding.id used for routing."
+    },
+    "route_type": {
+      "type": "string",
+      "enum": [
+        "PROVIDER_API",
+        "GOVERNMENT_API",
+        "PORTAL_AUTOMATION",
+        "HUMAN_OPERATIONS",
+        "GUIDANCE",
+        "EXECUTION_UNAVAILABLE"
+      ],
+      "description": "Resolved execution route type (\u00a76)."
+    },
+    "operation": {
+      "type": "string",
+      "enum": [
+        "CREATE_APPLICATION",
+        "UPDATE_APPLICATION",
+        "UPLOAD_DOCUMENT",
+        "SUBMIT_APPLICATION",
+        "GET_STATUS",
+        "TRACK",
+        "CANCEL",
+        "REFUND",
+        "HEALTH_CHECK"
+      ],
+      "description": "Operation type for idempotency + capability gating (\u00a79)."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Stable dedup key (case_id + provider_binding_id + operation). Same request repeated \u2192 one provider application, not two (\u00a712)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "RUNNING",
+        "SUCCEEDED",
+        "FAILED",
+        "RETRYING",
+        "WAITING",
+        "CANCELLED"
+      ],
+      "default": "PENDING",
+      "description": "Execution work-state (\u00a714). Distinct from case_state."
+    },
+    "environment": {
+      "type": "string",
+      "enum": [
+        "SANDBOX",
+        "PRODUCTION"
+      ],
+      "description": "Execution environment. SANDBOX never executes production applications (\u00a711)."
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "Snapshot of the capability map used (submission/status/tracking/documents). Honest \u2014 only verified capabilities."
+    },
+    "request_reference": {
+      "type": "string",
+      "description": "Internal request/correlation id (never contains secrets)."
+    },
+    "response_reference": {
+      "type": "string",
+      "description": "Provider response/correlation reference (never secrets)."
+    },
+    "provider_application_id": {
+      "type": "string",
+      "description": "External provider application reference, persisted after successful creation (\u00a712/\u00a726)."
+    },
+    "error_code": {
+      "type": "string"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Sanitized error message \u2014 no secrets/PII (\u00a739)."
+    },
+    "error_category": {
+      "type": "string",
+      "enum": [
+        "TRANSIENT",
+        "PERMANENT",
+        "HUMAN_REQUIRED",
+        "UNKNOWN"
+      ]
+    },
+    "retryable": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when the failure is classified transient (\u00a721)."
+    },
+    "retry_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of retries performed (max 3, transient only)."
+    },
+    "next_retry_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "waiting_reason": {
+      "type": "string",
+      "description": "WAITING_FOR_HUMAN | WAITING_FOR_OTP | WAITING_FOR_CAPTCHA | WAITING_FOR_TRAVELER | WAITING_FOR_PROVIDER."
+    },
+    "circuit_state": {
+      "type": "string",
+      "enum": [
+        "CLOSED",
+        "OPEN",
+        "HALF_OPEN"
+      ],
+      "description": "Snapshot of the provider circuit-breaker state at attempt time (\u00a722)."
+    },
+    "fallback_from_attempt_id": {
+      "type": "string",
+      "description": "If this attempt is a fallback, the primary attempt id it replaced (\u00a723)."
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "duration_ms": {
+      "type": "number"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Non-PII, non-secret structured context (route reason, normalized status, etc.)"
+    }
+  },
+  "required": [
+    "case_id",
+    "operation",
+    "status",
+    "idempotency_key"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

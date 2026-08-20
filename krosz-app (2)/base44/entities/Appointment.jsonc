@@ -1,0 +1,191 @@
+{
+  "name": "Appointment",
+  "type": "object",
+  "description": "Worldz Visa (Phase 9): a provider-neutral appointment for a VisaApplication, booked against an AppointmentSlot via an appointment Provider. Pinned to a requirement + provider + slot + idempotency key. Timezone-aware: scheduled_at_utc + location_timezone (display in the location's TZ, never the browser's). Reschedule preserves history via AppointmentEvent; the old booking is recorded, not overwritten. Owner-of-application-or-admin (traveler_id denormalized).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "appointment_requirement_id": {
+      "type": "string"
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "provider_key": {
+      "type": "string",
+      "description": "Denormalized stable provider key."
+    },
+    "provider_type": {
+      "type": "string",
+      "enum": [
+        "GOVERNMENT_API",
+        "VISA_CENTER_API",
+        "EMBASSY",
+        "CONSULATE",
+        "MANUAL_OPERATOR",
+        "EMAIL",
+        "BROWSER_AUTOMATION",
+        "AGENT"
+      ]
+    },
+    "location_id": {
+      "type": "string"
+    },
+    "slot_id": {
+      "type": "string",
+      "description": "Cached AppointmentSlot id at book time."
+    },
+    "external_slot_id": {
+      "type": "string"
+    },
+    "appointment_type": {
+      "type": "string",
+      "enum": [
+        "BIOMETRICS",
+        "INTERVIEW",
+        "DOCUMENT_SUBMISSION",
+        "PASSPORT_SUBMISSION",
+        "PASSPORT_COLLECTION",
+        "OTHER"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "REQUIRED",
+        "SEARCHING",
+        "AVAILABLE",
+        "BOOKING",
+        "BOOKED",
+        "RESCHEDULE_REQUIRED",
+        "CANCELLED",
+        "COMPLETED",
+        "NO_SHOW",
+        "FAILED"
+      ],
+      "default": "REQUIRED"
+    },
+    "scheduled_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "default": 30
+    },
+    "location_timezone": {
+      "type": "string",
+      "description": "IANA TZ, e.g. Asia/Kolkata. Display in this TZ."
+    },
+    "external_reference": {
+      "type": "string",
+      "description": "Normalized external booking reference."
+    },
+    "provider_reference": {
+      "type": "string"
+    },
+    "confirmation_document_id": {
+      "type": "string",
+      "description": "Document (type APPOINTMENT_CONFIRMATION) in the vault."
+    },
+    "confirmation_document_version_id": {
+      "type": "string"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "application_id + requirement_id + slot_id; duplicate book returns the same Appointment."
+    },
+    "rescheduled_from": {
+      "type": "string",
+      "description": "Previous Appointment id this replaced (history preserved). null on first booking."
+    },
+    "last_status": {
+      "type": "string"
+    },
+    "error_code": {
+      "type": "string"
+    },
+    "error_category": {
+      "type": "string",
+      "enum": [
+        "TRANSIENT",
+        "PERMANENT",
+        "REQUIRES_USER",
+        "REQUIRES_OPERATOR",
+        "UNKNOWN"
+      ]
+    },
+    "booked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "traveler_id",
+    "appointment_requirement_id",
+    "provider_id",
+    "appointment_type",
+    "status",
+    "idempotency_key"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

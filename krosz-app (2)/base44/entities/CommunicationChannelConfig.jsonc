@@ -1,0 +1,131 @@
+{
+  "name": "CommunicationChannelConfig",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "email",
+        "whatsapp",
+        "sms",
+        "voice",
+        "internal",
+        "push"
+      ]
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "platform",
+        "workspace",
+        "business"
+      ],
+      "default": "business"
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "Adapter key from the Communication Hub channel catalog."
+    },
+    "name": {
+      "type": "string"
+    },
+    "config": {
+      "type": "object",
+      "description": "Provider-specific channel configuration (endpoints, webhooks, sandbox flags) \u2014 never credentials."
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "Capability flags for this channel (inbound, outbound, templated, rich_media, ai_assist, scheduling)."
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": false
+    },
+    "provisioning_state": {
+      "type": "string",
+      "enum": [
+        "unconfigured",
+        "provisioning",
+        "provisioned",
+        "failed"
+      ],
+      "default": "unconfigured"
+    },
+    "white_label_subdomain": {
+      "type": "string",
+      "description": "e.g. mail \u2014 exposed at mail.customerdomain.com (reseller-private; no provider branding)."
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "channel",
+    "provider_id",
+    "name"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

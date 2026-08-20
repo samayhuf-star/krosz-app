@@ -1,0 +1,107 @@
+{
+  "name": "VisaProduct",
+  "type": "object",
+  "description": "Worldz Visa (Phase 10/18): a purchasable visa product keyed to a destination x visa_type x purpose. Owns refund_policy + payment_gate (deterministic service gating, \u00a722/\u00a723). Prices are separate VisaPrice rows (versioned, snapshotted into Orders). Phase 18: `optional_services` array enables configurable add-ons (\u00a711) and `declaration_code`/`declaration_text` make the final-review attestation configurable per product (\u00a75). Public read (catalog); admin-managed.",
+  "properties": {
+    "code": {
+      "type": "string",
+      "description": "Stable machine code, e.g. FRANCE_SCHENGEN_TOURIST."
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string",
+      "description": "Destination ISO alpha-2 (upper-case)."
+    },
+    "visa_type_key": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string",
+      "enum": [
+        "tourism",
+        "business",
+        "study",
+        "transit"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "ACTIVE",
+        "PAUSED",
+        "ARCHIVED"
+      ],
+      "default": "DRAFT"
+    },
+    "refund_policy": {
+      "type": "string",
+      "enum": [
+        "FULLY_REFUNDABLE",
+        "PARTIALLY_REFUNDABLE",
+        "NON_REFUNDABLE",
+        "OPERATOR_REVIEW"
+      ],
+      "default": "OPERATOR_REVIEW"
+    },
+    "payment_gate": {
+      "type": "string",
+      "enum": [
+        "NO_PAYMENT_REQUIRED",
+        "PAYMENT_BEFORE_APPLICATION",
+        "PAYMENT_BEFORE_PROCESSING",
+        "PAYMENT_BEFORE_SUBMISSION"
+      ],
+      "default": "PAYMENT_BEFORE_SUBMISSION"
+    },
+    "optional_services": {
+      "type": "array",
+      "description": "Phase 18 (\u00a711): configurable add-ons. Each { code, label, amount_minor, type (OPTIONAL_SERVICE/COURIER_FEE/...), refundable }. Empty by default \u2014 no fake services populate the UI.",
+      "items": {
+        "type": "object"
+      }
+    },
+    "declaration_code": {
+      "type": "string",
+      "description": "Phase 18 (\u00a75): stable key for the final-review attestation, e.g. DEFAULT_ATTESTATION. Falls back to DEFAULT_ATTESTATION when unset."
+    },
+    "declaration_text": {
+      "type": "string",
+      "description": "Phase 18 (\u00a75): configurable attestation body shown at confirmation. Falls back to the platform default when unset."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "code",
+    "name",
+    "country",
+    "visa_type_key",
+    "purpose",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

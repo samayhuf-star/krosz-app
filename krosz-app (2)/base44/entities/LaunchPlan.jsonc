@@ -1,0 +1,165 @@
+{
+  "name": "LaunchPlan",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "string",
+      "description": "The customer's stated outcome, e.g. 'Start a dental clinic in Dallas.'"
+    },
+    "brief": {
+      "type": "string",
+      "description": "Optional freeform context the customer provided."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "running",
+        "awaiting_approval",
+        "paused",
+        "completed",
+        "failed",
+        "cancelled",
+        "ready",
+        "paused_approval"
+      ],
+      "default": "ready"
+    },
+    "workflow": {
+      "type": "array",
+      "description": "Configurable ordered step definitions (step_id, name, owner, action, needs_approval, depends_on).",
+      "items": {
+        "type": "object"
+      }
+    },
+    "progress": {
+      "type": "number",
+      "default": 0
+    },
+    "current_step_id": {
+      "type": "string"
+    },
+    "total_steps": {
+      "type": "number",
+      "default": 0
+    },
+    "completed_steps": {
+      "type": "number",
+      "default": 0
+    },
+    "assessment": {
+      "type": "object",
+      "description": "AI Launch-Assistant assessment: goal_understood, readiness, clarifying_questions, summary."
+    },
+    "result_summary": {
+      "type": "object",
+      "description": "Final compiled launch report payload (health, recommendations, key outputs)."
+    },
+    "plan_template_id": {
+      "type": "string",
+      "description": "Stable logical id of the PlanTemplate this Run instantiates."
+    },
+    "plan_version": {
+      "type": "number",
+      "description": "Version of the PlanTemplate snapshot used."
+    },
+    "input_hash": {
+      "type": "string",
+      "description": "Deterministic hash of the launch inputs (goal + context). Feeds idempotency."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "launch_business|relaunch_marketing|... + business_id + input_hash. Duplicate launches return the same Run."
+    },
+    "context_snapshot": {
+      "type": "object",
+      "description": "Immutable full context snapshot captured at launch; dispatched to every Task; changes to Business do not mutate it."
+    },
+    "requested_by": {
+      "type": "string",
+      "description": "Actor id (user or agent) that created the Run."
+    },
+    "last_completed_task_id": {
+      "type": "string"
+    },
+    "failed_task_id": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "cancelled_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

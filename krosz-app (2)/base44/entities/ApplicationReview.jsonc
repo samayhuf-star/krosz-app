@@ -1,0 +1,162 @@
+{
+  "name": "ApplicationReview",
+  "type": "object",
+  "description": "Worldz Visa (Phase 13): a review run for a VisaApplication. Deterministic rules first, bounded AI supplementary \u2014 AI never blocks or predicts approval. Pinned to requirements_version + rule_version + review_engine_version for reproducibility. Cached by input_hash so unchanged inputs reuse the previous result. Owner-of-application-or-admin (traveler_id denormalized).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "review_version": {
+      "type": "string",
+      "default": "13.1"
+    },
+    "requirements_version": {
+      "type": "string"
+    },
+    "rule_version": {
+      "type": "string",
+      "default": "review.rules.v1"
+    },
+    "review_engine_version": {
+      "type": "string",
+      "default": "13.1"
+    },
+    "trigger": {
+      "type": "string",
+      "enum": [
+        "DOCUMENT_UPLOADED",
+        "DOCUMENT_REPLACED",
+        "ANSWER_UPDATED",
+        "FORM_GENERATED",
+        "FORM_UPDATED",
+        "REQUIREMENTS_CHANGED",
+        "PAYMENT_COMPLETED",
+        "APPOINTMENT_BOOKED",
+        "SUBMISSION_PACKAGE_CREATED",
+        "BEFORE_SUBMISSION",
+        "MANUAL_REVIEW"
+      ]
+    },
+    "input_hash": {
+      "type": "string",
+      "description": "SHA-256 of the salient review inputs, for cache/staleness."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "RUNNING",
+        "PASSED",
+        "WARNINGS",
+        "BLOCKED",
+        "FAILED",
+        "REQUIRES_HUMAN_REVIEW"
+      ],
+      "default": "PENDING"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ai_review": {
+      "type": "boolean",
+      "default": false
+    },
+    "finding_count": {
+      "type": "number",
+      "default": 0
+    },
+    "blocking_count": {
+      "type": "number",
+      "default": 0
+    },
+    "warning_count": {
+      "type": "number",
+      "default": 0
+    },
+    "critical_count": {
+      "type": "number",
+      "default": 0
+    },
+    "duration_ms": {
+      "type": "number"
+    },
+    "ai_duration_ms": {
+      "type": "number"
+    },
+    "stale": {
+      "type": "boolean",
+      "default": false,
+      "description": "Marked when inputs changed since this review ran; triggers rerun."
+    },
+    "quality_score": {
+      "type": "number",
+      "description": "Submission quality 0-100 from configured checks \u2014 never a visa approval probability."
+    },
+    "audit": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Append-only audit events (review.started/completed/failed/stale, finding.waived/dismissed, final_gate_passed/blocked)."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "traveler_id",
+    "review_version",
+    "status",
+    "input_hash"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

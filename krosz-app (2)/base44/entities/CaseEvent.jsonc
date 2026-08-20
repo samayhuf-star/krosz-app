@@ -1,0 +1,112 @@
+{
+  "name": "CaseEvent",
+  "type": "object",
+  "description": "Worldz Visa (Phase 31 \u00a77-11): the authoritative, immutable, append-only case-transition + case-level event log for a VisaApplication case. ONE durable event history (\u00a71/\u00a739). The Phase 27 Case Engine generates these events on every validated transition; the case's current case_state on VisaApplication is a fast-access PROJECTION of the last transition event (\u00a710). Ordinary updates are forbidden after creation \u2014 corrections are made by appending a corrective event (\u00a79). Timeline UI derives from this history, never from a reconstruction of current fields (\u00a716). Metadata never stores secrets / raw document content / PII (\u00a78/\u00a727). owner_user_id mirrors VisaApplication.created_by_id so a traveler can read their own case events; admins read all.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "case_id": {
+      "type": "string",
+      "description": "VisaApplication.id (the case)."
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Denormalized for fast filtering."
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized."
+    },
+    "owner_user_id": {
+      "type": "string",
+      "description": "Mirrors VisaApplication.created_by_id for traveler RLS."
+    },
+    "event_type": {
+      "type": "string",
+      "description": "CASE_CREATED | INTAKE_STARTED | ... | SUBMITTED | APPROVED | REJECTED | CANCELLED | EXPIRED | COMPLETED | DOCUMENT_UPLOADED | DOCUMENT_REVIEWED | DOCUMENT_REJECTED | PAYMENT_REQUIRED | PAYMENT_COMPLETED | PAYMENT_FAILED | REFUND_COMPLETED | PROVIDER_WEBHOOK | MIGRATED | CORRECTION."
+    },
+    "previous_case_state": {
+      "type": "string",
+      "description": "Case state before this event (null for creation)."
+    },
+    "new_case_state": {
+      "type": "string",
+      "description": "Case state after this event (== previous for non-transition events)."
+    },
+    "actor_type": {
+      "type": "string",
+      "enum": [
+        "TRAVELER",
+        "OPERATOR",
+        "SYSTEM",
+        "PROVIDER",
+        "PORTAL",
+        "MIGRATION"
+      ],
+      "default": "SYSTEM"
+    },
+    "actor_id": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "description": "case_engine | document_vault | payment_engine | execution | provider_webhook | migration | admin | traveler_wizard."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Stable dedup key; identical retried operations collapse to one event."
+    },
+    "correlation_id": {
+      "type": "string",
+      "description": "Optional trace correlation (request/run/webhook id)."
+    },
+    "reason": {
+      "type": "string"
+    },
+    "migration": {
+      "type": "boolean",
+      "default": false,
+      "description": "True for legacy\u2192case_state migration events."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Free-form non-PII context. Never secrets/document content."
+    }
+  },
+  "required": [
+    "case_id",
+    "event_type",
+    "new_case_state"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.owner_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

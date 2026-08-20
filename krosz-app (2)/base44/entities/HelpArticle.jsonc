@@ -1,0 +1,82 @@
+{
+  "name": "HelpArticle",
+  "type": "object",
+  "description": "Krosz Help Center (Phase 2): a long-form, markdown help guide shown to travelers in the Help Center. Public read so anonymous visitors can browse; admin-managed writes. status controls draft vs published; order drives display ordering within a category.",
+  "properties": {
+    "category": {
+      "type": "string",
+      "enum": [
+        "getting-started",
+        "eligibility",
+        "documents",
+        "applications",
+        "payments",
+        "refunds",
+        "appointments",
+        "status",
+        "account",
+        "support",
+        "trust"
+      ],
+      "default": "getting-started"
+    },
+    "slug": {
+      "type": "string",
+      "description": "Stable url slug, unique within published articles."
+    },
+    "title": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string",
+      "description": "Markdown body."
+    },
+    "icon": {
+      "type": "string",
+      "description": "Optional lucide-react icon name for the guide card."
+    },
+    "order": {
+      "type": "number",
+      "default": 100
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published"
+      ],
+      "default": "published"
+    },
+    "helpful_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "category",
+    "slug",
+    "title",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

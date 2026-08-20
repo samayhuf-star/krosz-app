@@ -1,0 +1,154 @@
+{
+  "name": "CapabilitySourceSnapshot",
+  "type": "object",
+  "description": "Worldz Visa (Phase 25 \u00a71/\u00a72): a normalized, fingerprinted snapshot of an official source supporting a CountryCapability claim. ONE row per (capability_id, evidence_id, captured_at) capture. Each new capture is diffed against the previous snapshot for that source; a MATERIAL change creates a ResearchTask (generated_by=change_detector) and downstates the capability's verification to RESEARCHING (previous status retained). The previous snapshot is always retained for audit \u2014 never overwritten. Non-material (cosmetic) changes refresh provenance only and do NOT invalidate verification. Internal-only: admin read/create/update/delete \u2014 snapshots are never exposed to travelers (\u00a79).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "capability_id": {
+      "type": "string",
+      "description": "CountryCapability.id this snapshot belongs to."
+    },
+    "evidence_id": {
+      "type": "string",
+      "description": "CapabilityEvidence.id this snapshot captures (optional for capability-level scans)."
+    },
+    "country_code": {
+      "type": "string",
+      "description": "Denormalized destination ISO alpha-2 for fast filtering."
+    },
+    "journey_type": {
+      "type": "string"
+    },
+    "claim_type": {
+      "type": "string",
+      "description": "Claim this snapshot addresses (mirrors CapabilityEvidence.claim_type)."
+    },
+    "source_type": {
+      "type": "string"
+    },
+    "source_name": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic fingerprint of normalized_payload (djb2). Stable across runs."
+    },
+    "normalized_payload": {
+      "type": "object",
+      "description": "Stable, sorted-key normalized source fields captured at this scan."
+    },
+    "previous_snapshot_id": {
+      "type": "string",
+      "description": "Snapshot id of the immediately preceding capture for this source (retained for diff)."
+    },
+    "previous_fingerprint": {
+      "type": "string"
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "change_vs_previous": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "NON_MATERIAL",
+        "MATERIAL"
+      ],
+      "default": "NONE",
+      "description": "Diff outcome vs the previous snapshot for this source."
+    },
+    "changed_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "All fields that changed (material + non-material)."
+    },
+    "material_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Subset of changed_fields that are material for this claim_type."
+    },
+    "diff": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Per-field diff entries { field, previous, current, material }."
+    },
+    "diff_summary": {
+      "type": "string",
+      "description": "Human-readable summary for the admin review drawer."
+    },
+    "material": {
+      "type": "boolean",
+      "default": false
+    },
+    "review_status": {
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "ACCEPTED",
+        "REJECTED"
+      ],
+      "default": "PENDING",
+      "description": "Admin review outcome for a material change."
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "research_task_id": {
+      "type": "string",
+      "description": "ResearchTask created when material (generated_by=change_detector)."
+    },
+    "applied_to_capability": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the capability's fields were updated from this snapshot (on accept)."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "capability_id",
+    "fingerprint",
+    "captured_at",
+    "change_vs_previous"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

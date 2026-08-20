@@ -1,0 +1,109 @@
+{
+  "name": "ApplicationAnswer",
+  "type": "object",
+  "description": "Worldz Visa (Phase 6): one normalized answer for a VisaApplication + question_code. Source-aware (source_type records provenance: USER, PASSPORT, TRAVELER, PREVIOUS_APPLICATION, DOCUMENT_EXTRACTION, DOCUMENT). metadata preserves extracted_value/previous_value when the user overrides a document-derived value (the underlying DocumentExtraction is never mutated). (application_id, question_code) is unique. Owner-of-application-or-admin (created_by_id == application owner).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for fast access checks."
+    },
+    "question_code": {
+      "type": "string"
+    },
+    "value": {
+      "type": "string",
+      "description": "Display value as entered/extracted. For MULTI_SELECT/ADDRESS/JSON types the normalized payload is JSON-encoded here."
+    },
+    "normalized_value": {
+      "type": "string",
+      "description": "Canonical form for comparison/validation (uppercased name, ISO date, uppercase country, amount+currency)."
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "USER",
+        "PASSPORT",
+        "TRAVELER",
+        "PREVIOUS_APPLICATION",
+        "DOCUMENT_EXTRACTION",
+        "DOCUMENT"
+      ],
+      "default": "USER"
+    },
+    "source_id": {
+      "type": "string",
+      "description": "Extraction id / version id / traveler id / previous application id. null for USER."
+    },
+    "confidence": {
+      "type": "number",
+      "default": 0
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "false when the question became hidden (stale). Preserved for audit; restored if the condition returns."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Holds extracted_value, previous_value, conflict_flagged, document_id, document_version_id for DOCUMENT_REFERENCE."
+    }
+  },
+  "required": [
+    "application_id",
+    "question_code"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

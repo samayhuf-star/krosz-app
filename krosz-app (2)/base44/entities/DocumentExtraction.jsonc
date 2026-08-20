@@ -1,0 +1,104 @@
+{
+  "name": "DocumentExtraction",
+  "type": "object",
+  "description": "Worldz Visa (Phase 5/17): a single extracted field for a DocumentVersion, pinned to a DocumentIntelligence record. Stores original + normalized values and a source tag (MRZ > structured > OCR > LLM > HEURISTIC > METADATA > USER_CONFIRMED) so deterministic sources are always preferred. USER_CONFIRMED (Phase 17 \u00a720) marks a value the traveler reviewed and confirmed \u2014 it outranks auto-extracted values but never mutates the original extraction row. Never stores raw full-text OCR \u2014 only the structured field needed. Owner-of-document-version-or-admin.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "document_version_id": {
+      "type": "string"
+    },
+    "intelligence_id": {
+      "type": "string"
+    },
+    "document_id": {
+      "type": "string",
+      "description": "Denormalized for fast lookup by document."
+    },
+    "document_type": {
+      "type": "string"
+    },
+    "field_name": {
+      "type": "string"
+    },
+    "field_value": {
+      "type": "string",
+      "description": "Original extracted string (as read)."
+    },
+    "normalized_value": {
+      "type": "string",
+      "description": "Canonical form for comparison (ISO date, uppercased name, amount+currency)."
+    },
+    "confidence": {
+      "type": "number",
+      "default": 0
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "mrz",
+        "structured",
+        "ocr",
+        "llm",
+        "heuristic",
+        "metadata",
+        "user_confirmed"
+      ],
+      "default": "llm"
+    },
+    "source_page": {
+      "type": "number"
+    },
+    "extractor_version": {
+      "type": "string",
+      "default": "v1"
+    },
+    "schema_version": {
+      "type": "string",
+      "default": "v1"
+    }
+  },
+  "required": [
+    "document_version_id",
+    "intelligence_id",
+    "field_name"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

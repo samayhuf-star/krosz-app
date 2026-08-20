@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    }
+  },
+  "required": [],
+  "name": "__noop2__"
+}

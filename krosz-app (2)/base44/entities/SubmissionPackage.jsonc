@@ -1,0 +1,105 @@
+{
+  "name": "SubmissionPackage",
+  "type": "object",
+  "description": "Worldz Visa (Phase 7): an immutable submission package for an application, built from a form snapshot + validated pinned documents. package_hash = SHA-256(form_version + form data + document version IDs + metadata). Immutable once READY; changes require a new version row. Statuses: draft | validated | ready | submitted | superseded. Owner-of-application-or-admin.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "form_snapshot_id": {
+      "type": "string"
+    },
+    "form_code": {
+      "type": "string"
+    },
+    "form_version": {
+      "type": "string"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "validated",
+        "ready",
+        "submitted",
+        "superseded"
+      ],
+      "default": "draft"
+    },
+    "package_hash": {
+      "type": "string"
+    },
+    "items_summary": {
+      "type": "object",
+      "description": "Counts by type stored at build time for quick display."
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "application_id",
+    "form_snapshot_id",
+    "version",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "name": "DocumentIntelligence",
+  "type": "object",
+  "description": "Worldz Visa (Phase 5): the intelligence record for one immutable DocumentVersion. Tracks the classify\u2192extract\u2192validate pipeline state separately from the version (extraction output never mutates the DocumentVersion). Owner-of-document-version-or-admin (created_by_id resolves to the document owner).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "document_version_id": {
+      "type": "string",
+      "description": "Pinned immutable version this intelligence was produced from."
+    },
+    "document_id": {
+      "type": "string",
+      "description": "Denormalized Document id for fast ownership resolution."
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized owner for access checks."
+    },
+    "document_type": {
+      "type": "string",
+      "description": "Resolved catalog key (PASSPORT, BANK_STATEMENT...)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "uploaded",
+        "classifying",
+        "extracting",
+        "validating",
+        "ready",
+        "needs_review",
+        "processing_failed"
+      ],
+      "default": "uploaded"
+    },
+    "classifier_confidence": {
+      "type": "number",
+      "default": 0
+    },
+    "extraction_confidence": {
+      "type": "number",
+      "default": 0
+    },
+    "extractor_version": {
+      "type": "string",
+      "default": "v1"
+    },
+    "classification_version": {
+      "type": "string",
+      "default": "v1"
+    },
+    "schema_version": {
+      "type": "string",
+      "default": "v1"
+    },
+    "model": {
+      "type": "string",
+      "description": "AI model used for extraction (null for fully deterministic MRZ-only)."
+    },
+    "provider": {
+      "type": "string",
+      "description": "Provider key that performed extraction."
+    },
+    "needs_review": {
+      "type": "boolean",
+      "default": false
+    },
+    "review_reason": {
+      "type": "string"
+    },
+    "findings_summary": {
+      "type": "object",
+      "description": "Counts by severity: {critical, high, medium, low, info, blocking}."
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "error_code": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "document_version_id",
+    "document_id",
+    "document_type"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

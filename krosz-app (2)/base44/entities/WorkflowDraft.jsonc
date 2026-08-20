@@ -1,0 +1,150 @@
+{
+  "name": "WorkflowDraft",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "description": "Workflow name shown in the studio and published template."
+    },
+    "description": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published",
+        "archived"
+      ],
+      "default": "draft"
+    },
+    "template_id": {
+      "type": "string",
+      "description": "Logical PlanTemplate id this draft publishes to (e.g. wf_<id>). Empty until first publish."
+    },
+    "published_version": {
+      "type": "number",
+      "default": 0
+    },
+    "category": {
+      "type": "string"
+    },
+    "is_template": {
+      "type": "boolean",
+      "default": false,
+      "description": "Reusable template (marketplace/library) vs an instance workflow."
+    },
+    "favorite": {
+      "type": "boolean",
+      "default": false
+    },
+    "share_token": {
+      "type": "string"
+    },
+    "canvas": {
+      "type": "object",
+      "description": "Visual document: nodes (with positions + config) and edges (deps).",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "description": "Derived PlanTask snapshot from the last publish (engine contract).",
+      "items": {
+        "type": "object"
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "description": "Canvas trigger metadata (webhook/schedule) for wiring Base44 Workflow triggers when published.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "manual",
+            "webhook",
+            "schedule"
+          ]
+        },
+        "config": {
+          "type": "object"
+        }
+      }
+    },
+    "version": {
+      "type": "number",
+      "default": 1,
+      "description": "Draft canvas revision count (auto-increments on save)."
+    },
+    "created_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "name",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

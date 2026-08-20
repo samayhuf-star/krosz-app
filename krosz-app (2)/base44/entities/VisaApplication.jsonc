@@ -1,0 +1,317 @@
+{
+  "name": "VisaApplication",
+  "type": "object",
+  "description": "Worldz Visa: a visa application for a traveler toward a destination. Domain state machine (spec S17) lives on this entity; orchestrator Run lifecycle is separate but bound via run_id. Phase 6: pinned question_version so changing question definitions never silently alter an in-flight application. Phase 16: pinned rule snapshot (visa_option / visa_rule_version / fee_version / requirements_version) captured at creation so changing visa rules never silently alter an in-flight application. Phase 18: structured `final_review` object models the commercial sub-flow (not_started \u2192 ready_for_review \u2192 under_user_review \u2192 payment_pending \u2192 paid \u2192 ready_for_submission) SEPARATE from the orchestrator-owned `status` lifecycle; `application_version` + `material_hash` freeze the priced context (\u00a76); `paid_at` mirrors verified payment. Phase 27: the entity doubles as the durable Application Case \u2014 `case_state` is the strict Phase 27 case state machine (DRAFT \u2192 \u2026 \u2192 COMPLETED), `case_snapshot` is the immutable creation snapshot from the resolved Travel Entry result, and `execution_capability`/`route_status`/`provider_*` pin the routing decision at creation. Phase 29: `ops_owner_id`/`ops_priority`/`ops_priority_reason`/`ops_priority_overridden`/`ops_expected_duration_days` support the admin control plane (assignment, deterministic priority + audited overrides, SLA). Owner-or-admin.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "traveler_id": {
+      "type": "string"
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "nationality": {
+      "type": "string"
+    },
+    "residence": {
+      "type": "string"
+    },
+    "destination": {
+      "type": "string"
+    },
+    "visa_type_key": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string",
+      "enum": [
+        "tourism",
+        "business",
+        "study",
+        "transit"
+      ]
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "evisa",
+        "vac",
+        "embassy",
+        "onsite"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "eligibility_confirmed",
+        "documents_pending",
+        "document_review",
+        "application_ready",
+        "user_approval",
+        "appointment_pending",
+        "appointment_booked",
+        "submission_ready",
+        "submitted",
+        "government_processing",
+        "additional_documents",
+        "decision",
+        "approved",
+        "refused",
+        "cancelled",
+        "withdrawn",
+        "completed"
+      ],
+      "default": "draft"
+    },
+    "current_step": {
+      "type": "string",
+      "default": "eligibility"
+    },
+    "travel_start": {
+      "type": "string",
+      "format": "date"
+    },
+    "travel_end": {
+      "type": "string",
+      "format": "date"
+    },
+    "requirements_version": {
+      "type": "string"
+    },
+    "question_version": {
+      "type": "string",
+      "description": "Pinned question set version (Phase 6). Set at creation; never mutated for an in-flight application.",
+      "default": "visa.application.questions.v1"
+    },
+    "visa_rule_version": {
+      "type": "string",
+      "description": "Pinned eligibility/rule version (Phase 16 snapshot)."
+    },
+    "fee_version": {
+      "type": "string",
+      "description": "Pinned price version (Phase 16 snapshot)."
+    },
+    "rule_snapshot": {
+      "type": "object",
+      "description": "Immutable snapshot of the visa option + visa type + requirements + fee context captured at creation (Phase 16 \u00a73). Protects in-flight applications from rule changes."
+    },
+    "appointment_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Bound orchestrator LaunchPlan id (Phase 3)."
+    },
+    "risk_score": {
+      "type": "number"
+    },
+    "application_version": {
+      "type": "number",
+      "default": 1,
+      "description": "Phase 18: monotonic application version bumped on final-review freeze / material change so confirmation + pricing pin to a stable context (\u00a76)."
+    },
+    "final_review": {
+      "type": "object",
+      "description": "Phase 18: commercial final-review sub-state (\u00a72). Separate from the orchestrator-owned `status` lifecycle. { state, version, priced_version, confirmed_at, material_hash }.",
+      "default": {
+        "state": "not_started"
+      }
+    },
+    "paid_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Phase 18: mirrors the verified payment timestamp from the order domain (projection only \u2014 the order owns payment state, \u00a71)."
+    },
+    "case_state": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "INTAKE",
+        "ELIGIBILITY_REVIEW",
+        "DOCUMENTS_REQUIRED",
+        "DOCUMENTS_REVIEW",
+        "READY_FOR_SUBMISSION",
+        "REVIEW_REQUIRED",
+        "SUBMISSION_PENDING",
+        "SUBMITTED",
+        "PROCESSING",
+        "ADDITIONAL_INFORMATION_REQUIRED",
+        "APPROVED",
+        "REJECTED",
+        "CANCELLED",
+        "EXPIRED",
+        "COMPLETED"
+      ],
+      "default": "DRAFT",
+      "description": "Phase 27 \u00a73: the deterministic application-case state machine. Transitions are validated by the case engine; the frontend never mutates this directly (\u00a716)."
+    },
+    "normalized_status": {
+      "type": "string",
+      "description": "Phase 27 \u00a78: provider-neutral normalized status derived from provider/government signals. What the traveler sees."
+    },
+    "execution_capability": {
+      "type": "string",
+      "enum": [
+        "GUIDANCE_ONLY",
+        "INTELLIGENCE_ONLY",
+        "PARTIAL_ASSIST",
+        "DOCUMENT_ASSIST",
+        "APPLICATION_ASSIST",
+        "END_TO_END",
+        "UNKNOWN"
+      ],
+      "default": "GUIDANCE_ONLY",
+      "description": "Phase 27 \u00a712: snapshot of the resolved execution capability at case creation. Controls whether the case may ever reach SUBMITTED (\u00a74)."
+    },
+    "route_status": {
+      "type": "string",
+      "enum": [
+        "AVAILABLE",
+        "GUIDANCE_ONLY",
+        "PARTIAL_ASSIST",
+        "NO_PROVIDER",
+        "PROVIDER_UNVERIFIED",
+        "PROVIDER_UNAVAILABLE",
+        "REQUIRES_HUMAN",
+        "BLOCKED",
+        "RESEARCH_REQUIRED"
+      ],
+      "description": "Phase 27 \u00a716: snapshot of the Phase 26 ProviderRouter decision at case creation."
+    },
+    "provider_key": {
+      "type": "string",
+      "description": "Phase 27: selected provider key at creation (nullable until routed)."
+    },
+    "provider_binding_id": {
+      "type": "string"
+    },
+    "provider_application_id": {
+      "type": "string",
+      "description": "External provider application reference, set after provider submission."
+    },
+    "verification_snapshot_id": {
+      "type": "string",
+      "description": "Phase 27 \u00a75: reference to the verification snapshot pinned at case creation."
+    },
+    "execution_snapshot_id": {
+      "type": "string",
+      "description": "Phase 27 \u00a75: reference to the execution/route snapshot pinned at case creation."
+    },
+    "case_snapshot": {
+      "type": "object",
+      "description": "Phase 27 \u00a75: immutable snapshot of the resolved Travel Entry result at case creation (country, journey, nationality, eligibility, requirements, documents, official source, provider, execution capability, fee, processing, verification status, confidence, resolved_at, snapshot_hash). Later catalog changes never silently mutate an existing case."
+    },
+    "eligibility_outcome": {
+      "type": "string",
+      "enum": [
+        "eligible",
+        "ineligible",
+        "unknown",
+        "requires_review"
+      ],
+      "description": "Phase 27 \u00a76: resolved eligibility result for this case."
+    },
+    "data_version": {
+      "type": "number",
+      "default": 1,
+      "description": "Phase 27: monotonic case data version bumped on every case-engine transition."
+    },
+    "closed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Phase 27: set when the case reaches a terminal state (APPROVED/REJECTED/CANCELLED/EXPIRED/COMPLETED)."
+    },
+    "ops_owner_id": {
+      "type": "string",
+      "description": "Phase 29 \u00a717: operations owner assigned to the case. Filterable; null = unassigned."
+    },
+    "ops_priority": {
+      "type": "string",
+      "enum": [
+        "LOW",
+        "NORMAL",
+        "HIGH",
+        "URGENT"
+      ],
+      "default": "NORMAL",
+      "description": "Phase 29 \u00a722: deterministic case priority. HIGH/URGENT via override requires recorded reason + actor."
+    },
+    "ops_priority_reason": {
+      "type": "string",
+      "description": "Phase 29 \u00a722: reason recorded when priority is overridden."
+    },
+    "ops_priority_overridden": {
+      "type": "boolean",
+      "default": false,
+      "description": "Phase 29 \u00a722: true when an admin overrode the deterministic priority (audited)."
+    },
+    "ops_expected_duration_days": {
+      "type": "number",
+      "description": "Phase 29 \u00a723: configured operational expectation for SLA (not a government guarantee)."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "traveler_id",
+    "destination",
+    "visa_type_key",
+    "purpose"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

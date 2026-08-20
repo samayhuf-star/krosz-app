@@ -1,0 +1,65 @@
+{
+  "name": "SearchAlias",
+  "type": "object",
+  "description": "Worldz Visa (Phase 21): a search alias mapping a free-text term to a canonical Country.code. Powers smart search (aliases, abbreviations, common city names) WITHOUT duplicating country entities (\u00a73/\u00a76). e.g. 'usa'/'america'/'united states of america' \u2192 'US'. Public read so search works for anonymous visitors; admin-managed.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "alias": {
+      "type": "string",
+      "description": "Lowercased alias term. Unique."
+    },
+    "country_code": {
+      "type": "string",
+      "description": "Canonical destination ISO alpha-2 (Country.code)."
+    },
+    "alias_type": {
+      "type": "string",
+      "enum": [
+        "name",
+        "abbreviation",
+        "city",
+        "demonym",
+        "historic",
+        "other"
+      ],
+      "default": "name"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "alias",
+    "country_code",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

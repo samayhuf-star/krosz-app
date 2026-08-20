@@ -1,0 +1,121 @@
+{
+  "name": "BusinessBlueprint",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "approved",
+        "superseded"
+      ],
+      "default": "draft"
+    },
+    "blueprint": {
+      "type": "object"
+    },
+    "source_profile": {
+      "type": "object"
+    },
+    "generated_by": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ai_model": {
+      "type": "string"
+    },
+    "ai_provider": {
+      "type": "string"
+    },
+    "prompt_version": {
+      "type": "string"
+    },
+    "planner_version": {
+      "type": "string"
+    },
+    "provenance": {
+      "type": "object",
+      "description": "Runtime-truthful provenance for orchestrator-generated blueprints: provider_id, provider_key, adapter_key, model, capability, execution_id, run_id, task_id, attempt, prompt_version, fallback_used."
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "version",
+    "blueprint"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

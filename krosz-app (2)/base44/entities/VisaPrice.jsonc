@@ -1,0 +1,90 @@
+{
+  "name": "VisaPrice",
+  "type": "object",
+  "description": "Worldz Visa (Phase 10): a versioned price for a VisaProduct. Components are stored separately as an array (\u00a77) \u2014 each has type, code, label, amount_minor (integer minor units, \u00a726). total_minor is the deterministic sum. Government fees carry government_fee_basis (included/estimated/variable/unknown, \u00a724). Snapshotted into Orders at creation; historical orders never recalculate from the catalog (\u00a78). Public read (catalog); admin-managed.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "product_id": {
+      "type": "string"
+    },
+    "currency": {
+      "type": "string",
+      "description": "ISO-4217 upper-case, e.g. INR. From the platform currency catalog (\u00a725)."
+    },
+    "version": {
+      "type": "string",
+      "description": "Price version label, e.g. v1."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "effective_from": {
+      "type": "string",
+      "format": "date"
+    },
+    "effective_until": {
+      "type": "string",
+      "format": "date"
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "One price component (\u00a77): GOVERNMENT_FEE/SERVICE_FEE/PROCESSING_FEE/APPOINTMENT_FEE/COURIER_FEE/DOCUMENT_SERVICE_FEE/OPTIONAL_SERVICE/TAX/DISCOUNT."
+      }
+    },
+    "subtotal_minor": {
+      "type": "number",
+      "description": "Sum of non-tax, non-discount components (integer minor units)."
+    },
+    "tax_minor": {
+      "type": "number",
+      "default": 0
+    },
+    "discount_minor": {
+      "type": "number",
+      "default": 0
+    },
+    "total_minor": {
+      "type": "number",
+      "description": "Deterministic total = subtotal + tax - discount (integer minor units)."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "product_id",
+    "currency",
+    "version",
+    "status",
+    "components",
+    "total_minor"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,250 @@
+{
+  "name": "EmailMessage",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "mailbox_id": {
+      "type": "string"
+    },
+    "thread_id": {
+      "type": "string"
+    },
+    "message_id": {
+      "type": "string",
+      "description": "Provider's RFC Message-ID; used for reply threading."
+    },
+    "in_reply_to": {
+      "type": "string"
+    },
+    "from_addr": {
+      "type": "string"
+    },
+    "to_addr": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "cc": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "bcc": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "subject": {
+      "type": "string"
+    },
+    "body_text": {
+      "type": "string"
+    },
+    "body_html": {
+      "type": "string"
+    },
+    "folder": {
+      "type": "string",
+      "enum": [
+        "inbox",
+        "sent",
+        "drafts",
+        "scheduled",
+        "spam",
+        "archive",
+        "trash"
+      ],
+      "default": "inbox"
+    },
+    "is_unread": {
+      "type": "boolean",
+      "default": true
+    },
+    "is_starred": {
+      "type": "boolean",
+      "default": false
+    },
+    "needs_reply": {
+      "type": "boolean",
+      "default": false
+    },
+    "ai_suggested_action": {
+      "type": "string"
+    },
+    "ai_category": {
+      "type": "string",
+      "enum": [
+        "sales",
+        "support",
+        "finance",
+        "general",
+        "hr",
+        "marketing",
+        "vip",
+        "spam",
+        "unknown"
+      ],
+      "default": "unknown"
+    },
+    "ai_urgency": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal"
+    },
+    "labels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "assigned_user_id": {
+      "type": "string"
+    },
+    "crm_contact_id": {
+      "type": "string"
+    },
+    "crm_lead_id": {
+      "type": "string"
+    },
+    "ticket_id": {
+      "type": "string"
+    },
+    "kg_node_id": {
+      "type": "string"
+    },
+    "has_attachments": {
+      "type": "boolean",
+      "default": false
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "importance": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal"
+    },
+    "received_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "draft_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "scheduled_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "provider_message_id": {
+      "type": "string"
+    },
+    "sync_id": {
+      "type": "string"
+    },
+    "ai_summary": {
+      "type": "string"
+    },
+    "ai_action_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "token_count": {
+      "type": "number",
+      "default": 0
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "subject",
+    "folder"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

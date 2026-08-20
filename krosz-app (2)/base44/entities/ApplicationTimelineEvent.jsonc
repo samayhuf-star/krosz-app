@@ -1,0 +1,148 @@
+{
+  "name": "ApplicationTimelineEvent",
+  "type": "object",
+  "description": "Worldz Visa (Phase 12/18): append-only customer-facing journey event for a VisaApplication. Canonical event types only (\u00a74); never internal task/worker noise (\u00a75). Visibility gates who sees it: CUSTOMER events populate the traveler timeline; OPERATOR/INTERNAL/SYSTEM stay in the operator console. Deduplicated by event_id (application_id + event_type + source_ref hash, \u00a74) so retries never create duplicate rows. Phase 18 adds commercial milestones (ORDER_CREATED, PAYMENT_INITIATED, PAYMENT_SUCCESSFUL, PAYMENT_FAILED, FINAL_REVIEW_COMPLETED, READY_FOR_SUBMISSION). Owner-of-application-or-admin (traveler_id denormalized).",
+  "properties": {
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "event_id": {
+      "type": "string",
+      "description": "Stable dedup key; identical retried operations collapse to one row."
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "APPLICATION_CREATED",
+        "REQUIREMENTS_READY",
+        "DOCUMENTS_STARTED",
+        "DOCUMENTS_COMPLETED",
+        "QUESTIONS_REQUIRED",
+        "QUESTIONS_COMPLETED",
+        "APPLICATION_READY",
+        "PAYMENT_REQUIRED",
+        "PAYMENT_COMPLETED",
+        "FORM_GENERATED",
+        "FORM_VALIDATED",
+        "SUBMISSION_PACKAGE_READY",
+        "SUBMISSION_APPROVED",
+        "SUBMISSION_STARTED",
+        "SUBMISSION_COMPLETED",
+        "APPOINTMENT_REQUIRED",
+        "APPOINTMENT_BOOKED",
+        "BIOMETRICS_COMPLETED",
+        "INTERVIEW_COMPLETED",
+        "PASSPORT_SUBMITTED",
+        "APPLICATION_PROCESSING",
+        "ADDITIONAL_INFORMATION_REQUIRED",
+        "DECISION_RECEIVED",
+        "VISA_APPROVED",
+        "VISA_REFUSED",
+        "PASSPORT_RETURNED",
+        "APPLICATION_CANCELLED",
+        "ORDER_CREATED",
+        "PAYMENT_INITIATED",
+        "PAYMENT_SUCCESSFUL",
+        "PAYMENT_FAILED",
+        "FINAL_REVIEW_COMPLETED",
+        "READY_FOR_SUBMISSION"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "INFO",
+        "SUCCESS",
+        "WARNING",
+        "BLOCKED"
+      ],
+      "default": "INFO"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "CUSTOMER",
+        "OPERATOR",
+        "INTERNAL",
+        "SYSTEM"
+      ],
+      "default": "CUSTOMER"
+    },
+    "actor_type": {
+      "type": "string",
+      "enum": [
+        "TRAVELER",
+        "OPERATOR",
+        "SYSTEM",
+        "PROVIDER",
+        "PORTAL"
+      ],
+      "default": "SYSTEM"
+    },
+    "source_ref": {
+      "type": "string",
+      "description": "Reference to the domain object that produced this event (submission_id, appointment_id, payment_id, run_id...)."
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "traveler_id",
+    "event_id",
+    "event_type",
+    "visibility",
+    "occurred_at"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

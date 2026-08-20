@@ -1,0 +1,133 @@
+{
+  "name": "FinancialAuditEvent",
+  "type": "object",
+  "description": "Worldz Visa (Phase 38 \u00a724): an immutable, append-only audit record of every financial adjustment. Records who, what, when, why, old value, new value, source, and authorization. Never silently changes historical financial records \u2014 corrections append a new event. The financial record itself is updated; this event is the traceable proof. Admin read; service-role/admin create; immutable (no update/delete).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "case_id": {
+      "type": "string"
+    },
+    "financial_record_id": {
+      "type": "string",
+      "description": "ApplicationFinancialRecord.id affected."
+    },
+    "order_id": {
+      "type": "string"
+    },
+    "payment_id": {
+      "type": "string"
+    },
+    "refund_id": {
+      "type": "string"
+    },
+    "provider_statement_id": {
+      "type": "string"
+    },
+    "provider_invoice_id": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "FINANCIAL_RECORD_CREATED",
+        "FEE_RECLASSIFIED",
+        "PROVIDER_COST_RECORDED",
+        "RECONCILIATION_MATCHED",
+        "RECONCILIATION_MISMATCH",
+        "REFUND_RECORDED",
+        "PROVIDER_REFUND_RECORDED",
+        "CHARGEBACK_OPENED",
+        "CHARGEBACK_RESOLVED",
+        "SETTLEMENT_ALLOCATED",
+        "SETTLEMENT_SETTLED",
+        "ANOMALY_DETECTED",
+        "MANUAL_ADJUSTMENT",
+        "EXPORT_VIEWED"
+      ]
+    },
+    "actor_id": {
+      "type": "string"
+    },
+    "actor_name": {
+      "type": "string"
+    },
+    "actor_role": {
+      "type": "string",
+      "enum": [
+        "TRAVELER",
+        "OPERATIONS",
+        "ADMIN",
+        "SYSTEM"
+      ],
+      "default": "SYSTEM"
+    },
+    "field": {
+      "type": "string",
+      "description": "Which field changed."
+    },
+    "old_value": {
+      "type": "object",
+      "description": "Previous value (redacted of PII)."
+    },
+    "new_value": {
+      "type": "object",
+      "description": "New value (redacted of PII)."
+    },
+    "reason": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "description": "payment_engine / reconciliation / statement_import / manual / system."
+    },
+    "authorization": {
+      "type": "string",
+      "description": "How the change was authorized (admin_id / policy / webhook)."
+    },
+    "amount_minor": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "case_id",
+    "action",
+    "actor_id",
+    "occurred_at"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

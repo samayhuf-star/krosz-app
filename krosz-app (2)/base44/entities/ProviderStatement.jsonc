@@ -1,0 +1,129 @@
+{
+  "name": "ProviderStatement",
+  "type": "object",
+  "description": "Worldz Visa (Phase 38 \u00a713/\u00a714): a normalized provider settlement/statement record imported from a provider report (CSV/JSON/API/SFTP). ONE row per (provider_key, statement_id, record_id) \u2014 importing the same statement twice is idempotent and NEVER duplicates financial records, transactions, refunds, or tasks (\u00a714). Normalized into one internal reconciliation format (\u00a713). Used to match provider_application_id + expected vs actual provider fee/application/refund (\u00a711). Admin-managed; internal-only.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "provider_key": {
+      "type": "string"
+    },
+    "statement_id": {
+      "type": "string",
+      "description": "Provider's statement/batch identifier."
+    },
+    "record_id": {
+      "type": "string",
+      "description": "Per-row record identifier within the statement."
+    },
+    "import_key": {
+      "type": "string",
+      "description": "Deterministic dedup key: provider_key + statement_id + record_id (\u00a714)."
+    },
+    "statement_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "provider_application_id": {
+      "type": "string",
+      "description": "Matches VisaApplication.provider_application_id (\u00a711)."
+    },
+    "case_id": {
+      "type": "string",
+      "description": "Resolved case id (matched). Null until matched."
+    },
+    "actual_provider_fee_minor": {
+      "type": "number"
+    },
+    "actual_government_fee_minor": {
+      "type": "number"
+    },
+    "actual_refund_minor": {
+      "type": "number",
+      "description": "Provider refund to Orizn (\u00a722)."
+    },
+    "actual_application_status": {
+      "type": "string"
+    },
+    "actual_decision": {
+      "type": "string"
+    },
+    "period_from": {
+      "type": "string",
+      "format": "date"
+    },
+    "period_to": {
+      "type": "string",
+      "format": "date"
+    },
+    "source_format": {
+      "type": "string",
+      "enum": [
+        "CSV",
+        "JSON",
+        "API",
+        "SFTP",
+        "MANUAL"
+      ]
+    },
+    "raw_reference": {
+      "type": "string",
+      "description": "Opaque external reference (no secrets)."
+    },
+    "matched": {
+      "type": "boolean",
+      "default": false
+    },
+    "reconciliation_status": {
+      "type": "string",
+      "enum": [
+        "UNMATCHED",
+        "MATCHED",
+        "PARTIAL",
+        "MISMATCH"
+      ],
+      "default": "UNMATCHED"
+    },
+    "imported_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "provider_key",
+    "statement_id",
+    "record_id",
+    "import_key",
+    "currency"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

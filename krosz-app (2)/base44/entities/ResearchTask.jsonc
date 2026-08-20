@@ -1,0 +1,156 @@
+{
+  "name": "ResearchTask",
+  "type": "object",
+  "description": "Worldz Visa (Phase 24 \u00a76): a unit of research work in the verification queue. ONE row per (country_capability_id, claim_type) work item. Turns the Phase 23 'queue' into a real workflow: a destination never becomes VERIFIED merely by changing a dropdown \u2014 VERIFIED requires attached evidence that satisfies the two-source rule (\u00a77). Internal-only: admin read/create/update/delete \u2014 research work is never exposed to travelers (\u00a718).",
+  "properties": {
+    "country_capability_id": {
+      "type": "string",
+      "description": "CountryCapability.id this task researches."
+    },
+    "country_code": {
+      "type": "string",
+      "description": "Denormalized destination ISO alpha-2."
+    },
+    "journey_type": {
+      "type": "string",
+      "description": "Denormalized journey_type from the capability."
+    },
+    "claim_type": {
+      "type": "string",
+      "enum": [
+        "general_destination",
+        "entry_mode",
+        "visa_required",
+        "evisa_available",
+        "eta_available",
+        "visa_on_arrival",
+        "visa_free",
+        "eligibility",
+        "passport_requirement",
+        "application_url",
+        "government_application_method",
+        "fee",
+        "processing_time",
+        "validity",
+        "stay_duration",
+        "required_documents",
+        "photo_requirements",
+        "biometric_requirements",
+        "insurance_requirements",
+        "transit_rules",
+        "tracking_method",
+        "provider_capability",
+        "binding_verification"
+      ],
+      "default": "general_destination",
+      "description": "Claim/category this task covers (\u00a76)."
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "LOW",
+        "NORMAL",
+        "HIGH",
+        "URGENT"
+      ],
+      "default": "NORMAL"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "QUEUED",
+        "IN_PROGRESS",
+        "BLOCKED",
+        "NEEDS_SECOND_SOURCE",
+        "READY_FOR_REVIEW",
+        "VERIFIED",
+        "REJECTED"
+      ],
+      "default": "QUEUED",
+      "description": "Research workflow state (\u00a76). Transitions are validated (\u00a713)."
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Researcher who claimed the task."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "due_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_requirements": {
+      "type": "string",
+      "description": "What sources this task must collect (e.g. 'official immigration portal + embassy confirmation')."
+    },
+    "verification_result": {
+      "type": "string",
+      "description": "Summary of the verification outcome when the task completes."
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "CapabilityEvidence ids attached as this task's proof."
+    },
+    "task_key": {
+      "type": "string",
+      "description": "Stable dedup key (country_capability_id + claim_type)."
+    },
+    "generated_by": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "seed",
+        "stale_scan",
+        "change_detector"
+      ],
+      "default": "manual",
+      "description": "How this task was created (\u00a76/\u00a714)."
+    },
+    "notes": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "country_capability_id",
+    "claim_type",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

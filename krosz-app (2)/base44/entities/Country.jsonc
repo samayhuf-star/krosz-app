@@ -1,0 +1,83 @@
+{
+  "name": "Country",
+  "type": "object",
+  "description": "Worldz Visa catalog: ISO country + travel-region + monetary/timezone metadata. One canonical geographic entity used for both destinations and as the geographic referent for nationalities. Public read, admin-managed.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "code": {
+      "type": "string",
+      "description": "ISO 3166-1 alpha-2 (upper-case). Stable ID."
+    },
+    "name": {
+      "type": "string"
+    },
+    "official_name": {
+      "type": "string",
+      "description": "Official long-form name, e.g. 'United Kingdom of Great Britain and Northern Ireland'."
+    },
+    "region": {
+      "type": "string"
+    },
+    "subregion": {
+      "type": "string"
+    },
+    "flag_emoji": {
+      "type": "string"
+    },
+    "is_schengen": {
+      "type": "boolean",
+      "default": false
+    },
+    "currency": {
+      "type": "string",
+      "description": "ISO-4217 upper-case, e.g. INR."
+    },
+    "timezone": {
+      "type": "string",
+      "description": "IANA tz, e.g. Asia/Kolkata."
+    },
+    "popular_destinations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "ISO codes of frequently paired destinations (UI hints only)."
+    },
+    "requires_visa_for_indian": {
+      "type": "boolean",
+      "default": true
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "code",
+    "name"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

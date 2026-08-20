@@ -1,0 +1,153 @@
+{
+  "name": "BusinessObservation",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "crm",
+        "seo",
+        "website",
+        "email",
+        "marketing",
+        "domain",
+        "operations",
+        "communications",
+        "ai",
+        "system"
+      ],
+      "description": "Which business system emitted this observation."
+    },
+    "category": {
+      "type": "string",
+      "description": "Free-form signal category, e.g. leads, traffic, performance, security, spend, deliverability, renewal."
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "info",
+        "warning",
+        "critical"
+      ],
+      "default": "info"
+    },
+    "signal_key": {
+      "type": "string",
+      "description": "Stable dedupe key within business for upsert (e.g. crm.no_new_leads_7d). Same key + open status = update, not duplicate."
+    },
+    "title": {
+      "type": "string"
+    },
+    "detail": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "object",
+      "description": "Structured metrics snapshot backing the observation (counts, dates, deltas)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "acknowledged",
+        "resolved",
+        "dismissed"
+      ],
+      "default": "open"
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "ignore",
+        "recommend",
+        "auto_fix",
+        "escalate",
+        "ask_user",
+        "pending"
+      ],
+      "default": "pending",
+      "description": "AI Decision Engine classification of how to handle this observation."
+    },
+    "decision_rationale": {
+      "type": "string"
+    },
+    "recommendation_id": {
+      "type": "string",
+      "description": " Linked LaunchRecommendation when decision suggests one."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "source",
+    "signal_key",
+    "title",
+    "severity",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

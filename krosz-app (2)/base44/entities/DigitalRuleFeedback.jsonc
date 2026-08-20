@@ -1,0 +1,87 @@
+{
+  "type": "object",
+  "description": "Krosz feedback loop for rare post-payment verifier 'not doable' outcomes. Captures the missed pre-payment signal as a reviewed rule candidate; never auto-publishes or silently changes regulatory rules.",
+  "properties": {
+    "application_id": {
+      "type": "string"
+    },
+    "post_payment_review_id": {
+      "type": "string"
+    },
+    "destination": {
+      "type": "string"
+    },
+    "visa_type_key": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "reason_code": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "digital_quality_score": {
+      "type": "number"
+    },
+    "missed_signal": {
+      "type": "object"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "NEW",
+        "UNDER_REVIEW",
+        "RULE_CANDIDATE",
+        "IMPLEMENTED",
+        "REJECTED",
+        "CLOSED"
+      ],
+      "default": "NEW"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "post_payment_review_id",
+    "reason_code",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "name": "DigitalRuleFeedback"
+}

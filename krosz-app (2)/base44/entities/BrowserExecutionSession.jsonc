@@ -1,0 +1,187 @@
+{
+  "name": "BrowserExecutionSession",
+  "type": "object",
+  "description": "Worldz Visa (Phase 11): a controlled execution session for a Submission against an external portal (\u00a75). Strategy = API / BROWSER_AUTOMATION / HUMAN_ASSISTED / MANUAL. The orchestrator owns durable execution; the provider owns external interaction. Pinned to an ExecutionPlan + PortalDefinition. Checkpoint-based crash recovery (\u00a7\u00a726/27); after a submit click the state is never retried blindly (\u00a728: UNKNOWN_EXTERNAL_STATE). A distributed lease (lease_owner + lease_expires_at) prevents two workers on one submission (\u00a744). Owner-of-application-or-admin (traveler_id denormalized).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "submission_id": {
+      "type": "string"
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "provider_key": {
+      "type": "string",
+      "description": "Denormalized stable provider key."
+    },
+    "execution_plan_id": {
+      "type": "string"
+    },
+    "portal_definition_id": {
+      "type": "string"
+    },
+    "portal_workflow_id": {
+      "type": "string"
+    },
+    "portal_workflow_version": {
+      "type": "string"
+    },
+    "strategy": {
+      "type": "string",
+      "enum": [
+        "API",
+        "BROWSER_AUTOMATION",
+        "HUMAN_ASSISTED",
+        "MANUAL"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "CREATED",
+        "INITIALIZING",
+        "AUTHENTICATING",
+        "NAVIGATING",
+        "FILLING",
+        "UPLOADING",
+        "REVIEWING",
+        "WAITING_FOR_USER",
+        "SUBMITTING",
+        "COMPLETED",
+        "FAILED",
+        "CANCELLED",
+        "UNKNOWN_EXTERNAL_STATE"
+      ],
+      "default": "CREATED"
+    },
+    "execution_session_reference": {
+      "type": "string",
+      "description": "External provider/browser session reference (opaque; never stores cookies/tokens/passwords)."
+    },
+    "current_step": {
+      "type": "string"
+    },
+    "last_checkpoint": {
+      "type": "string",
+      "enum": [
+        "CREATED",
+        "PORTAL_OPENED",
+        "APPLICATION_CREATED",
+        "IDENTITY_COMPLETED",
+        "TRAVEL_COMPLETED",
+        "DOCUMENTS_UPLOADED",
+        "REVIEW_READY",
+        "SUBMISSION_APPROVED",
+        "SUBMITTED",
+        "RECEIPT_CAPTURED",
+        "NONE"
+      ],
+      "default": "NONE"
+    },
+    "external_reference": {
+      "type": "string",
+      "description": "Reference captured from the portal (application number/submission id)."
+    },
+    "receipt_document_id": {
+      "type": "string"
+    },
+    "receipt_document_version_id": {
+      "type": "string"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "submission_id + strategy; duplicate start returns the same session."
+    },
+    "lease_owner": {
+      "type": "string",
+      "description": "Worker id holding the execution lease (\u00a744)."
+    },
+    "lease_expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "error_code": {
+      "type": "string"
+    },
+    "error_category": {
+      "type": "string",
+      "enum": [
+        "TRANSIENT",
+        "PERMANENT",
+        "HUMAN_REQUIRED",
+        "UNKNOWN",
+        "UNKNOWN_EXTERNAL_STATE"
+      ]
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ended_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_url": {
+      "type": "string",
+      "description": "Last approved-domain URL visited (for operator visibility; not session cookies)."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "traveler_id",
+    "submission_id",
+    "provider_id",
+    "strategy",
+    "status",
+    "idempotency_key"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

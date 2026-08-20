@@ -1,0 +1,98 @@
+{
+  "name": "VisaNotificationPreference",
+  "type": "object",
+  "description": "Worldz Visa (Phase 12): per-traveler notification preferences (\u00a719). Each category toggles the channels the traveler wants; marketing is fully independent so disabling marketing never mutes operational visa notifications (\u00a719/\u00a760). Unique per traveler (managed upsert). Owner-or-admin.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Unique."
+    },
+    "language": {
+      "type": "string",
+      "default": "en",
+      "description": "Preferred notification language (\u00a724). en | hi."
+    },
+    "application_updates": {
+      "type": "object",
+      "description": "Channel toggles for application_updates."
+    },
+    "appointment_reminders": {
+      "type": "object"
+    },
+    "payment_updates": {
+      "type": "object"
+    },
+    "document_updates": {
+      "type": "object"
+    },
+    "support_messages": {
+      "type": "object"
+    },
+    "marketing": {
+      "type": "object",
+      "description": "Marketing is independent; defaults to disabled."
+    },
+    "quiet_hours": {
+      "type": "object",
+      "description": "Optional quiet window {start, end, timezone}; CRITICAL/OTP/security bypass (\u00a759)."
+    },
+    "email_invalid": {
+      "type": "boolean",
+      "default": false,
+      "description": "Set when the email provider reports a permanent bounce (\u00a767); suppresses email channel."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "traveler_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

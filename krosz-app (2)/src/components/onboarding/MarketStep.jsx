@@ -1,0 +1,4 @@
+import Field from '@/components/onboarding/Field';
+export default function MarketStep({ data, update }) {
+  return <div className="space-y-5"><Field as="textarea" rows={4} id="description" label="Business description" value={data.description} onChange={e=>update('description',e.target.value)} required/><Field as="textarea" rows={4} id="services" label="Services or products" placeholder="One per line" value={data.services} onChange={e=>update('services',e.target.value)} required/><Field as="textarea" rows={3} id="target_customers" label="Target customers" value={data.target_customers} onChange={e=>update('target_customers',e.target.value)} required/></div>;
+}

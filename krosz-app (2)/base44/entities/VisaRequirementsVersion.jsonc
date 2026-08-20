@@ -1,0 +1,94 @@
+{
+  "name": "VisaRequirementsVersion",
+  "type": "object",
+  "description": "Worldz Visa knowledge graph: an immutable version of the requirements graph for a route (destination x purpose). VisaApplication pins to this requirements_version so changing rules never silently alter an in-flight application. Carries effective-date + verification metadata for Phase 15 rule versioning. Lifecycle draft/active/superseded/archived; exactly one active per route.",
+  "properties": {
+    "requirements_version": {
+      "type": "string",
+      "description": "Stable version label, e.g. IN-FR-tourism-2026-08-dev."
+    },
+    "destination": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "visa_type_key": {
+      "type": "string"
+    },
+    "source_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "description": "Human version label, e.g. v1."
+    },
+    "effective_from": {
+      "type": "string",
+      "format": "date"
+    },
+    "effective_until": {
+      "type": "string",
+      "format": "date"
+    },
+    "last_verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verified_by": {
+      "type": "string",
+      "description": "User/email that verified this version."
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "unverified",
+        "verified",
+        "stale",
+        "disputed"
+      ],
+      "default": "unverified"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "superseded",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "requirements_version",
+    "destination",
+    "purpose",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

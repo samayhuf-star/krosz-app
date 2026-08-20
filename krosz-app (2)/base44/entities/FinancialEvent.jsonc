@@ -1,0 +1,91 @@
+{
+  "name": "FinancialEvent",
+  "type": "object",
+  "description": "Worldz Visa (Phase 18): an immutable, append-only financial audit event (\u00a727). One row per commercial transition \u2014 PRICE_CREATED, ORDER_CREATED, PAYMENT_INITIATED, PAYMENT_SUCCEEDED, PAYMENT_FAILED, REFUND_REQUESTED, REFUND_SUCCEEDED, REFUND_FAILED, PRICE_INVALIDATED. Never overwritten; corrections append a new event. Amounts are integer minor units. Owner-or-admin read; owner-or-admin create (service role); admin update/delete (immutable in practice).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "order_id": {
+      "type": "string"
+    },
+    "payment_id": {
+      "type": "string"
+    },
+    "refund_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "PRICE_CREATED",
+        "ORDER_CREATED",
+        "PAYMENT_INITIATED",
+        "PAYMENT_SUCCEEDED",
+        "PAYMENT_FAILED",
+        "REFUND_REQUESTED",
+        "REFUND_SUCCEEDED",
+        "REFUND_FAILED",
+        "PRICE_INVALIDATED"
+      ]
+    },
+    "amount_minor": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "event_type"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

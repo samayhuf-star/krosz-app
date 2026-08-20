@@ -1,0 +1,107 @@
+{
+  "name": "ExecutionPlan",
+  "type": "object",
+  "description": "Worldz Visa (Phase 11): a deterministic execution plan pinned to a SubmissionPackage + PortalWorkflow version (\u00a7\u00a76/7). Generated from the form definition + package items + provider capabilities \u2014 never by an LLM at runtime. Each step references portal selectors + form fields + document versions; values originate ONLY from the approved form snapshot (\u00a713). Immutable after the execution starts; a new plan version is created if the workflow changes. Owner-of-application-or-admin.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "submission_package_id": {
+      "type": "string"
+    },
+    "form_definition_id": {
+      "type": "string"
+    },
+    "form_snapshot_id": {
+      "type": "string"
+    },
+    "package_hash": {
+      "type": "string",
+      "description": "Pinned package hash at plan generation. Final submit blocks if the live package hash differs (\u00a730)."
+    },
+    "portal_definition_id": {
+      "type": "string"
+    },
+    "portal_workflow_id": {
+      "type": "string"
+    },
+    "portal_workflow_version": {
+      "type": "string"
+    },
+    "execution_strategy": {
+      "type": "string",
+      "enum": [
+        "API",
+        "BROWSER_AUTOMATION",
+        "HUMAN_ASSISTED",
+        "MANUAL"
+      ]
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Planned step: { key, order, capability, field_codes?, document_types?, checkpoint }."
+      }
+    },
+    "version": {
+      "type": "string",
+      "default": "v1"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "traveler_id",
+    "submission_package_id",
+    "package_hash",
+    "execution_strategy",
+    "steps"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

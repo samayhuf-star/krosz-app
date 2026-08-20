@@ -1,0 +1,111 @@
+{
+  "name": "VisaRoute",
+  "type": "object",
+  "description": "Worldz Visa catalog: a resolved nationality -> residence -> destination -> purpose route to a visa_type + channel. Versioned, provenance-stamped. Public read, admin-managed.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "nationality": {
+      "type": "string"
+    },
+    "residence": {
+      "type": "string"
+    },
+    "destination": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string",
+      "enum": [
+        "tourism",
+        "business",
+        "study",
+        "transit"
+      ]
+    },
+    "visa_type_key": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "evisa",
+        "vac",
+        "embassy",
+        "onsite"
+      ],
+      "default": "evisa"
+    },
+    "appointment_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "requirements_version": {
+      "type": "string"
+    },
+    "eligible": {
+      "type": "boolean",
+      "default": true
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "government",
+        "embassy",
+        "visa_center",
+        "official_provider",
+        "verified_internal",
+        "secondary_reference",
+        "dev_seed"
+      ],
+      "default": "dev_seed"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "confidence": {
+      "type": "number",
+      "default": 0.5
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "superseded",
+        "archived"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "nationality",
+    "destination",
+    "purpose",
+    "visa_type_key"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

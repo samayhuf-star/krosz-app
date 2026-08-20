@@ -1,0 +1,145 @@
+{
+  "name": "Payment",
+  "type": "object",
+  "description": "Worldz Visa (Phase 10): a provider-neutral payment for an Order, created from a priced order via a payment Provider (category 'payment', reused infra). Idempotent by (order_id + op + attempt). Status is reconciled server-side via webhooks (\u00a717) \u2014 the browser never authoritatively marks an order paid. Owner-or-admin (traveler_id + application_id denormalized for access checks).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "order_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Denormalized."
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "provider_key": {
+      "type": "string",
+      "description": "Denormalized stable provider key."
+    },
+    "provider_type": {
+      "type": "string"
+    },
+    "provider_payment_id": {
+      "type": "string",
+      "description": "Provider-side payment id (normalized)."
+    },
+    "checkout_url": {
+      "type": "string",
+      "description": "Provider checkout URL when hosted (mock returns a sandbox URL)."
+    },
+    "amount_minor": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "CREATED",
+        "PENDING",
+        "AUTHORIZED",
+        "SUCCEEDED",
+        "FAILED",
+        "CANCELLED",
+        "REFUNDED",
+        "PARTIALLY_REFUNDED"
+      ],
+      "default": "CREATED"
+    },
+    "payment_method": {
+      "type": "string"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "order_id + op + attempt; duplicate pay returns the same Payment."
+    },
+    "attempt": {
+      "type": "number",
+      "default": 1
+    },
+    "failure_code": {
+      "type": "string"
+    },
+    "failure_category": {
+      "type": "string",
+      "enum": [
+        "CARD_DECLINED",
+        "INSUFFICIENT_FUNDS",
+        "AUTHENTICATION_FAILED",
+        "PROVIDER_UNAVAILABLE",
+        "RATE_LIMITED",
+        "PAYMENT_EXPIRED",
+        "UNKNOWN"
+      ]
+    },
+    "paid_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "order_id",
+    "traveler_id",
+    "provider_id",
+    "amount_minor",
+    "currency",
+    "status",
+    "idempotency_key"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

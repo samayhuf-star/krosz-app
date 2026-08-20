@@ -1,0 +1,93 @@
+{
+  "name": "GovernmentFormField",
+  "type": "object",
+  "description": "Worldz Visa (Phase 7): a versioned field on a GovernmentFormDefinition. Stable machine-readable field_code is identity. visibility_rule reuses Phase 2 rule semantics ({field, operator, value}). Public read (catalog); admin-managed.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "form_definition_id": {
+      "type": "string"
+    },
+    "field_code": {
+      "type": "string",
+      "description": "e.g. applicant.surname."
+    },
+    "label": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "TEXT",
+        "NUMBER",
+        "DATE",
+        "BOOLEAN",
+        "SELECT",
+        "MULTI_SELECT",
+        "COUNTRY",
+        "CURRENCY",
+        "PHONE",
+        "EMAIL",
+        "ADDRESS",
+        "DOCUMENT"
+      ]
+    },
+    "required": {
+      "type": "boolean",
+      "default": false
+    },
+    "section": {
+      "type": "string"
+    },
+    "order": {
+      "type": "number",
+      "default": 100
+    },
+    "validation": {
+      "type": "object",
+      "description": "Deterministic validation rules (pattern, min_length, max_length, min, max, date, enum)."
+    },
+    "visibility_rule": {
+      "type": "object",
+      "description": "Deterministic visibility condition. null = always visible."
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "SELECT/MULTI_SELECT options: [{value, label}]."
+    },
+    "source_reference": {
+      "type": "string",
+      "description": "Form section/page reference, optional."
+    }
+  },
+  "required": [
+    "form_definition_id",
+    "field_code",
+    "label",
+    "type",
+    "section"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,194 @@
+{
+  "name": "Submission",
+  "type": "object",
+  "description": "Worldz Visa (Phase 8): a provider-neutral submission for a VisaApplication, built from an immutable SubmissionPackage. Pinned to a provider + package hash + idempotency key. Status state machine (\u00a722): CREATED \u2192 VALIDATING \u2192 READY \u2192 SUBMITTING \u2192 SUBMITTED \u2192 PROCESSING \u2192 COMPLETED/REJECTED/FAILED/CANCELLED. External reference + receipt are stored here; provider-specific payloads live in SubmissionProviderResponse. Owner-of-application-or-admin (traveler_id denormalized).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "submission_package_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "provider_key": {
+      "type": "string",
+      "description": "Denormalized stable provider key."
+    },
+    "provider_type": {
+      "type": "string",
+      "enum": [
+        "GOVERNMENT_API",
+        "VISA_CENTER_API",
+        "EMBASSY",
+        "CONSULATE",
+        "MANUAL_OPERATOR",
+        "EMAIL",
+        "BROWSER_AUTOMATION",
+        "AGENT"
+      ]
+    },
+    "provider_version": {
+      "type": "string",
+      "description": "Form version pinned at submission time."
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "evisa",
+        "vac",
+        "embassy",
+        "onsite"
+      ]
+    },
+    "environment": {
+      "type": "string",
+      "enum": [
+        "sandbox",
+        "production"
+      ],
+      "default": "sandbox"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "CREATED",
+        "VALIDATING",
+        "READY",
+        "SUBMITTING",
+        "SUBMITTED",
+        "PROCESSING",
+        "ACTION_REQUIRED",
+        "COMPLETED",
+        "REJECTED",
+        "FAILED",
+        "CANCELLED"
+      ],
+      "default": "CREATED"
+    },
+    "last_status": {
+      "type": "string"
+    },
+    "external_reference": {
+      "type": "string",
+      "description": "Normalized external reference (portal/VAC/embassy tracking id)."
+    },
+    "external_application_id": {
+      "type": "string",
+      "description": "Alias some providers return for the application id."
+    },
+    "provider_reference": {
+      "type": "string",
+      "description": "Provider-internal reference (e.g. draft id) when distinct from external_reference."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "application_id + package_hash + provider_id; duplicate submit returns the same Submission."
+    },
+    "form_snapshot_id": {
+      "type": "string"
+    },
+    "form_code": {
+      "type": "string"
+    },
+    "form_version": {
+      "type": "string"
+    },
+    "package_hash": {
+      "type": "string",
+      "description": "Pinned at creation; integrity-verified before submit."
+    },
+    "receipt_document_id": {
+      "type": "string",
+      "description": "Document (type SUBMISSION_RECEIPT) capturing the stamped receipt."
+    },
+    "receipt_document_version_id": {
+      "type": "string",
+      "description": "Pinned immutable receipt version."
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "error_code": {
+      "type": "string"
+    },
+    "error_category": {
+      "type": "string",
+      "enum": [
+        "TRANSIENT",
+        "PERMANENT",
+        "REQUIRES_USER",
+        "REQUIRES_OPERATOR",
+        "UNKNOWN"
+      ]
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "submission_package_id",
+    "traveler_id",
+    "provider_id",
+    "status",
+    "idempotency_key"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

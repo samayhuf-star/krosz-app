@@ -1,0 +1,123 @@
+{
+  "name": "SubmissionRoute",
+  "type": "object",
+  "description": "Worldz Visa (Phase 8): a deterministic submission route mapping a destination x visa_type x purpose x channel to a submission Provider with explicit capabilities and priority. The SubmissionProviderResolver queries these (priority ascending) and picks the first provider that is enabled + healthy. Priority is a column, NOT hard-coded ordering. Public read (catalog, no secrets); admin-managed.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "destination": {
+      "type": "string",
+      "description": "Destination ISO alpha-2 (upper-case)."
+    },
+    "visa_type_key": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string",
+      "enum": [
+        "tourism",
+        "business",
+        "study",
+        "transit"
+      ]
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "evisa",
+        "vac",
+        "embassy",
+        "onsite"
+      ]
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "Provider (category='submission') bound to this route."
+    },
+    "provider_type": {
+      "type": "string",
+      "enum": [
+        "GOVERNMENT_API",
+        "VISA_CENTER_API",
+        "EMBASSY",
+        "CONSULATE",
+        "MANUAL_OPERATOR",
+        "EMAIL",
+        "BROWSER_AUTOMATION",
+        "AGENT"
+      ]
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Capabilities the bound provider supports on this route."
+    },
+    "priority": {
+      "type": "number",
+      "default": 100,
+      "description": "Lower = higher priority. Deterministic tiebreak by priority then creation."
+    },
+    "environment": {
+      "type": "string",
+      "enum": [
+        "sandbox",
+        "production"
+      ],
+      "default": "sandbox"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "appointment_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "appointment_location": {
+      "type": "string"
+    },
+    "appointment_provider": {
+      "type": "string"
+    },
+    "fallback_route_id": {
+      "type": "string",
+      "description": "Optional explicit fallback route (\u00a755); null = no automatic fallback."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "destination",
+    "visa_type_key",
+    "purpose",
+    "provider_id",
+    "provider_type"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

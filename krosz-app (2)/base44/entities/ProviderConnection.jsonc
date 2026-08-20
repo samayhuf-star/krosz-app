@@ -1,0 +1,121 @@
+{
+  "name": "ProviderConnection",
+  "type": "object",
+  "description": "Worldz Visa (Phase 26 \u00a79): a connection/configuration record for a verified provider adapter. ONE row per (provider_key, environment) records the connection state, endpoint base URL, authentication type, a reference to a stored secret (NEVER the raw secret itself), health signal, and API version. Internal-only: admin read/create/update/delete \u2014 connection configuration is never exposed to travelers (\u00a724). Raw provider secrets are stored in the app's secret management, referenced here by credentials_reference; raw credentials are NEVER stored in this entity.",
+  "properties": {
+    "provider_key": {
+      "type": "string",
+      "description": "Provider.key this connection configures (e.g. SIMPLEVISA, PIPEWORX)."
+    },
+    "provider_name": {
+      "type": "string",
+      "description": "Denormalized display label."
+    },
+    "environment": {
+      "type": "string",
+      "enum": [
+        "SANDBOX",
+        "PRODUCTION"
+      ],
+      "default": "SANDBOX",
+      "description": "Which environment this connection targets."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "NOT_CONNECTED",
+        "CONNECTED",
+        "ERROR",
+        "DISABLED"
+      ],
+      "default": "NOT_CONNECTED",
+      "description": "Connection state. NOT_CONNECTED = provider discovered but integration not verified (\u00a78)."
+    },
+    "base_url": {
+      "type": "string",
+      "description": "Provider API base URL. Only set when verified from documentation."
+    },
+    "authentication_type": {
+      "type": "string",
+      "enum": [
+        "api_key",
+        "oauth",
+        "mtls",
+        "none",
+        "unknown"
+      ],
+      "default": "unknown",
+      "description": "API authentication method."
+    },
+    "credentials_reference": {
+      "type": "string",
+      "description": "Opaque reference to a secret stored in the app's secret management (e.g. 'SIMPLEVISA_API_TOKEN'). The raw secret is NEVER stored here."
+    },
+    "connected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_health_check": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "health_status": {
+      "type": "string",
+      "enum": [
+        "HEALTHY",
+        "DEGRADED",
+        "DOWN",
+        "UNKNOWN",
+        "DISABLED"
+      ],
+      "default": "UNKNOWN",
+      "description": "Last known health signal. UNKNOWN until an actual health check runs (\u00a710)."
+    },
+    "api_version": {
+      "type": "string",
+      "description": "Provider API version, when known from documentation."
+    },
+    "webhook_endpoint": {
+      "type": "string",
+      "description": "Configured inbound webhook identifier (if supported). Never invented."
+    },
+    "webhook_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "True only after webhook signature verification has been tested."
+    },
+    "notes": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "provider_key",
+    "environment",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

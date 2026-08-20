@@ -1,0 +1,95 @@
+{
+  "name": "SubmissionPackageItem",
+  "type": "object",
+  "description": "Worldz Visa (Phase 7): one item in a SubmissionPackage. References either a form_snapshot_id (FORM) or a pinned document_version_id (DOCUMENT/PHOTO/SUPPORTING_EVIDENCE/OTHER). Document items are pinned to the exact validated version. Owner-of-application-or-admin.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "package_id": {
+      "type": "string"
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "FORM",
+        "DOCUMENT",
+        "PHOTO",
+        "SUPPORTING_EVIDENCE",
+        "OTHER"
+      ]
+    },
+    "form_snapshot_id": {
+      "type": "string",
+      "description": "Present when type=FORM."
+    },
+    "document_id": {
+      "type": "string"
+    },
+    "document_version_id": {
+      "type": "string",
+      "description": "Pinned immutable version."
+    },
+    "document_type": {
+      "type": "string"
+    },
+    "label": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "package_id",
+    "type"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
