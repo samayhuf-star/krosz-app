@@ -13,6 +13,13 @@ function fromName(): string {
   return secrets.get("MAILBUX_FROM_NAME") || BRAND;
 }
 
+// HTML-entity escape user-controlled values (names, subjects, messages, notes)
+// before interpolating them into email HTML, to prevent content/HTML injection
+// in transactional emails.
+function escapeHtml(s: any): string {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
+}
+
 function wrap(title: string, bodyHtml: string, opts?: { ctaLabel?: string; ctaHref?: string }): string {
   const cta = opts?.ctaLabel && opts?.ctaHref
     ? `<p style="margin:24px 0"><a href="${opts.ctaHref}" style="background:#003580;color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;display:inline-block;font-weight:600">${opts.ctaLabel}</a></p>`

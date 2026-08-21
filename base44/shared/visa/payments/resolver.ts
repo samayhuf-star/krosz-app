@@ -2,7 +2,7 @@
 //
 // DETERMINISTIC provider selection (§14/§15): reuse the existing Provider entity
 // (category "payment"); pick the first enabled, healthy provider that advertises
-// the needed capability, preferring a platform default. If Stripe is bound as a
+// the needed capability, preferring a platform default. If PayU is bound as a
 // Provider it is picked automatically — no hard-coded provider anywhere in the
 // visa domain. No LLM selection.
 

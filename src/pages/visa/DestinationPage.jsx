@@ -287,6 +287,7 @@ export default function DestinationPage() {
 
       <footer className="border-t border-slate-200 px-5 py-8 text-center text-xs text-slate-400">
         <p>Estimates are not guarantees. Unverified requirements are clearly marked until supported by authoritative sources.</p>
+        <p className="mt-1">Refunds: the government fee is generally non-refundable once an application is submitted; the Krosz service fee may be refundable before submission, per this route’s refund policy. SLA: typical Krosz internal review ~1 business day; government processing time varies by destination.</p>
       </footer>
     </div>
   );

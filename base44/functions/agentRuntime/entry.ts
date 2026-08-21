@@ -166,6 +166,12 @@ async function getAgent(svc: any, body: any, user: any): Promise<any> {
 async function runAgentStandalone(svc: any, body: any, user: any, actor: string): Promise<any> {
   if (!body.business_id || !body.agent_id) throw Object.assign(new Error("business_id and agent_id are required"), { code: "BAD_REQUEST" });
   await verifyTenant(svc, body.business_id, user);
+  // Verify the agent belongs to the caller's tenant before dispatching. The
+  // service role loads the agent without RLS, so a user-supplied agent_id from
+  // another tenant would otherwise execute that tenant's private configuration.
+  const agent: any = await svc.entities.AIAgent.get(body.agent_id).catch(() => null);
+  if (!agent) throw Object.assign(new Error("Agent not found"), { code: "NOT_FOUND" });
+  if (user.role !== "admin" && agent.tenant_id !== user?.data?.tenant_id) throw Object.assign(new Error("Forbidden"), { code: "FORBIDDEN" });
   const result = await dispatchStandaloneTask(svc, {
     businessId: body.business_id, taskType: "run_agent", taskKey: body.task_key || "agent", capability: body.capability || "ai_generation",
     goal: body.goal || `Run agent ${body.agent_id}`, requestedBy: actor,

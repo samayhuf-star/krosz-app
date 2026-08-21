@@ -72,7 +72,48 @@ export async function resolveActivePrice(svc: any, product: any): Promise<any> {
   if (!rows.length) throw Object.assign(new Error("No active price for product"), { code: "NO_PRICE" });
   // Most recent effective first.
   rows.sort((a: any, b: any) => String(b.effective_from || "").localeCompare(String(a.effective_from || "")));
-  return rows[0];
+  const winner = rows[0];
+  // Guard (added 2026-08-20): a product should never have more than one active
+  // price. If it does — e.g. a manual edit or a failed/retried write left a
+  // stale row active — self-heal by archiving every other active row and log
+  // an audit trail entry so the drift is visible, instead of silently letting
+  // callers race on which row "wins".
+  if (rows.length > 1) {
+    const stale = rows.slice(1);
+    await Promise.all(
+      stale.map((r: any) =>
+        svc.entities.VisaPrice.update(r.id, { status: "archived", effective_until: new Date().toISOString().slice(0, 10) }).catch(() => {})
+      )
+    );
+    await documentAudit(svc, null, {
+      action: "visa_price_duplicate_active_autoarchived",
+      entity_type: "VisaPrice",
+      entity_id: winner.id,
+      detail: { product_id: product.id, archived_ids: stale.map((r: any) => r.id), kept_id: winner.id },
+    }).catch(() => {});
+  }
+  return winner;
+}
+
+// Guard (added 2026-08-20): the single write path admin tools / seed scripts
+// should use to publish a new active price for a product. Archives any
+// currently-active price row(s) for the product in the same call so a product
+// can never end up with two simultaneously active prices, regardless of how
+// the new price was constructed.
+export async function publishActivePrice(svc: any, productId: string, priceData: Record<string, any>): Promise<any> {
+  const existing: any[] = await svc.entities.VisaPrice.filter({ product_id: productId, status: "active" }).catch(() => []);
+  const today = new Date().toISOString().slice(0, 10);
+  await Promise.all(
+    existing.map((r: any) => svc.entities.VisaPrice.update(r.id, { status: "archived", effective_until: today }).catch(() => {}))
+  );
+  const created = await svc.entities.VisaPrice.create({ ...priceData, product_id: productId, status: "active" });
+  await documentAudit(svc, null, {
+    action: "visa_price_published",
+    entity_type: "VisaPrice",
+    entity_id: created.id,
+    detail: { product_id: productId, archived_ids: existing.map((r: any) => r.id), version: priceData.version },
+  }).catch(() => {});
+  return created;
 }
 
 function computeTotals(components: PriceComponent[]): { subtotal_minor: number; tax_minor: number; discount_minor: number; total_minor: number } {
@@ -241,11 +282,11 @@ export async function createCheckout(svc: any, user: any, orderId: string): Prom
   // New attempt = previous failed attempts + 1.
   const attempt = (existingPayments.filter((p) => p.status === "FAILED").length || 0) + 1;
   const idempotency_key = paymentIdempotencyKey(order.id, "checkout", attempt);
-  // Stripe is the production default (selected when STRIPE_SECRET_KEY is
-  // configured); the mock provider remains the sandbox/dev default. The
-  // environment is resolved from secrets so the same code path works before
-  // and after live Stripe keys are added — no deploy/config change needed.
-  const checkoutEnv: "sandbox" | "production" = secrets.get("STRIPE_SECRET_KEY") ? "production" : "sandbox";
+  // PayU is the production default for India (selected when PAYU_MERCHANT_KEY
+  // is configured); the mock/manual providers remain the sandbox/dev default.
+  // The environment is resolved from secrets so the same code path works before
+  // and after live PayU merchant credentials are added — no deploy/config change.
+  const checkoutEnv: "sandbox" | "production" = secrets.get("PAYU_MERCHANT_KEY") ? "production" : "sandbox";
   const resolved = await resolvePaymentProvider(svc, "CREATE_CHECKOUT", { environment: checkoutEnv });
   const ctx = await buildProviderContext(svc, resolved.provider);
   const adapter = getPaymentAdapter(resolved.provider.adapter_key);

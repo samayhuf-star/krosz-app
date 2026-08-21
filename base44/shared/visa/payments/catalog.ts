@@ -16,13 +16,13 @@
 import { registerPaymentAdapter } from "./registry.ts";
 import { MockPaymentProvider } from "./adapters/mock.ts";
 import { ManualPaymentProvider } from "./adapters/manual.ts";
-import { StripePaymentProvider } from "./adapters/stripe.ts";
+import { PayUPaymentProvider } from "./adapters/payu.ts";
 
 // Register payment adapters as a side effect of importing this module, so the
 // resolver can look them up by adapter_key once the catalog is seeded.
 registerPaymentAdapter(MockPaymentProvider as any);
 registerPaymentAdapter(ManualPaymentProvider as any);
-registerPaymentAdapter(StripePaymentProvider as any);
+registerPaymentAdapter(PayUPaymentProvider as any);
 
 export interface ProductFixture {
   product: any;
@@ -117,10 +117,12 @@ export const PAYMENT_PROVIDER_FIXTURES: any[] = [
     capabilities: ["CREATE_CHECKOUT", "STATUS", "REFUND"],
   },
   {
-    // Real Stripe — production default. Reads STRIPE_SECRET_KEY from Base44
-    // Secrets at call time; engine.ts only routes here when that secret is set.
-    name: "Stripe (production)", key: "stripe", category: "payment",
-    adapter_key: "visa_payment_stripe", adapter_config: { provider_type: "STRIPE" },
+    // PayU — India production default. Reads PAYU_MERCHANT_KEY + PAYU_SALT
+    // from Base44 Secrets at call time; engine.ts routes here (environment
+    // "production") only when PAYU_MERCHANT_KEY is configured, otherwise it
+    // falls back to the sandbox mock/manual providers. Settles in INR.
+    name: "PayU (production)", key: "payu", category: "payment",
+    adapter_key: "visa_payment_payu", adapter_config: { provider_type: "PAYU" },
     environment: "production", status: "connected", enabled: true, is_default: true, health_status: "healthy",
     capabilities: ["CREATE_CHECKOUT", "AUTHORIZE", "CAPTURE", "REFUND", "STATUS"],
   },
@@ -148,9 +150,20 @@ export async function ensurePaymentCatalog(svc: any): Promise<{ products: number
     products++;
     const totals = computeTotals(fx.price.components);
     const priceData = { ...fx.price, product_id: p.id, ...totals };
-    let pr: any = (await svc.entities.VisaPrice.filter({ product_id: p.id, version: fx.price.version, status: "active" }).catch(() => []))[0];
-    if (!pr) pr = await svc.entities.VisaPrice.create(priceData).catch(() => null);
-    else pr = await svc.entities.VisaPrice.update(pr.id, priceData).catch(() => pr);
+    // Guard (added 2026-08-20): look at ALL active rows for this product, not
+    // just ones matching this fixture's version — a stale active row on a
+    // different version must be archived, otherwise a rerun of this seed can
+    // leave two active prices for the same product.
+    const activeRows: any[] = await svc.entities.VisaPrice.filter({ product_id: p.id, status: "active" }).catch(() => []);
+    const matching = activeRows.find((r: any) => r.version === fx.price.version);
+    const stale = activeRows.filter((r: any) => r.id !== matching?.id);
+    if (stale.length) {
+      const today = new Date().toISOString().slice(0, 10);
+      await Promise.all(stale.map((r: any) => svc.entities.VisaPrice.update(r.id, { status: "archived", effective_until: today }).catch(() => {})));
+    }
+    let pr: any = matching
+      ? await svc.entities.VisaPrice.update(matching.id, priceData).catch(() => matching)
+      : await svc.entities.VisaPrice.create(priceData).catch(() => null);
     if (pr) prices++;
   }
 
