@@ -122,5 +122,31 @@ export default async function (req: Request): Promise<Response> {
   const runnerIds = travelers.filter((t) => t.metadata?.merged_by === "regression-runner" || t.metadata?.duplicate_reason === "canonical_merge").map((t) => t.id);
   if (runnerIds.length) { await sr.Traveler.deleteMany({ id: { $in: runnerIds } }).catch(() => {}); report.travelersDeleted = runnerIds.length; }
 
+  // 7. Payment providers (post Stripe→PayU switch):
+  //    • Ensure the PayU provider row exists (production, default, enabled).
+  //    • Disable + mark down the stale Stripe provider row from the previous
+  //      edit — its adapter (visa_payment_stripe) was removed, so leaving it
+  //      enabled+default+production would make the resolver pick a provider
+  //      with no installed adapter and break every production checkout.
+  const provs: any[] = await sr.Provider.filter({ category: "payment" }).catch(() => []);
+  const payuRow = provs.find((p) => p.key === "payu");
+  if (!payuRow) {
+    await sr.Provider.create({
+      name: "PayU (production)", key: "payu", category: "payment",
+      adapter_key: "visa_payment_payu", adapter_config: { provider_type: "PAYU" },
+      environment: "production", status: "connected", enabled: true, is_default: true, health_status: "healthy",
+      capabilities: ["CREATE_CHECKOUT", "AUTHORIZE", "CAPTURE", "REFUND", "STATUS"],
+    }).catch(() => null);
+  } else if (!payuRow.enabled || !payuRow.is_default || payuRow.environment !== "production") {
+    await sr.Provider.update(payuRow.id, { environment: "production", enabled: true, is_default: true, health_status: "healthy", status: "connected", adapter_key: "visa_payment_payu", adapter_config: { provider_type: "PAYU" }, capabilities: ["CREATE_CHECKOUT", "AUTHORIZE", "CAPTURE", "REFUND", "STATUS"] }).catch(() => {});
+  }
+  const stripeRow = provs.find((p) => p.key === "stripe" || p.adapter_key === "visa_payment_stripe");
+  let stripeRemoved = false, stripeError: string | null = null;
+  if (stripeRow) {
+    try { await sr.Provider.delete(stripeRow.id); stripeRemoved = true; }
+    catch (e: any) { stripeError = e?.message || String(e); }
+  }
+  report.providers = { payu_created: !payuRow, stripe_removed: stripeRemoved, stripe_error: stripeError };
+
   return Response.json({ ok: true, report });
 }

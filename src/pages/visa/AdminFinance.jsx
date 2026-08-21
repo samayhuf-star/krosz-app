@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { adminListOrders, adminListPayments, adminListRefunds } from '@/lib/visaApi';
 import { formatMoney } from '@/lib/moneyFmt';
 import PageHeader from '@/components/app/PageHeader';
+import { Info } from 'lucide-react';
 
 const RECON_BADGE = {
   UNRECONCILED: 'bg-amber-100 text-amber-700',
@@ -56,6 +57,14 @@ export default function AdminFinance() {
         description="Orders, payments, refunds and provider reconciliation. All figures come from authoritative backend state — nothing is fabricated."
       />
       <div className="px-5 py-6 sm:px-8 lg:px-10">
+
+      <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+        <Info size={14} className="mt-0.5 shrink-0" />
+        <div>
+          <p className="font-semibold">Payment provider: PayU (production, INR) — mock/manual retained for sandbox.</p>
+          <p className="mt-0.5">When <code>PAYU_MERCHANT_KEY</code> + <code>PAYU_SALT</code> are set in Base44 Secrets, checkouts route to PayU's hosted payment page and the verified server-side <code>payuWebhook</code> reconciles each Payment→SUCCEEDED / Order→PAID (issuing INV-/RCT- exactly as the mock provider does). Without those secrets the resolver falls back to the sandbox mock/manual providers (no real charge). The Order/Payment/PaymentAttempt/Invoice/Receipt/Refund data model and state machine are unchanged for any provider.</p>
+        </div>
+      </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2 border-b border-slate-200">
