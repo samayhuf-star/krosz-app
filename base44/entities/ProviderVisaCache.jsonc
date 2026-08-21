@@ -1,0 +1,104 @@
+{
+  "name": "ProviderVisaCache",
+  "type": "object",
+  "description": "Worldz Visa (Phase 22): server-side cache for external visa-intelligence provider results (e.g. Pipeworx). Stores ONLY normalized provider output \u2014 never raw response dumps, never traveler PII. Keyed by provider + nationality + destination. Freshness (FRESH/STALE/EXPIRED) is computed from retrieved_at at read time. This is a CACHE, NOT a second visa-requirements system: the canonical regulatory model remains VisaRoute / VisaRequirementsVersion / VisaRequirement. Pipeline: Browser \u2192 our API \u2192 Visa Intelligence Service \u2192 Provider Registry \u2192 Pipeworx (server-side only). Public read (no PII); writes via service role.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "provider": {
+      "type": "string",
+      "description": "Provider key, e.g. PIPEWORX."
+    },
+    "nationality": {
+      "type": "string",
+      "description": "Passport ISO alpha-2 (upper-case)."
+    },
+    "destination": {
+      "type": "string",
+      "description": "Destination ISO alpha-2 (upper-case)."
+    },
+    "visa_status": {
+      "type": "string",
+      "description": "Normalized internal status: visa_free | visa_on_arrival | e_visa | eta | visa_required | no_admission | other."
+    },
+    "stay_duration_days": {
+      "type": "number",
+      "description": "Allowed stay length from the provider, when known."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "HIGH_CONFIDENCE",
+        "NORMAL",
+        "NEEDS_REVIEW",
+        "UNAVAILABLE"
+      ],
+      "default": "NORMAL"
+    },
+    "source_text": {
+      "type": "string",
+      "description": "Human-readable provider source provenance string (e.g. dataset + last updated)."
+    },
+    "dataset_last_updated": {
+      "type": "string",
+      "description": "Provider dataset snapshot date."
+    },
+    "retrieved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When we fetched/cached this result."
+    },
+    "fresh_until": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "FRESH",
+        "STALE",
+        "EXPIRED"
+      ],
+      "description": "Computed freshness at write time; recomputed at read by the service."
+    },
+    "degraded": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when this row was served as a stale fallback because the live provider failed."
+    },
+    "normalized_payload": {
+      "type": "object",
+      "description": "Full NormalizedVisaRequirement object (non-PII) for admin inspection."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "provider",
+    "nationality",
+    "destination",
+    "retrieved_at",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "name": "GovernmentFieldMapping",
+  "type": "object",
+  "description": "Worldz Visa (Phase 7): deterministic mapping from an internal canonical source to a government field. transformation + config encode the exact projection (ENUM_MAP, DATE_FORMAT, COUNTRY_CODE, CONCAT, SPLIT, CONDITIONAL, ...). source_type selects the canonical bucket; source_field is the internal field/question_code. Public read (catalog); admin-managed.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "form_definition_id": {
+      "type": "string"
+    },
+    "field_code": {
+      "type": "string",
+      "description": "Government field_code this maps to."
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "QUESTION",
+        "APPLICATION",
+        "PASSPORT",
+        "TRAVELER",
+        "DOCUMENT",
+        "CONSTANT"
+      ],
+      "default": "QUESTION"
+    },
+    "source_field": {
+      "type": "string",
+      "description": "Internal field/question_code or app property."
+    },
+    "transformation": {
+      "type": "string",
+      "enum": [
+        "DIRECT",
+        "RENAME",
+        "ENUM_MAP",
+        "DATE_FORMAT",
+        "COUNTRY_CODE",
+        "CURRENCY",
+        "BOOLEAN",
+        "CONCAT",
+        "SPLIT",
+        "NORMALIZE",
+        "LOOKUP",
+        "CONDITIONAL"
+      ],
+      "default": "DIRECT"
+    },
+    "config": {
+      "type": "object",
+      "description": "Transformation config: map, format, to, separator, index, table, conditions, value."
+    },
+    "fallback": {
+      "type": "string",
+      "description": "Optional fallback used only when the form explicitly permits it (never to silently satisfy required)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "form_definition_id",
+    "field_code",
+    "source_type"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

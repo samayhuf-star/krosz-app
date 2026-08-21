@@ -1,0 +1,186 @@
+{
+  "name": "CapabilityEvidence",
+  "type": "object",
+  "description": "Worldz Visa (Phase 24 \u00a74): a single piece of evidence/provenance supporting a claim on a CountryCapability. ONE row per (country_capability_id, claim_type, source_url). Visa TRUTH evidence is claim-level \u2014 an entire country record is never verified as one boolean (\u00a75). Source hierarchy (\u00a74): GOVERNMENT > OFFICIAL_IMMIGRATION > EMBASSY_CONSULATE > OFFICIAL_AIRLINE_IATA > VERIFIED_COMMERCIAL_PROVIDER > SECONDARY_SOURCE. A commercial provider NEVER overwrites an official government requirement; the two-source rule (\u00a77) requires an official source PLUS (a second distinct source OR an explicit recorded admin override). Internal-only: admin read/create/update/delete \u2014 evidence is never exposed to travelers (\u00a79, \u00a718).",
+  "properties": {
+    "country_capability_id": {
+      "type": "string",
+      "description": "CountryCapability.id this evidence supports."
+    },
+    "country_code": {
+      "type": "string",
+      "description": "Denormalized destination ISO alpha-2 for fast filtering."
+    },
+    "journey_type": {
+      "type": "string",
+      "description": "Denormalized journey_type from the capability."
+    },
+    "claim_type": {
+      "type": "string",
+      "enum": [
+        "entry_mode",
+        "visa_required",
+        "evisa_available",
+        "eta_available",
+        "visa_on_arrival",
+        "visa_free",
+        "eligibility",
+        "passport_requirement",
+        "application_url",
+        "government_application_method",
+        "fee",
+        "processing_time",
+        "validity",
+        "stay_duration",
+        "required_documents",
+        "photo_requirements",
+        "biometric_requirements",
+        "insurance_requirements",
+        "transit_rules",
+        "tracking_method",
+        "general"
+      ],
+      "default": "general",
+      "description": "The specific claim this evidence addresses (\u00a75). 'general' = whole-destination provenance."
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "GOVERNMENT",
+        "OFFICIAL_IMMIGRATION",
+        "EMBASSY_CONSULATE",
+        "OFFICIAL_AIRLINE_IATA",
+        "VERIFIED_COMMERCIAL_PROVIDER",
+        "SECONDARY_SOURCE"
+      ],
+      "description": "Source hierarchy level (\u00a74). Government/official outranks commercial."
+    },
+    "source_name": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "source_title": {
+      "type": "string",
+      "description": "Title of the source page/document for audit."
+    },
+    "claim_value": {
+      "type": "string",
+      "description": "The value asserted by this source for the claim (e.g. fee amount, stay days). Optional."
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "UNVERIFIED",
+        "PARTIALLY_VERIFIED",
+        "VERIFIED",
+        "REJECTED",
+        "STALE"
+      ],
+      "default": "UNVERIFIED",
+      "description": "Per-evidence verification state (\u00a75). VERIFIED only after review."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "HIGH",
+        "NORMAL",
+        "LOW",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN"
+    },
+    "retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the source itself published this content, if known."
+    },
+    "valid_from": {
+      "type": "string",
+      "format": "date"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "description": "User id/email of the researcher who reviewed this evidence."
+    },
+    "content_fingerprint": {
+      "type": "string",
+      "description": "Stable hash/fingerprint of the retrieved source content (\u00a715 change-detection foundation)."
+    },
+    "content_snapshot": {
+      "type": "string",
+      "description": "Small excerpt/normalized capture of the source content kept for change diffing. Never a raw full page dump."
+    },
+    "source_version": {
+      "type": "string",
+      "description": "Source version/etag if the source exposes one (\u00a715)."
+    },
+    "override_record": {
+      "type": "object",
+      "description": "Recorded admin override when a second source is unavailable (\u00a77). { admin_id, reason, at }. Presence satisfies the two-source rule's override branch.",
+      "properties": {
+        "admin_id": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "ievidence_id": {
+      "type": "string",
+      "description": "Stable dedup key (country_capability_id + claim_type + source_url)."
+    },
+    "notes": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "country_capability_id",
+    "claim_type",
+    "source_type",
+    "verification_status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "name": "AdiologyWorkspace",
+  "type": "object",
+  "description": "Canonical Adiology tenant/workspace boundary. Every Adiology-owned record must resolve to exactly one tenant_id and workspace_id. This is intentionally separate from legacy Visa domain records while reusing the shared Orchestral execution core.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "onboarding",
+        "active",
+        "suspended",
+        "archived"
+      ],
+      "default": "onboarding"
+    },
+    "plan": {
+      "type": "string",
+      "default": "free"
+    },
+    "owner_user_id": {
+      "type": "string"
+    },
+    "settings": {
+      "type": "object"
+    },
+    "limits": {
+      "type": "object"
+    },
+    "features": {
+      "type": "object"
+    },
+    "billing_state": {
+      "type": "object"
+    },
+    "onboarding_state": {
+      "type": "object"
+    },
+    "orchestration_policy": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "name",
+    "slug",
+    "owner_user_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "name": "FeaturedDestination",
+  "type": "object",
+  "description": "Worldz Visa (Phase 21): configurable popularity / featured-destination config per country (\u00a77). Popularity comes from configuration (and later analytics), not hard-coded UI. Drives the homepage 'Popular destinations' rail and search ranking. Public read; admin-managed.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "country_code": {
+      "type": "string",
+      "description": "Canonical destination ISO alpha-2 (Country.code)."
+    },
+    "popularity": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 popularity weight. Higher = shown first."
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "Surfaces in the homepage hero rail."
+    },
+    "badge": {
+      "type": "string",
+      "description": "Optional label e.g. 'Fast e-Visa', 'Popular', 'Schengen'."
+    },
+    "order": {
+      "type": "number",
+      "default": 0,
+      "description": "Manual ordering tiebreaker."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "country_code",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

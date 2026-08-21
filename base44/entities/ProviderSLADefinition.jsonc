@@ -1,0 +1,121 @@
+{
+  "name": "ProviderSLADefinition",
+  "type": "object",
+  "description": "Worldz Visa (Phase 38 \u00a715): a versioned provider SLA definition for a verified provider binding. ONE active row per (provider_key, country_code, journey_type) records the processing estimate, business/working-days basis, SLA type, source, effective date, and version. NEVER presented as a government guarantee \u2014 this is the provider's documented operational estimate (\u00a715). SLA timers derive from this; pause + breach are configuration-driven (\u00a717/\u00a718). Admin-managed.",
+  "properties": {
+    "provider_key": {
+      "type": "string"
+    },
+    "provider_binding_id": {
+      "type": "string"
+    },
+    "country_code": {
+      "type": "string"
+    },
+    "journey_type": {
+      "type": "string"
+    },
+    "nationality": {
+      "type": "string",
+      "default": "IN"
+    },
+    "sla_type": {
+      "type": "string",
+      "enum": [
+        "PROCESSING_TIME",
+        "SUBMISSION_ACKNOWLEDGEMENT",
+        "STATUS_UPDATE",
+        "REFUND_PROCESSING",
+        "SUPPORT_RESPONSE",
+        "CUSTOM"
+      ],
+      "default": "PROCESSING_TIME"
+    },
+    "processing_estimate_days": {
+      "type": "number",
+      "description": "Median/typical processing days."
+    },
+    "processing_estimate_min_hours": {
+      "type": "number"
+    },
+    "processing_estimate_max_hours": {
+      "type": "number"
+    },
+    "business_days_only": {
+      "type": "boolean",
+      "default": true,
+      "description": "Working days exclude weekends/holidays (\u00a715)."
+    },
+    "pause_on_traveler_wait": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u00a717: pause SLA while the case is in ADDITIONAL_INFORMATION_REQUIRED (provider SLA excludes traveler waiting time when true)."
+    },
+    "pause_states": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Case states that pause this SLA timer."
+    },
+    "source": {
+      "type": "string",
+      "description": "Source of the SLA estimate (provider contract / documentation / observed)."
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "effective_from": {
+      "type": "string",
+      "format": "date"
+    },
+    "effective_until": {
+      "type": "string",
+      "format": "date"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "notes": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "provider_key",
+    "country_code",
+    "journey_type",
+    "sla_type",
+    "processing_estimate_days",
+    "is_active"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

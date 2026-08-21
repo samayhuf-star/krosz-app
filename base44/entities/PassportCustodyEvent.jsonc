@@ -1,0 +1,96 @@
+{
+  "name": "PassportCustodyEvent",
+  "type": "object",
+  "description": "Worldz Visa (Phase 9): a passport custody state transition for an application (submission to VAC/embassy, in-custody, return). Stores ONLY operational metadata (location, timestamp, external reference) \u2014 never unnecessary passport numbers in logs. Owner-of-application-or-admin (traveler_id denormalized).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "appointment_id": {
+      "type": "string",
+      "description": "Optional: the appointment that triggered custody, if applicable."
+    },
+    "submission_id": {
+      "type": "string",
+      "description": "Optional: the submission this custody relates to."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "NOT_SUBMITTED",
+        "SUBMITTED",
+        "IN_CUSTODY",
+        "RETURNED",
+        "LOST_OR_ESCALATED"
+      ],
+      "default": "NOT_SUBMITTED"
+    },
+    "location": {
+      "type": "string",
+      "description": "Where custody changed hands (VAC/embassy/courier)."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "external_reference": {
+      "type": "string",
+      "description": "Courier/agency tracking reference (no passport number)."
+    },
+    "actor": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "traveler_id",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "name": "OperationsAuditEvent",
+  "type": "object",
+  "description": "Worldz Visa (Phase 19/32): an immutable, append-only audit event for every operational/reviewer action on an OperationsCase AND every OperationsTask mutation (\u00a731). Stores actor, timestamp, action, previous_state, new_state, reason, metadata. Phase 32 adds optional task_id and extends the action enum with TASK_* and EXCEPTION_* actions. Internal-only (admin/operations). Never surfaced to travelers.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "case_id": {
+      "type": "string"
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Denormalized for filtering."
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized."
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Optional; the OperationsTask this audit event pertains to (Phase 32)."
+    },
+    "actor_id": {
+      "type": "string"
+    },
+    "actor_name": {
+      "type": "string"
+    },
+    "actor_role": {
+      "type": "string",
+      "enum": [
+        "REVIEWER",
+        "OPERATIONS",
+        "ADMIN",
+        "SYSTEM"
+      ],
+      "default": "SYSTEM"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "CASE_CREATED",
+        "ASSIGNED",
+        "REVIEW_STARTED",
+        "REQUEST_INFO",
+        "REQUEST_DOCUMENT",
+        "FLAG_ISSUE",
+        "REJECT_PACKAGE",
+        "RETURN_TO_APPLICANT",
+        "ESCALATE",
+        "APPROVE_FOR_SUBMISSION",
+        "QC_RUN",
+        "SUBMISSION_STARTED",
+        "SUBMISSION_CONFIRMED",
+        "TRACKING_UPDATED",
+        "DECISION_RECEIVED",
+        "CASE_CANCELLED",
+        "TASK_CREATED",
+        "TASK_ASSIGNED",
+        "TASK_REASSIGNED",
+        "TASK_CLAIMED",
+        "TASK_RELEASED",
+        "TASK_STARTED",
+        "TASK_WAITING",
+        "TASK_BLOCKED",
+        "TASK_COMPLETED",
+        "TASK_CANCELLED",
+        "TASK_PRIORITY_CHANGED",
+        "TASK_DUE_CHANGED",
+        "TASK_RESOLUTION_RECORDED",
+        "TASK_BULK_ACTION",
+        "TASK_EXPORTED",
+        "EXCEPTION_CREATED",
+        "EXCEPTION_RESOLVED",
+        "EXCEPTION_ESCALATED",
+        "EXCEPTION_DISMISSED"
+      ]
+    },
+    "previous_state": {
+      "type": "string"
+    },
+    "new_state": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "case_id",
+    "application_id",
+    "actor_id",
+    "actor_role",
+    "action",
+    "occurred_at"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

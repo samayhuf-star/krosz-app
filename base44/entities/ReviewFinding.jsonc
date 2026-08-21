@@ -1,0 +1,176 @@
+{
+  "name": "ReviewFinding",
+  "type": "object",
+  "description": "Worldz Visa (Phase 13): a single finding from an ApplicationReview. Deterministic findings carry rule provenance (source = rule_code.version); AI findings are always severity <= WARNING and require human review \u2014 AI never blocks. Deduplicated by (category + code + field_path) so five checks detecting one passport mismatch surface as one customer finding. Waivers are operator-only and audited; blocked findings can be auto-resolved when the cause is remediated, never deleted. Owner-of-application-or-admin (traveler_id denormalized).",
+  "properties": {
+    "review_id": {
+      "type": "string"
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Denormalized for access checks + filtering."
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "dedupe_key": {
+      "type": "string",
+      "description": "category + code + field_path; identical retried checks collapse to one row."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Identity",
+        "Documents",
+        "Travel",
+        "Financial",
+        "Employment",
+        "Accommodation",
+        "Forms",
+        "Appointments",
+        "Submission",
+        "Payment",
+        "Application"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "INFO",
+        "WARNING",
+        "BLOCKING",
+        "CRITICAL"
+      ]
+    },
+    "code": {
+      "type": "string",
+      "description": "Stable finding code, e.g. IDENTITY_NAME_MISMATCH, PASSPORT_EXPIRY, FORM_STALE, PAYMENT_REQUIRED."
+    },
+    "title": {
+      "type": "string",
+      "description": "Short customer-friendly label."
+    },
+    "description": {
+      "type": "string",
+      "description": "Plain-language explanation shown to the customer (no internal rule IDs)."
+    },
+    "description_operator": {
+      "type": "string",
+      "description": "Operator-facing detail with rule provenance."
+    },
+    "source": {
+      "type": "string",
+      "description": "Rule code + version that produced it, e.g. IDENTITY_NAME_V1; AI findings use ai:*."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "OPEN",
+        "ACKNOWLEDGED",
+        "RESOLVED",
+        "DISMISSED",
+        "WAIVED"
+      ],
+      "default": "OPEN"
+    },
+    "field_path": {
+      "type": "string"
+    },
+    "entity_type": {
+      "type": "string"
+    },
+    "entity_id": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "object",
+      "description": "Structured evidence: { values: {...}, documents: [...], application_fields: [...], form_fields: [...] }."
+    },
+    "ai_generated": {
+      "type": "boolean",
+      "default": false
+    },
+    "requires_human_review": {
+      "type": "boolean",
+      "default": false
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "resolved_by": {
+      "type": "string"
+    },
+    "waived_by": {
+      "type": "string"
+    },
+    "waived_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "waiver_reason": {
+      "type": "string"
+    },
+    "dismissed_by": {
+      "type": "string"
+    },
+    "dismissed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "review_id",
+    "application_id",
+    "traveler_id",
+    "dedupe_key",
+    "category",
+    "severity",
+    "code",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

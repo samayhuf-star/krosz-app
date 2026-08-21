@@ -1,0 +1,146 @@
+{
+  "name": "SupportTicket",
+  "type": "object",
+  "description": "Worldz Visa (Phase 12): a customer support ticket bound to a VisaApplication (\u00a737). Priority is policy-derived, never LLM emotional language ({\u00a739). Status machine OPEN\u2192ASSIGNED\u2192WAITING_CUSTOMER/WAITING_PROVIDER\u2192RESOLVED\u2192CLOSED. Owner-of-application-or-admin (traveler_id denormalized).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "conversation_id": {
+      "type": "string",
+      "description": "Backing SupportConversation."
+    },
+    "ticket_number": {
+      "type": "string",
+      "description": "Server-generated, e.g. TKT-2026-000123."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "DOCUMENTS",
+        "PAYMENT",
+        "APPOINTMENT",
+        "SUBMISSION",
+        "STATUS",
+        "REFUND",
+        "TECHNICAL",
+        "OTHER"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "LOW",
+        "NORMAL",
+        "HIGH",
+        "URGENT"
+      ],
+      "default": "NORMAL"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "first_message": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "OPEN",
+        "ASSIGNED",
+        "WAITING_CUSTOMER",
+        "WAITING_PROVIDER",
+        "RESOLVED",
+        "CLOSED"
+      ],
+      "default": "OPEN"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "User id of the assigned operator."
+    },
+    "escalation_state": {
+      "type": "string",
+      "enum": [
+        "none",
+        "pending",
+        "escalated"
+      ],
+      "default": "none"
+    },
+    "sla_due_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "closed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "traveler_id",
+    "ticket_number",
+    "category",
+    "priority",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

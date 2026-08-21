@@ -1,0 +1,207 @@
+{
+  "name": "Business",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "service_area": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "services_products": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "target_customers": {
+      "type": "string"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "website_requirements": {
+      "type": "string"
+    },
+    "planner_profile": {
+      "type": "object"
+    },
+    "launch_stage": {
+      "type": "string",
+      "enum": [
+        "business_info",
+        "domain",
+        "website",
+        "seo",
+        "email",
+        "forms",
+        "crm",
+        "chatbot",
+        "support",
+        "ready",
+        "launched"
+      ],
+      "default": "business_info"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "launched",
+        "paused",
+        "archived",
+        "relaunching"
+      ],
+      "default": "draft"
+    },
+    "lifecycle_stage": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "blueprint_pending",
+        "blueprint_approved",
+        "domain_pending",
+        "domain_secured",
+        "website_pending",
+        "website_live",
+        "seo_pending",
+        "seo_live",
+        "crm_pending",
+        "crm_live",
+        "marketing_pending",
+        "marketing_active",
+        "operating",
+        "paused",
+        "relaunching",
+        "archived"
+      ],
+      "default": "draft",
+      "description": "Orchestrator-authoritative lifecycle axis. Advanced ONLY from authoritative task outcomes (orchestrator)."
+    },
+    "config": {
+      "type": "object",
+      "description": "Business-level orchestrator config (plan overrides, feature toggles)."
+    },
+    "approved_assets": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Pointer records to approved domain artifacts (blueprint_id, domain_id, website_id, seo_version_id, crm_version_id...)."
+    },
+    "industry_key": {
+      "type": "string",
+      "description": "Resolved catalog industry_key (Phase 13 Industry Intelligence). Filled by industry detection, independent of the free-text industry field."
+    },
+    "industry_detection": {
+      "type": "object",
+      "description": "Detection result: {industry_key, confidence, alternatives[], ai_generated, detected_at}.",
+      "properties": {
+        "confidence": {
+          "type": "number"
+        },
+        "alternatives": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ai_generated": {
+          "type": "boolean"
+        },
+        "detected_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "industry_blueprint_id": {
+      "type": "string",
+      "description": "The IndustryBlueprint record id applied during personalization."
+    },
+    "industry_blueprint_version": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "name",
+    "industry",
+    "country"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

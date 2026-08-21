@@ -1,0 +1,124 @@
+{
+  "name": "BusinessExecutive",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "ceo",
+        "cmo",
+        "sales",
+        "operations",
+        "support",
+        "finance"
+      ],
+      "description": "Executive role key from the registry."
+    },
+    "title": {
+      "type": "string"
+    },
+    "department": {
+      "type": "string"
+    },
+    "responsibilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Frozen copy of the registry responsibilities at seed time."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "paused",
+        "churned"
+      ],
+      "default": "active"
+    },
+    "posture_score": {
+      "type": "number",
+      "default": null,
+      "description": "0-100 health score the executive computes for its domain each run."
+    },
+    "active_goals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "BusinessGoal ids this executive currently owns."
+    },
+    "last_run_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_briefing_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "settings": {
+      "type": "object",
+      "description": "Per-business executive tunables (autonomy level, preferred providers, alert thresholds)."
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "role",
+    "title",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

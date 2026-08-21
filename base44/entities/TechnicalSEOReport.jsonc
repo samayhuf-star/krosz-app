@@ -1,0 +1,135 @@
+{
+  "name": "TechnicalSEOReport",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "seo_project_id": {
+      "type": "string"
+    },
+    "seo_version_id": {
+      "type": "string"
+    },
+    "sitemap": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "robots_txt": {
+      "type": "string"
+    },
+    "canonical_issues": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "redirects": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "duplicate_titles": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "duplicate_descriptions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "broken_links": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "missing_h1": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "missing_alt": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "accessibility": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "page_speed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "core_web_vitals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "summary": {
+      "type": "object"
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "seo_project_id",
+    "seo_version_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "name": "ConsentRecord",
+  "type": "object",
+  "description": "Worldz Visa (Phase 31 \u00a726): versioned, auditable consent record. Stores a reference to a consent TYPE + VERSION (not raw consent text), the actor, purpose, and the case/user it binds. Append-only in practice; admin read, owner write. Enables proving which consent a traveler agreed to at a point in time without re-storing full text per case.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "consent_type": {
+      "type": "string",
+      "description": "Stable key, e.g. terms_of_service, privacy_policy, data_processing, final_review_attestation."
+    },
+    "consent_version": {
+      "type": "string",
+      "description": "Version label of the agreed text, e.g. privacy_policy.v1."
+    },
+    "user_id": {
+      "type": "string",
+      "description": "The consenting app user."
+    },
+    "case_id": {
+      "type": "string",
+      "description": "Optional case/application reference."
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "actor": {
+      "type": "string",
+      "description": "Who recorded the consent (user email/id)."
+    },
+    "consented_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "consent_type",
+    "consent_version",
+    "user_id",
+    "consented_at"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

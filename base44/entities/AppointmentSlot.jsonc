@@ -1,0 +1,94 @@
+{
+  "name": "AppointmentSlot",
+  "type": "object",
+  "description": "Worldz Visa (Phase 9): a cached appointment slot from a provider's getSlots() response. External slots expire quickly; expires_at governs revalidation \u2014 a displayed slot is NEVER assumed still available, the engine revalidates before booking. availability_status: AVAILABLE | HELD | BOOKED | EXPIRED. Public read (provider catalog); admin-managed writes (engine caches via service role).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "location_id": {
+      "type": "string"
+    },
+    "external_slot_id": {
+      "type": "string",
+      "description": "Provider-side slot id (identity)."
+    },
+    "appointment_type": {
+      "type": "string",
+      "enum": [
+        "BIOMETRICS",
+        "INTERVIEW",
+        "DOCUMENT_SUBMISSION",
+        "PASSPORT_SUBMISSION",
+        "PASSPORT_COLLECTION",
+        "OTHER"
+      ]
+    },
+    "start_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "end_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "default": 30
+    },
+    "location_timezone": {
+      "type": "string"
+    },
+    "availability_status": {
+      "type": "string",
+      "enum": [
+        "AVAILABLE",
+        "HELD",
+        "BOOKED",
+        "EXPIRED"
+      ],
+      "default": "AVAILABLE"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this slot stops being valid/holdable."
+    },
+    "provider_reference": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "provider_id",
+    "location_id",
+    "external_slot_id",
+    "appointment_type",
+    "start_at_utc",
+    "availability_status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

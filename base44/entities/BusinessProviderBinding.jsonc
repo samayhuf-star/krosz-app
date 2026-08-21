@@ -1,0 +1,104 @@
+{
+  "name": "BusinessProviderBinding",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "capability": {
+      "type": "string",
+      "description": "Capability key the factory requested, e.g. ai_generation, email, sms, whatsapp, voice, domain_registrar, hosting.",
+      "enum": [
+        "ai_generation",
+        "email",
+        "sms",
+        "whatsapp",
+        "voice",
+        "domain_registrar",
+        "hosting",
+        "payment",
+        "storage",
+        "other"
+      ]
+    },
+    "primary_provider_id": {
+      "type": "string"
+    },
+    "fallback_provider_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "configuration": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "capability",
+    "primary_provider_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

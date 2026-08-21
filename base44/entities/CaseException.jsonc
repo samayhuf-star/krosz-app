@@ -1,0 +1,115 @@
+{
+  "name": "CaseException",
+  "type": "object",
+  "description": "Worldz Visa (Phase 29/32): a visible operational exception signal on a VisaApplication case (\u00a721/\u00a726). Derived from deterministic case-engine signals (provider unavailable, stale verification, missing document, payment/submission failure, eligibility conflict, snapshot drift, case stuck, manual intervention required, webhook failure, status mismatch, stale data, unknown execution route). Each exception has severity, status (OPEN/INVESTIGATING/WAITING/RESOLVED/CLOSED/DISMISSED), owner, and resolution. Exceptions generate or link to OperationsTasks; they are NOT a second case state machine (\u00a727). Internal-only (admin/operations). Phase 32 adds optional task_id and extends the type + status enums.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "case_id": {
+      "type": "string",
+      "description": "VisaApplication.id (the case)."
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Denormalized for filtering."
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized."
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Optional; linked OperationsTask that raised or owns this exception (Phase 32)."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "provider_unavailable",
+        "provider_status_mismatch",
+        "stale_verification",
+        "missing_document",
+        "payment_failure",
+        "submission_failure",
+        "eligibility_conflict",
+        "data_mismatch",
+        "webhook_failure",
+        "case_stuck",
+        "manual_intervention_required",
+        "submission_unavailable",
+        "status_mismatch",
+        "stale_data",
+        "document_failure",
+        "unknown_execution_route"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "default": "MEDIUM"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "OPEN",
+        "INVESTIGATING",
+        "WAITING",
+        "RESOLVED",
+        "CLOSED",
+        "DISMISSED"
+      ],
+      "default": "OPEN"
+    },
+    "message": {
+      "type": "string"
+    },
+    "owner_id": {
+      "type": "string",
+      "description": "Operations user owning the exception."
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "resolution": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "case_id",
+    "type",
+    "severity",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

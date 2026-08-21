@@ -1,0 +1,60 @@
+{
+  "name": "ProviderOverride",
+  "type": "object",
+  "properties": {
+    "scope_type": {
+      "type": "string",
+      "enum": [
+        "tenant",
+        "reseller"
+      ]
+    },
+    "scope_id": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "domain",
+        "email",
+        "phone",
+        "ai",
+        "payment",
+        "storage",
+        "submission",
+        "other"
+      ]
+    },
+    "provider_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "scope_type",
+    "scope_id",
+    "category",
+    "provider_id"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

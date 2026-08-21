@@ -1,0 +1,91 @@
+{
+  "name": "PolicyVersion",
+  "type": "object",
+  "description": "Krosz Trust & Compliance (\u00a728): a versioned, immutable policy document. One current row per policy_key (is_current=true). Edits create a NEW version row and supersede the previous \u2014 historical policy evidence associated with completed transactions is never overwritten. Public read so legal pages render anonymously; admin-managed. needs_legal_review flags template text that requires verification by a qualified professional (\u00a741).",
+  "properties": {
+    "policy_key": {
+      "type": "string",
+      "description": "Stable slug, e.g. terms, privacy, refund-policy."
+    },
+    "title": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "legal",
+        "trust",
+        "ai"
+      ],
+      "default": "legal"
+    },
+    "version": {
+      "type": "string",
+      "default": "v0.1"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published",
+        "superseded",
+        "archived"
+      ],
+      "default": "published"
+    },
+    "effective_from": {
+      "type": "string",
+      "format": "date"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string",
+      "description": "Markdown body. Supports {{placeholder}} tokens resolved from BusinessTrustConfig at render time."
+    },
+    "needs_legal_review": {
+      "type": "boolean",
+      "default": true
+    },
+    "material_change": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_current": {
+      "type": "boolean",
+      "default": true
+    },
+    "previous_version_id": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "policy_key",
+    "title",
+    "version",
+    "status",
+    "is_current"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

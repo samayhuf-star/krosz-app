@@ -1,0 +1,159 @@
+{
+  "name": "SEOVersion",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "seo_project_id": {
+      "type": "string"
+    },
+    "website_id": {
+      "type": "string"
+    },
+    "website_version": {
+      "type": "number"
+    },
+    "blueprint_id": {
+      "type": "string"
+    },
+    "blueprint_version": {
+      "type": "number"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "approved",
+        "rejected",
+        "published",
+        "superseded"
+      ],
+      "default": "draft"
+    },
+    "health_score": {
+      "type": "number"
+    },
+    "page_seo": {
+      "type": "object"
+    },
+    "keyword_count": {
+      "type": "number"
+    },
+    "cluster_count": {
+      "type": "number"
+    },
+    "schema_count": {
+      "type": "number"
+    },
+    "internal_link_count": {
+      "type": "number"
+    },
+    "recommendation_count": {
+      "type": "number"
+    },
+    "validation_status": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "warning",
+        "fail"
+      ]
+    },
+    "summary": {
+      "type": "object"
+    },
+    "generated_by": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_published": {
+      "type": "boolean",
+      "default": false
+    },
+    "published_by": {
+      "type": "string"
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "seo_project_id",
+    "website_id",
+    "version"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

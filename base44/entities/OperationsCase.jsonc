@@ -1,0 +1,259 @@
+{
+  "name": "OperationsCase",
+  "type": "object",
+  "description": "Worldz Visa (Phase 19): the operational case for a VisaApplication \u2014 the authoritative normalized lifecycle from paid \u2192 preparing \u2192 review \u2192 ready-to-submit \u2192 submitted \u2192 processing \u2192 decision (\u00a72). SEPARATE from Application, Order, Payment, SubmissionPackage, and the Submission act (\u00a71). Owns assignment (\u00a79), risk score (\u00a77, NOT a visa approval probability), QC checklist (\u00a75), submission method (\u00a714), separate external references (\u00a718), normalized tracking status (\u00a719/\u00a720), and decision (\u00a726). One case per application (managed upsert). Internal-only: admin/operations access; travelers never read this record (they see the traveler status page built from timeline + actions).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Unique. One case per application."
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for support/audit joins."
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "destination": {
+      "type": "string"
+    },
+    "visa_type_key": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "submission_id": {
+      "type": "string",
+      "description": "Link to the Submission record once the act is performed (\u00a71)."
+    },
+    "submission_package_id": {
+      "type": "string",
+      "description": "Pinned immutable package version used for this case (\u00a73/\u00a732)."
+    },
+    "package_version": {
+      "type": "number"
+    },
+    "package_hash": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "PREPARING",
+        "READY_FOR_REVIEW",
+        "UNDER_REVIEW",
+        "READY_TO_SUBMIT",
+        "SUBMISSION_IN_PROGRESS",
+        "SUBMITTED",
+        "SUBMISSION_CONFIRMED",
+        "PROCESSING",
+        "DECISION_RECEIVED",
+        "COMPLETED",
+        "FAILED",
+        "CANCELLED"
+      ],
+      "default": "PREPARING",
+      "description": "Normalized operational lifecycle (\u00a72)."
+    },
+    "previous_state": {
+      "type": "string"
+    },
+    "state_changed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "review_state": {
+      "type": "string",
+      "enum": [
+        "UNASSIGNED",
+        "ASSIGNED",
+        "IN_REVIEW",
+        "REVIEWED",
+        "ESCALATED"
+      ],
+      "default": "UNASSIGNED",
+      "description": "Assignment sub-state (\u00a79)."
+    },
+    "assigned_to": {
+      "type": "string"
+    },
+    "assigned_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "assigned_by": {
+      "type": "string"
+    },
+    "qc_status": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "WARNING",
+        "BLOCKER",
+        "NOT_RUN"
+      ],
+      "default": "NOT_RUN",
+      "description": "Automated QC verdict from the Phase 13 review engine (\u00a76)."
+    },
+    "qc_review_id": {
+      "type": "string"
+    },
+    "quality_score": {
+      "type": "number",
+      "description": "Internal application-quality 0-100 (\u00a77). Never a visa approval probability."
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN"
+    },
+    "risk_factors": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Configurable weighted factors [{code, weight, detail}]."
+    },
+    "checklist": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Final submission checklist (\u00a75) generated from the requirement snapshot: [{code, label, status, requirement_id, detail}]."
+    },
+    "submission_method": {
+      "type": "string",
+      "enum": [
+        "API",
+        "PORTAL",
+        "MANUAL",
+        "EMAIL",
+        "EMBASSY_APPOINTMENT",
+        "OTHER"
+      ],
+      "description": "Submission method abstraction (\u00a714)."
+    },
+    "government_reference": {
+      "type": "string",
+      "description": "Government application id (\u00a718, kept separate)."
+    },
+    "embassy_reference": {
+      "type": "string",
+      "description": "Embassy reference (\u00a718)."
+    },
+    "courier_tracking_id": {
+      "type": "string",
+      "description": "Courier tracking id (\u00a718)."
+    },
+    "appointment_reference": {
+      "type": "string",
+      "description": "Appointment reference (\u00a718)."
+    },
+    "external_references": {
+      "type": "object",
+      "description": "Additional typed references map (\u00a718), e.g. { VFS_BATCH: '...' }."
+    },
+    "normalized_status": {
+      "type": "string",
+      "description": "Normalized tracking status post-submission (\u00a720): SUBMITTED/RECEIVED/PROCESSING/ADDITIONAL_INFORMATION_REQUIRED/APPOINTMENT_REQUIRED/BIOMETRICS_REQUIRED/PASSPORT_REQUESTED/DECISION_PENDING/APPROVED/REFUSED/WITHDRAWN/CANCELLED/COMPLETED."
+    },
+    "raw_status": {
+      "type": "string",
+      "description": "Provider/authority raw status text preserved verbatim (\u00a720)."
+    },
+    "tracking_provider_key": {
+      "type": "string"
+    },
+    "last_tracking_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "APPROVED",
+        "REFUSED",
+        "WITHDRAWN",
+        "CANCELLED",
+        "NEEDS_REVIEW"
+      ],
+      "description": "Visa decision (\u00a726). NEEDS_REVIEW routes back to ops when the authority response is ambiguous."
+    },
+    "decision_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "decision_needs_review": {
+      "type": "boolean",
+      "default": false
+    },
+    "visa_document_id": {
+      "type": "string",
+      "description": "Approved e-visa document in the traveler's vault (\u00a727), if provided electronically."
+    },
+    "escalated": {
+      "type": "boolean",
+      "default": false
+    },
+    "escalated_by": {
+      "type": "string"
+    },
+    "escalated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "escalation_reason": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "LOW",
+        "NORMAL",
+        "HIGH",
+        "URGENT"
+      ],
+      "default": "NORMAL"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "traveler_id",
+    "state"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

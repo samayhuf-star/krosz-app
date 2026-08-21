@@ -1,0 +1,96 @@
+{
+  "name": "QAReport",
+  "type": "object",
+  "description": "Krosz continuous QA consolidated report. One record per QA run; admin-only. Stores deterministic findings, root-cause hints, summary and the exact export payload used by the PROMIN repair loop.",
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "LIGHT",
+        "FULL",
+        "REGRESSION"
+      ],
+      "default": "LIGHT"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "WARN",
+        "FAIL"
+      ],
+      "default": "PASS"
+    },
+    "health_score": {
+      "type": "number",
+      "default": 100
+    },
+    "summary": {
+      "type": "object"
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "root_causes": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "export_payload": {
+      "type": "object"
+    },
+    "source": {
+      "type": "string",
+      "default": "qaOrchestrator"
+    }
+  },
+  "required": [
+    "run_id",
+    "generated_at",
+    "mode",
+    "status",
+    "health_score",
+    "summary",
+    "checks",
+    "export_payload"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

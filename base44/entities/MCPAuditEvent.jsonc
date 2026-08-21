@@ -1,0 +1,133 @@
+{
+  "name": "MCPAuditEvent",
+  "type": "object",
+  "description": "Worldz Visa (Phase 34 \u00a732): an immutable, append-only audit record of every MCP tool invocation by an AI agent. Records the tool, actor, agent/session, case reference, redacted input classification, result status, risk class, and correlation id. NEVER stores raw sensitive input (passport numbers, credentials, PII) \u2014 inputs are redacted via the platform redactor before persistence (\u00a728/\u00a743). Admin-only; an agent may write its own audit row but read access is internal. The agent is an orchestrator, never an authority \u2014 this audit proves what the agent asked the deterministic systems to do.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tool_name": {
+      "type": "string",
+      "description": "Canonical MCP tool name from the Phase 34 catalog."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "TRAVEL",
+        "CASE",
+        "ELIGIBILITY",
+        "REQUIREMENTS",
+        "DOCUMENTS",
+        "EXECUTION",
+        "PROVIDERS",
+        "OPERATIONS",
+        "PAYMENTS",
+        "TRACKING"
+      ]
+    },
+    "risk_class": {
+      "type": "string",
+      "enum": [
+        "READ_ONLY",
+        "LOW_RISK_WRITE",
+        "HIGH_RISK_WRITE",
+        "EXTERNAL_EXECUTION"
+      ]
+    },
+    "actor_id": {
+      "type": "string",
+      "description": "App user on whose behalf the agent acted."
+    },
+    "actor_role": {
+      "type": "string",
+      "enum": [
+        "traveler",
+        "operations",
+        "admin"
+      ],
+      "default": "traveler"
+    },
+    "agent_name": {
+      "type": "string",
+      "description": "Agent config name (traveler_assistant / operations_assistant / external)."
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Agent conversation/session correlation id."
+    },
+    "case_id": {
+      "type": "string",
+      "description": "Optional case/application reference when the tool targeted a case."
+    },
+    "result_status": {
+      "type": "string",
+      "enum": [
+        "ok",
+        "rejected",
+        "error",
+        "unsupported"
+      ],
+      "description": "Outcome of the tool invocation."
+    },
+    "rejection_code": {
+      "type": "string",
+      "description": "Deterministic rejection code when result_status is rejected (UNAUTHORIZED / INVALID_INPUT / BAD_TRANSITION / EXECUTION_UNAVAILABLE / SUBMISSION_REQUIRES_HUMAN_REVIEW / POLICY_DISABLED / RATE_LIMITED / LOOP_LIMIT / UNSUPPORTED_TOOL)."
+    },
+    "input_summary": {
+      "type": "object",
+      "description": "Non-PII, redacted summary of tool input. NEVER raw passport/credential/document content."
+    },
+    "output_summary": {
+      "type": "object",
+      "description": "Non-PII summary of tool output (status/reason/next_action only)."
+    },
+    "correlation_id": {
+      "type": "string"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Stable dedup key for idempotent write tools (\u00a733)."
+    },
+    "loop_counters": {
+      "type": "object",
+      "description": "Loop/rate budget snapshot after this invocation (\u00a735)."
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tool_name",
+    "actor_id",
+    "agent_name",
+    "result_status",
+    "occurred_at"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

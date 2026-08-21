@@ -1,0 +1,139 @@
+{
+  "name": "AutomationRule",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "crm_project_id": {
+      "type": "string"
+    },
+    "crm_version_id": {
+      "type": "string"
+    },
+    "crm_version": {
+      "type": "number"
+    },
+    "seo_version_id": {
+      "type": "string"
+    },
+    "website_id": {
+      "type": "string"
+    },
+    "blueprint_id": {
+      "type": "string"
+    },
+    "blueprint_version": {
+      "type": "number"
+    },
+    "name": {
+      "type": "string"
+    },
+    "trigger": {
+      "type": "string",
+      "enum": [
+        "lead_created",
+        "stage_changed",
+        "lead_scored",
+        "form_submitted",
+        "task_overdue",
+        "appointment_scheduled",
+        "appointment_missed",
+        "inactivity",
+        "no_progress"
+      ]
+    },
+    "trigger_stage": {
+      "type": "string"
+    },
+    "conditions": {
+      "type": "array",
+      "items": {}
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "owner_role": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "number"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "crm_project_id",
+    "crm_version_id",
+    "name",
+    "trigger",
+    "actions"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

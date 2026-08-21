@@ -1,0 +1,489 @@
+{
+  "name": "Provider",
+  "type": "object",
+  "description": "Base44 shared Provider registry. Used by orchestrator adapters (domain/email/phone/ai/payment/storage/submission) for connection state + health, AND by the Phase 23/24 Country x Visa Journey x Provider x Execution Capability Matrix (provider_type, MCP, commercial model, India coverage, capability-specific verification, lifecycle). Do not invent providers; only validated/verified providers surface. Phase 24 adds a provider verification lifecycle (DISCOVERED\u2192\u2026\u2192VERIFIED/PRODUCTION) and capability-specific verification (a provider may be VERIFIED for eligibility but NOT_VERIFIED for submission) plus OUR access/commercial-authorization state. Capability verification is never inferred from marketing claims (\u00a78/\u00a79).",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "key": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "domain",
+        "email",
+        "phone",
+        "ai",
+        "payment",
+        "storage",
+        "submission",
+        "visa_intelligence",
+        "visa_application",
+        "visa_submission",
+        "visa_tracking",
+        "document_validation",
+        "notification",
+        "government_official",
+        "other"
+      ],
+      "description": "Adapter category for the orchestrator. visa_* / government_official are Phase 23 matrix categories."
+    },
+    "provider_type": {
+      "type": "string",
+      "enum": [
+        "VISA_INTELLIGENCE",
+        "VISA_APPLICATION",
+        "VISA_SUBMISSION",
+        "VISA_TRACKING",
+        "DOCUMENT_VALIDATION",
+        "PAYMENT",
+        "NOTIFICATION",
+        "GOVERNMENT_OFFICIAL"
+      ],
+      "description": "Phase 23 matrix classification (\u00a723)."
+    },
+    "adapter_key": {
+      "type": "string"
+    },
+    "adapter_config": {
+      "type": "object"
+    },
+    "environment": {
+      "type": "string",
+      "enum": [
+        "sandbox",
+        "production"
+      ],
+      "default": "sandbox"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_configured",
+        "connected",
+        "error",
+        "disabled",
+        "researching",
+        "verified"
+      ],
+      "default": "not_configured",
+      "description": "Orchestrator adapter state. Phase 24 lifecycle lives in provider_lifecycle."
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_default": {
+      "type": "boolean",
+      "default": false
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Human-friendly label for the matrix UI."
+    },
+    "description": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "documentation_url": {
+      "type": "string",
+      "description": "API/docs URL (\u00a710)."
+    },
+    "countries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Hint list of country_code coverage; canonical coverage lives in CountryProviderBinding."
+    },
+    "coverage_notes": {
+      "type": "string"
+    },
+    "india_coverage_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 usefulness for Indian passport holders departing India (\u00a738)."
+    },
+    "mcp_available": {
+      "type": "boolean",
+      "default": false,
+      "description": "MCP exists for this provider (\u00a711). false unless evidence."
+    },
+    "mcp_endpoint": {
+      "type": "string"
+    },
+    "mcp_tools": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mcp_auth": {
+      "type": "string"
+    },
+    "mcp_read_only": {
+      "type": "boolean",
+      "default": true,
+      "description": "MCP can only read \u2014 never writes/submits unless verified."
+    },
+    "commercial_model": {
+      "type": "string",
+      "enum": [
+        "FREE",
+        "PAID",
+        "PARTNER_ONLY",
+        "ENTERPRISE",
+        "REQUEST_DEMO",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN",
+      "description": "Commercial access model (\u00a714)."
+    },
+    "per_application_cost_minor": {
+      "type": "number"
+    },
+    "per_application_cost_currency": {
+      "type": "string"
+    },
+    "api_subscription_minor": {
+      "type": "number"
+    },
+    "api_subscription_currency": {
+      "type": "string"
+    },
+    "min_volume": {
+      "type": "number"
+    },
+    "setup_fee_minor": {
+      "type": "number"
+    },
+    "transaction_fee_minor": {
+      "type": "number"
+    },
+    "transaction_fee_currency": {
+      "type": "string"
+    },
+    "sandbox_available": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "YES",
+        "NO"
+      ],
+      "default": "UNKNOWN"
+    },
+    "production_available": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "YES",
+        "NO"
+      ],
+      "default": "UNKNOWN"
+    },
+    "restrictions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Legal/operational restrictions (\u00a715)."
+    },
+    "evaluation_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Internal configurable evaluation 0-100 (\u00a737). Not a public guarantee."
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_evaluated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "health_status": {
+      "type": "string",
+      "enum": [
+        "healthy",
+        "degraded",
+        "down",
+        "unknown"
+      ],
+      "default": "unknown",
+      "description": "Circuit-breaker health."
+    },
+    "failure_count": {
+      "type": "number",
+      "default": 0
+    },
+    "last_failure_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_tested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_test_success": {
+      "type": "boolean"
+    },
+    "last_test_message": {
+      "type": "string"
+    },
+    "last_test_latency": {
+      "type": "number"
+    },
+    "provider_lifecycle": {
+      "type": "string",
+      "enum": [
+        "DISCOVERED",
+        "RESEARCHING",
+        "CONTACTED",
+        "DOCUMENTATION_RECEIVED",
+        "SANDBOX",
+        "TESTING",
+        "VERIFIED",
+        "PRODUCTION",
+        "SUSPENDED",
+        "REJECTED"
+      ],
+      "default": "DISCOVERED",
+      "description": "Phase 24 \u00a78 provider verification lifecycle. Transitions are validated. VERIFIED/PRODUCTION only with evidence."
+    },
+    "capability_verification": {
+      "type": "object",
+      "description": "Phase 24 \u00a79: per-capability verification (UNVERIFIED | VERIFIED | REJECTED). A provider can be VERIFIED for eligibility but NOT_VERIFIED for submission. Never inferred from marketing claims.",
+      "properties": {
+        "eligibility": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        },
+        "requirements": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        },
+        "application": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        },
+        "documents": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        },
+        "payment": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        },
+        "submission": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        },
+        "tracking": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        },
+        "refund": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        },
+        "cancellation": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        },
+        "notifications": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        },
+        "webhook": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        },
+        "api": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        },
+        "mcp": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        },
+        "human_operations": {
+          "type": "string",
+          "enum": [
+            "UNVERIFIED",
+            "VERIFIED",
+            "REJECTED"
+          ],
+          "default": "UNVERIFIED"
+        }
+      },
+      "default": {}
+    },
+    "our_api_access": {
+      "type": "string",
+      "enum": [
+        "NO",
+        "UNKNOWN",
+        "YES"
+      ],
+      "default": "NO",
+      "description": "Phase 24 \u00a710: whether WE currently have API access to this provider."
+    },
+    "our_commercial_authorized": {
+      "type": "string",
+      "enum": [
+        "NO",
+        "UNKNOWN",
+        "YES"
+      ],
+      "default": "NO",
+      "description": "Phase 24 \u00a710: whether WE are commercially authorized to execute via this provider."
+    },
+    "our_nationality_coverage": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Phase 24 \u00a79: nationality ISO codes this provider covers for our use."
+    },
+    "our_geographic_coverage": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Phase 24 \u00a79: destination ISO codes this provider covers for our use."
+    },
+    "authentication_method": {
+      "type": "string",
+      "description": "Phase 24 \u00a79: API auth method (api_key, oauth, mTLS, none)."
+    },
+    "webhook_support": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "YES",
+        "NO"
+      ],
+      "default": "UNKNOWN"
+    },
+    "verification_notes": {
+      "type": "string"
+    },
+    "last_verified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Phase 24: last time the provider verification lifecycle was reviewed."
+    }
+  },
+  "required": [
+    "name",
+    "key",
+    "category",
+    "adapter_key"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

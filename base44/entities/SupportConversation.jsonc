@@ -1,0 +1,115 @@
+{
+  "name": "SupportConversation",
+  "type": "object",
+  "description": "Worldz Visa (Phase 12): a support conversation bound to a VisaApplication (\u00a734/\u00a735). Distinct from the legacy chatbot Conversation entity (tenant/business-scoped) \u2014 this is traveler-owned visa support. Internal notes never appear here (separate InternalNote entity, \u00a736). Owner-of-application-or-admin.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "ticket_id": {
+      "type": "string",
+      "description": "Backing SupportTicket, when created from a ticket."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "APPLICATION_SUPPORT",
+        "DOCUMENT_SUPPORT",
+        "PAYMENT_SUPPORT",
+        "APPOINTMENT_SUPPORT",
+        "GENERAL_SUPPORT"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "WAITING_CUSTOMER",
+        "WAITING_OPERATOR",
+        "RESOLVED",
+        "CLOSED"
+      ],
+      "default": "ACTIVE"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "last_message_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_message_preview": {
+      "type": "string"
+    },
+    "unread_customer": {
+      "type": "number",
+      "default": 0,
+      "description": "Operator messages the customer hasn't read."
+    },
+    "unread_operator": {
+      "type": "number",
+      "default": 0,
+      "description": "Customer messages the operator hasn't read."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "traveler_id",
+    "type",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

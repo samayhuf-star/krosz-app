@@ -1,0 +1,329 @@
+{
+  "name": "CountryProviderBinding",
+  "type": "object",
+  "description": "Worldz Visa (Phase 23 \u00a713 / Phase 24 \u00a710): provider capability at the country x visa-program x nationality level. ONE row per (provider_key, country_code, journey_type, nationality) records the exact capability map. Phase 24 separates the provider's own capability from OUR execution access: a provider may claim submission=YES while our_api_access=NO / our_commercial_authorized=NO \u2014 the traveler never sees 'Apply through us' in that case (\u00a710/\u00a712). Admin-only reads \u2014 never exposed to travelers (\u00a729).",
+  "properties": {
+    "provider_key": {
+      "type": "string",
+      "description": "Provider.key, e.g. PIPEWORX, GOV_TH, WORLDZ_OPS."
+    },
+    "provider_name": {
+      "type": "string",
+      "description": "Denormalized display label for the matrix."
+    },
+    "country_code": {
+      "type": "string",
+      "description": "Destination ISO alpha-2."
+    },
+    "nationality": {
+      "type": "string",
+      "default": "IN",
+      "description": "Passport ISO alpha-2 \u2014 program-specific to nationality (\u00a713)."
+    },
+    "journey_type": {
+      "type": "string",
+      "enum": [
+        "VISA_FREE",
+        "VISA_ON_ARRIVAL",
+        "ETA",
+        "EVISA",
+        "OTHER_LOW_FRICTION",
+        "EMBASSY_VISA",
+        "CONSULAR_VISA",
+        "TRANSIT_VISA",
+        "WORK_VISA",
+        "STUDENT_VISA",
+        "OTHER",
+        "ANY"
+      ]
+    },
+    "program": {
+      "type": "string",
+      "description": "Specific visa program name where known. Optional."
+    },
+    "capability": {
+      "type": "object",
+      "description": "Verified capability map (\u00a712). Each: YES | NO | PARTIAL | UNKNOWN.",
+      "properties": {
+        "requirements": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ]
+        },
+        "eligibility": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ]
+        },
+        "application": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ]
+        },
+        "prefill": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ]
+        },
+        "documents": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ]
+        },
+        "payment": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ]
+        },
+        "submission": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ]
+        },
+        "tracking": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ]
+        },
+        "refund": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ]
+        },
+        "appointment": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ]
+        },
+        "notifications": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "PARTIAL",
+            "UNKNOWN"
+          ]
+        }
+      },
+      "default": {}
+    },
+    "commercial_access": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "FREE",
+        "PAID",
+        "PARTNER_ONLY",
+        "ENTERPRISE",
+        "REQUEST_DEMO"
+      ],
+      "default": "UNKNOWN",
+      "description": "Commercial access for THIS binding (\u00a714)."
+    },
+    "is_primary": {
+      "type": "boolean",
+      "default": false,
+      "description": "Primary provider for this role in the composition."
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "source",
+        "application",
+        "submission",
+        "tracking",
+        "operations",
+        "notification"
+      ],
+      "description": "Composition role this binding fulfills (\u00a725)."
+    },
+    "fallback_order": {
+      "type": "number",
+      "default": 0,
+      "description": "Order in the fallback chain (\u00a733); 0 = primary."
+    },
+    "notes": {
+      "type": "string"
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "RESEARCHING",
+        "VERIFIED",
+        "ACTIVE",
+        "SUSPENDED"
+      ],
+      "default": "RESEARCHING"
+    },
+    "provider_knows": {
+      "type": "string",
+      "enum": [
+        "NO",
+        "UNKNOWN",
+        "YES"
+      ],
+      "default": "UNKNOWN",
+      "description": "Phase 24 \u00a710: provider knows about this journey."
+    },
+    "provider_supports": {
+      "type": "string",
+      "enum": [
+        "NO",
+        "UNKNOWN",
+        "YES"
+      ],
+      "default": "UNKNOWN",
+      "description": "Phase 24 \u00a710: provider supports this journey."
+    },
+    "provider_can_submit": {
+      "type": "string",
+      "enum": [
+        "NO",
+        "UNKNOWN",
+        "YES"
+      ],
+      "default": "UNKNOWN",
+      "description": "Phase 24 \u00a710: provider can accept/submit the application."
+    },
+    "provider_can_track": {
+      "type": "string",
+      "enum": [
+        "NO",
+        "UNKNOWN",
+        "YES"
+      ],
+      "default": "UNKNOWN",
+      "description": "Phase 24 \u00a710: provider can track the application."
+    },
+    "our_api_access": {
+      "type": "string",
+      "enum": [
+        "NO",
+        "UNKNOWN",
+        "YES"
+      ],
+      "default": "UNKNOWN",
+      "description": "Phase 24 \u00a710: OUR platform can invoke this provider's API for this binding."
+    },
+    "our_commercial_authorized": {
+      "type": "string",
+      "enum": [
+        "NO",
+        "UNKNOWN",
+        "YES"
+      ],
+      "default": "UNKNOWN",
+      "description": "Phase 24 \u00a710: WE are commercially authorized to execute via this binding."
+    },
+    "our_active": {
+      "type": "boolean",
+      "default": false,
+      "description": "Phase 24 \u00a710: this binding's integration is live for our platform."
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "UNVERIFIED",
+        "VERIFIED",
+        "REJECTED"
+      ],
+      "default": "UNVERIFIED",
+      "description": "Phase 24 \u00a710: binding-level verification state. VERIFIED requires provider VERIFIED + our access + our authorization."
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Phase 24: CapabilityEvidence ids supporting this binding's verification."
+    },
+    "last_verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "provider_key",
+    "country_code",
+    "journey_type",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

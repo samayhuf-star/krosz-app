@@ -1,0 +1,146 @@
+{
+  "name": "AdiologyCampaign",
+  "type": "object",
+  "description": "Canonical workspace-owned campaign record for drafts, exports, AI analysis and eventual Google Ads publication. External publication is approval-gated and idempotent.",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "workspace_id": {
+      "type": "string"
+    },
+    "google_ads_account_id": {
+      "type": "string"
+    },
+    "external_campaign_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "ready",
+        "approval_required",
+        "publishing",
+        "published",
+        "paused",
+        "error",
+        "archived"
+      ],
+      "default": "draft"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string",
+      "default": "google_search"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "daily_budget_minor": {
+      "type": "number"
+    },
+    "geo_targets": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "language_targets": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "campaign_payload": {
+      "type": "object"
+    },
+    "validation": {
+      "type": "object"
+    },
+    "ai_analysis": {
+      "type": "object"
+    },
+    "approval": {
+      "type": "object"
+    },
+    "idempotency_key": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "ai",
+        "import",
+        "legacy"
+      ],
+      "default": "manual"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "last_published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_error": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "workspace_id",
+    "name",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

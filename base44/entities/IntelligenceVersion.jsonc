@@ -1,0 +1,154 @@
+{
+  "name": "IntelligenceVersion",
+  "type": "object",
+  "description": "Worldz Visa (Phase 37): an immutable, published version record of visa intelligence for a country x journey. ONE PUBLISHED version per (country, journey) drives the Travel Entry Engine; publishing a new version SUPERSEDES the previous one without deleting it (version history is immutable). Reuse of the Phase 24/25 verification + change-detection machinery produces the change_summary (severity, material fields, diff, source), captured here so an admin can answer 'what changed / when / why is Orizn showing this'. Lifecycle: DRAFT \u2192 RESEARCHING \u2192 CHANGE_DETECTED \u2192 REVIEW_REQUIRED \u2192 APPROVED \u2192 PUBLISHED \u2192 SUPERSEDED (and REJECTED). Rollback re-publishes a SUPERSEDED version and supersedes the current PUBLISHED one \u2014 never deletes either. Admin-managed; public read (PUBLISHED versions only drive traveler-facing confidence). Travelers and agents may READ versions via MCP tools but can NEVER publish, approve, or rollback \u2014 those remain authorized admin operations (\u00a732/\u00a733/\u00a744). Existing VisaApplication case snapshots are NEVER mutated by a version change; instead an INTELLIGENCE_VERSION_CHANGED / INTELLIGENCE_CHANGE_REQUIRES_ACTION CaseEvent is appended and affected cases are revalidated (\u00a710/\u00a730).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "country": {
+      "type": "string",
+      "description": "Destination ISO alpha-2 (CountryCapability.country_code)."
+    },
+    "journey": {
+      "type": "string",
+      "description": "Canonical journey type (EVISA / ETA / VISA_FREE / ...)."
+    },
+    "nationality": {
+      "type": "string",
+      "default": "IN"
+    },
+    "data_version": {
+      "type": "string",
+      "description": "Stable version label, e.g. TH-EVISA-v17. Unique per (country, journey)."
+    },
+    "source_version": {
+      "type": "string",
+      "description": "Source-provided version/etag where available."
+    },
+    "content_hash": {
+      "type": "string",
+      "description": "Deterministic fingerprint of the normalized intelligence payload (Phase 25 fingerprintPayload)."
+    },
+    "change_summary": {
+      "type": "object",
+      "description": "Structured change record that produced this version: { severity, materialFields, changedFields, diff, source_name, source_url, source_type, detected_at, previous_data_version, source_conflict, fetch_status }."
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "default": "MEDIUM",
+      "description": "Highest severity of the material change in this version (\u00a77)."
+    },
+    "affects_execution": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when the change touches execution-critical fields (form, route, capability, submission)."
+    },
+    "impact_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Internal 0-100 impact score (how many travelers/cases/routes could be affected). NOT an eligibility score."
+    },
+    "effective_from": {
+      "type": "string",
+      "format": "date"
+    },
+    "effective_until": {
+      "type": "string",
+      "format": "date"
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "published_by": {
+      "type": "string",
+      "description": "Admin user id/email who published."
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Admin who approved the review gate before publishing (HIGH/CRITICAL changes \u00a724)."
+    },
+    "source_reference": {
+      "type": "string",
+      "description": "Reference to the CapabilityEvidence / CapabilitySourceSnapshot backing this version."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "HIGH",
+        "NORMAL",
+        "LOW",
+        "UNKNOWN"
+      ],
+      "default": "UNKNOWN"
+    },
+    "previous_version_id": {
+      "type": "string",
+      "description": "The PUBLISHED version this one superseded."
+    },
+    "rollback_of_version_id": {
+      "type": "string",
+      "description": "If this version was re-published by a rollback, the version id the rollback undid."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "RESEARCHING",
+        "CHANGE_DETECTED",
+        "REVIEW_REQUIRED",
+        "APPROVED",
+        "PUBLISHED",
+        "SUPERSEDED",
+        "REJECTED"
+      ],
+      "default": "DRAFT",
+      "description": "Version lifecycle state (\u00a74). Only PUBLISHED drives production."
+    },
+    "auto_published": {
+      "type": "boolean",
+      "default": false,
+      "description": "True only for configurable LOW-risk auto-publication (\u00a725). Never for eligibility/fees/urls."
+    },
+    "rollback_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Times this version has been re-published via rollback."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "country",
+    "journey",
+    "data_version",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

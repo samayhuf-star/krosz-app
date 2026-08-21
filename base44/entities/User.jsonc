@@ -1,0 +1,26 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "white_label_account_id": {
+      "type": "string"
+    },
+    "platform_role": {
+      "type": "string",
+      "enum": [
+        "platform_owner",
+        "reseller_admin",
+        "tenant_admin",
+        "member"
+      ],
+      "default": "member"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "white_label_account_id"
+  ]
+}

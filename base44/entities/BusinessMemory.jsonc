@@ -1,0 +1,132 @@
+{
+  "name": "BusinessMemory",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "fact",
+        "lesson",
+        "decision",
+        "preference",
+        "daily_brief",
+        "today_plan",
+        "weekly_review",
+        "monthly_strategy"
+      ],
+      "description": "Type of memory record. fact/preference/lesson/decision = long-term learning. daily_brief/today_plan/weekly_review/monthly_strategy = generated cognition artifacts."
+    },
+    "key": {
+      "type": "string",
+      "description": "Stable logical id within business+kind. For briefs: daily:YYYY-MM-DD, weekly:YYYY-Www, monthly:YYYY-MM. For facts: brand_voice, sales_process, etc. Upsert by business_id+kind+key."
+    },
+    "title": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string",
+      "description": "Human-readable content (markdown/text). For briefs: the narrative. For facts: the remembered value."
+    },
+    "payload": {
+      "type": "object",
+      "description": "Structured content: brief sections (yesterday[], today[], risks[]), review metrics, plan items, decision metadata."
+    },
+    "confidence": {
+      "type": "number",
+      "default": 1,
+      "description": "0-1. Facts confirmed by user = 1. AI-inferred = lower."
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "user",
+        "ai",
+        "auto"
+      ],
+      "default": "ai"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "period_date": {
+      "type": "string",
+      "format": "date",
+      "description": "The day/week/month this artifact covers (for briefs/plans/reviews)."
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Optional TTL for transient artifacts (plans/briefs)."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "kind",
+    "key",
+    "title"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

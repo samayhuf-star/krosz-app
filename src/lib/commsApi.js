@@ -1,0 +1,36 @@
+import { base44 } from '@/api/base44Client';
+
+const call = (payload) => base44.functions.invoke('commsHub', payload);
+
+export const commsApi = {
+  getStatus: (business_id) => call({ action: 'getStatus', business_id }),
+  listProviders: () => call({ action: 'listProviders' }),
+  enableProvider: (business_id, provider_id, is_default = true) => call({ action: 'enableProvider', business_id, provider_id, is_default }),
+  prepareDomainDns: (business_id) => call({ action: 'prepareDomainDns', business_id }),
+  recommendMailboxes: (business_id) => call({ action: 'recommendMailboxes', business_id }),
+  approveMailboxes: (business_id, mailboxes) => call({ action: 'approveMailboxes', business_id, mailboxes }),
+  createMailbox: (business_id, data) => call({ action: 'createMailbox', business_id, ...data }),
+  updateMailbox: (mailbox_id, patch) => call({ action: 'updateMailbox', mailbox_id, patch }),
+  suspendMailbox: (mailbox_id, resume = false) => call({ action: 'suspendMailbox', mailbox_id, resume }),
+  deleteMailbox: (mailbox_id) => call({ action: 'deleteMailbox', mailbox_id }),
+  resetMailboxPassword: (mailbox_id) => call({ action: 'resetMailboxPassword', mailbox_id }),
+  syncMailbox: (mailbox_id) => call({ action: 'syncMailbox', mailbox_id }),
+  sendMessage: (business_id, data) => call({ action: 'sendMessage', business_id, ...data }),
+  aiAction: (message_id, ai_action, opts = {}) => call({ action: 'aiAction', message_id, ai_action, ...opts }),
+  createTicketFromEmail: (message_id) => call({ action: 'createTicketFromEmail', message_id }),
+  assignMessage: (message_id, user_id) => call({ action: 'assignMessage', message_id, user_id }),
+  markMessage: (message_id, patch) => call({ action: 'markMessage', message_id, patch }),
+  listMessages: (business_id, opts = {}) => call({ action: 'listMessages', business_id, ...opts }),
+  getThread: (thread_id) => call({ action: 'getThread', thread_id }),
+  listThreads: (business_id, opts = {}) => call({ action: 'listThreads', business_id, ...opts }),
+  search: (business_id, query) => call({ action: 'search', business_id, query }),
+  saveTemplate: (business_id, data) => call({ action: 'saveTemplate', business_id, ...data }),
+  listTemplates: (business_id) => call({ action: 'listTemplates', business_id }),
+  deleteTemplate: (template_id) => call({ action: 'deleteTemplate', template_id }),
+  saveAutomation: (business_id, data) => call({ action: 'saveAutomation', business_id, ...data }),
+  listAutomations: (business_id) => call({ action: 'listAutomations', business_id }),
+  updateAutomation: (automation_id, patch) => call({ action: 'updateAutomation', automation_id, patch }),
+  deleteAutomation: (automation_id) => call({ action: 'deleteAutomation', automation_id }),
+  telemetry: (business_id) => call({ action: 'telemetry', business_id }),
+  setChannelConfig: (business_id, data) => call({ action: 'setChannelConfig', business_id, ...data }),
+};

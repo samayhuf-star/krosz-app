@@ -1,0 +1,111 @@
+{
+  "name": "AppointmentRequirement",
+  "type": "object",
+  "description": "Worldz Visa (Phase 9): one appointment requirement for a VisaApplication (BIOMETRICS/INTERVIEW/DOCUMENT_SUBMISSION/PASSPORT_SUBMISSION/PASSPORT_COLLECTION/OTHER). Derived deterministically from pinned visa requirements + submission route + provider capabilities (never an LLM, never hard-coded country logic). Provenance records WHY it exists. A single application may carry multiple requirements. Owner-of-application-or-admin (traveler_id denormalized).",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "BIOMETRICS",
+        "INTERVIEW",
+        "DOCUMENT_SUBMISSION",
+        "PASSPORT_SUBMISSION",
+        "PASSPORT_COLLECTION",
+        "OTHER"
+      ]
+    },
+    "required": {
+      "type": "boolean",
+      "default": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "REQUIRED",
+        "NOT_REQUIRED",
+        "WAIVED",
+        "COMPLETED"
+      ],
+      "default": "REQUIRED"
+    },
+    "source": {
+      "type": "string",
+      "description": "VISA_REQUIREMENT | SUBMISSION_ROUTE | PROVIDER_CAPABILITY | DESTINATION_RULE."
+    },
+    "source_reference": {
+      "type": "string",
+      "description": "e.g. requirement id, route id, capability key."
+    },
+    "version": {
+      "type": "string",
+      "description": "Pinned requirements version (provenance)."
+    },
+    "appointment_id": {
+      "type": "string",
+      "description": "The Appointment created to satisfy this requirement, once booked."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "traveler_id",
+    "type",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

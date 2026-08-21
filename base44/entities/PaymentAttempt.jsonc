@@ -1,0 +1,111 @@
+{
+  "name": "PaymentAttempt",
+  "type": "object",
+  "description": "Worldz Visa (Phase 10): one attempt for a Payment (\u00a747). Failed attempts are append-only (never overwritten) so the retry history is auditable. A Payment has 1..N attempts; the latest non-failed attempt's status projects onto the Payment. Owner-or-admin.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "payment_id": {
+      "type": "string"
+    },
+    "order_id": {
+      "type": "string",
+      "description": "Denormalized."
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "attempt_number": {
+      "type": "number"
+    },
+    "provider_reference": {
+      "type": "string"
+    },
+    "amount_minor": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "CREATED",
+        "PENDING",
+        "AUTHORIZED",
+        "SUCCEEDED",
+        "FAILED",
+        "CANCELLED"
+      ]
+    },
+    "operation": {
+      "type": "string",
+      "description": "create_checkout | authorize | capture | refund."
+    },
+    "failure_code": {
+      "type": "string"
+    },
+    "failure_category": {
+      "type": "string",
+      "enum": [
+        "CARD_DECLINED",
+        "INSUFFICIENT_FUNDS",
+        "AUTHENTICATION_FAILED",
+        "PROVIDER_UNAVAILABLE",
+        "RATE_LIMITED",
+        "PAYMENT_EXPIRED",
+        "UNKNOWN"
+      ]
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "payment_id",
+    "traveler_id",
+    "attempt_number",
+    "amount_minor",
+    "currency",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "name": "AccountDeletionRequest",
+  "type": "object",
+  "description": "Worldz Visa (Phase 20): a controlled account-deletion workflow request (\u00a738). Never hard-deletes immediately \u2014 enters PENDING, retention rules are evaluated, eligible data is anonymized/deleted, and the account is deactivated. Retention is configurable. Owner-or-admin read; owner create; admin update/delete.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Account owner requesting deletion."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "RETENTION_CHECKED",
+        "PROCESSING",
+        "COMPLETED",
+        "CANCELLED",
+        "REJECTED"
+      ],
+      "default": "PENDING"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "active_applications": {
+      "type": "number",
+      "default": 0,
+      "description": "Count of active applications at request time (retention check \u00a738)."
+    },
+    "active_orders": {
+      "type": "number",
+      "default": 0
+    },
+    "retention_note": {
+      "type": "string",
+      "description": "Why certain records were retained."
+    },
+    "requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "processed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "cancelled_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "user_id",
+    "status",
+    "requested_at"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

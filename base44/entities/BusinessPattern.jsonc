@@ -1,0 +1,126 @@
+{
+  "name": "BusinessPattern",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string",
+      "description": "'system' for the shared pattern library."
+    },
+    "pattern_key": {
+      "type": "string",
+      "description": "Stable slug, e.g. loyalty_program, appointment_reminder."
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "retention",
+        "acquisition",
+        "operations",
+        "marketing",
+        "support",
+        "finance",
+        "growth"
+      ]
+    },
+    "origin_industry": {
+      "type": "string",
+      "description": "The industry this pattern was first observed in."
+    },
+    "applicable_industries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Other industry_keys where the AI suggests applying this pattern."
+    },
+    "mechanism": {
+      "type": "string",
+      "description": "How the pattern works, transferable across industries."
+    },
+    "implementation_hint": {
+      "type": "string",
+      "description": "How to realize it on Launch OS (workflows, automations, emails)."
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "description": "Observations/outcomes supporting the pattern."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "idea",
+        "active",
+        "archived"
+      ],
+      "default": "idea"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "ai_generated": {
+      "type": "boolean",
+      "default": true
+    },
+    "human_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "tenant_id",
+    "pattern_key",
+    "name",
+    "category"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "system"
+        },
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

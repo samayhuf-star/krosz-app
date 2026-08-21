@@ -1,0 +1,134 @@
+{
+  "name": "EmailAutomationRule",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "business_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "trigger": {
+      "type": "string",
+      "enum": [
+        "subject_contains",
+        "from_contains",
+        "category_is",
+        "has_invoice",
+        "has_complaint",
+        "has_lead",
+        "vip_customer",
+        "importance_is",
+        "ai_category_is"
+      ]
+    },
+    "conditions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "e.g. [{type:'label', value:'finance'}, {type:'route_to_module', module:'crm'}, {type:'assign_role', role:'finance'}, {type:'create_ticket'}]."
+    },
+    "action_target_module": {
+      "type": "string",
+      "enum": [
+        "crm",
+        "support",
+        "hr",
+        "finance",
+        "calendar",
+        "kg",
+        "none"
+      ],
+      "default": "none"
+    },
+    "mailbox_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Mailbox ids this rule applies to; empty = all mailboxes."
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "priority": {
+      "type": "number",
+      "default": 50
+    },
+    "provenance": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "business_id",
+    "name",
+    "trigger",
+    "actions"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

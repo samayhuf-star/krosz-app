@@ -1,0 +1,144 @@
+{
+  "type": "object",
+  "description": "Krosz MVP locked policy: post-payment Visa Approver Manager decision, CEO-only exception approval, 24-hour refund SLA, and feedback into deterministic digital rules. Internal-only.",
+  "properties": {
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string"
+    },
+    "operations_case_id": {
+      "type": "string"
+    },
+    "order_id": {
+      "type": "string"
+    },
+    "payment_id": {
+      "type": "string"
+    },
+    "digital_review_id": {
+      "type": "string"
+    },
+    "digital_quality_score": {
+      "type": "number"
+    },
+    "digital_blocking_count": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PENDING_VERIFIER",
+        "IN_VERIFIER_REVIEW",
+        "APPROVED_FOR_SUBMISSION",
+        "NOT_DOABLE_PENDING_CEO",
+        "CEO_REFUND_APPROVED",
+        "CEO_REFUND_REJECTED",
+        "REFUND_PROCESSING",
+        "REFUNDED",
+        "CLOSED"
+      ],
+      "default": "PENDING_VERIFIER"
+    },
+    "verifier_id": {
+      "type": "string"
+    },
+    "verifier_name": {
+      "type": "string"
+    },
+    "verifier_started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verifier_decided_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verifier_reason_code": {
+      "type": "string"
+    },
+    "verifier_reason": {
+      "type": "string"
+    },
+    "ceo_status": {
+      "type": "string",
+      "enum": [
+        "NOT_REQUIRED",
+        "PENDING",
+        "APPROVED_REFUND",
+        "REJECTED_REFUND"
+      ],
+      "default": "NOT_REQUIRED"
+    },
+    "ceo_id": {
+      "type": "string"
+    },
+    "ceo_name": {
+      "type": "string"
+    },
+    "ceo_decided_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ceo_reason": {
+      "type": "string"
+    },
+    "refund_id": {
+      "type": "string"
+    },
+    "refund_due_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "refund_completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "learning_status": {
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "CAPTURED",
+        "RULE_CANDIDATE_CREATED",
+        "CLOSED"
+      ],
+      "default": "PENDING"
+    },
+    "learning_payload": {
+      "type": "object"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "traveler_id",
+    "order_id",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "name": "PostPaymentReview"
+}

@@ -1,0 +1,132 @@
+{
+  "name": "VisaNotification",
+  "type": "object",
+  "description": "Worldz Visa (Phase 12): a customer-facing notification for a traveler, derived from domain events (\u00a718/\u00a757). Deduplicated by notification_key (application_id + event_type + event_id + category, \u00a721) so worker retries never double-send. Category maps to NotificationPreference groups (\u00a719); marketing is independently controllable and never suppressed when operational categories are muted. Owner (traveler) read/create/update; admin all.",
+  "properties": {
+    "traveler_id": {
+      "type": "string"
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Optional; general support/system notices may be unscoped."
+    },
+    "notification_key": {
+      "type": "string",
+      "description": "Stable dedup key."
+    },
+    "event_type": {
+      "type": "string",
+      "description": "Canonical event that produced this notification (see ApplicationTimelineEvent.event_type)."
+    },
+    "event_id": {
+      "type": "string",
+      "description": "Source event_id, for cross-reference with ApplicationTimelineEvent."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "application_updates",
+        "appointment_reminders",
+        "payment_updates",
+        "document_updates",
+        "support_messages",
+        "marketing"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "CRITICAL",
+        "ACTION_REQUIRED",
+        "IMPORTANT",
+        "INFO"
+      ],
+      "default": "INFO"
+    },
+    "title": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "deep_link": {
+      "type": "string",
+      "description": "In-app route for the notification (\u00a730)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "UNREAD",
+        "READ",
+        "ARCHIVED"
+      ],
+      "default": "UNREAD"
+    },
+    "read_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "archived_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "traveler_id",
+    "notification_key",
+    "event_type",
+    "category",
+    "priority",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "name": "Organization",
+  "type": "object",
+  "description": "ORCHESTRAL CORE \u2014 top of the ownership hierarchy. Organizations contain Projects; Projects contain Applications; Applications own Runs. Orchestral never depends on a business domain; Organizations are the universal tenant boundary.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string",
+      "description": "Existing Base44 tenant isolation key. Organization is the Orchestral-level analogue."
+    },
+    "name": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "string",
+      "description": "URL-safe unique identifier within the tenant."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "config": {
+      "type": "object",
+      "description": "Organization-level policy: default provider bindings, approval policy, telemetry settings."
+    }
+  },
+  "required": [
+    "tenant_id",
+    "name",
+    "slug"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

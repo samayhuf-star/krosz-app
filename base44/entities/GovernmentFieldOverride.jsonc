@@ -1,0 +1,86 @@
+{
+  "name": "GovernmentFieldOverride",
+  "type": "object",
+  "description": "Worldz Visa (Phase 7): an explicit, audited override of a generated government field value for one application + form. Does NOT mutate the canonical ApplicationAnswer; the override + reason is stored here for audit. Owner-of-application-or-admin.",
+  "properties": {
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "form_definition_id": {
+      "type": "string"
+    },
+    "field_code": {
+      "type": "string"
+    },
+    "value": {
+      "type": "string",
+      "description": "Government field value to use instead of the generated one."
+    },
+    "reason": {
+      "type": "string"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "superseded": {
+      "type": "boolean",
+      "default": false
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "form_definition_id",
+    "field_code",
+    "value"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

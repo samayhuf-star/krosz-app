@@ -1,0 +1,122 @@
+{
+  "name": "ApplicationGroup",
+  "type": "object",
+  "description": "Worldz Visa (Phase 20): an optional trip / group that associates multiple applications without merging traveler identities (\u00a715/\u00a716). Each application still belongs to exactly one traveler; the group is a soft association. One group per trip; supports group progress roll-up (\u00a717). Owner-or-admin RLS. Group applications are never merged into a single application unless the destination/product explicitly supports a group application model.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "name": {
+      "type": "string",
+      "description": "Trip/group label e.g. 'Family Trip to Europe'."
+    },
+    "owner_user_id": {
+      "type": "string",
+      "description": "Account owner."
+    },
+    "destination": {
+      "type": "string",
+      "description": "ISO alpha-2 destination (shared across the trip)."
+    },
+    "purpose": {
+      "type": "string",
+      "enum": [
+        "tourism",
+        "business",
+        "study",
+        "transit"
+      ]
+    },
+    "travel_start": {
+      "type": "string",
+      "format": "date"
+    },
+    "travel_end": {
+      "type": "string",
+      "format": "date"
+    },
+    "traveler_ids": {
+      "type": "array",
+      "description": "Travelers included in the trip (\u00a716).",
+      "items": {
+        "type": "string"
+      }
+    },
+    "application_ids": {
+      "type": "array",
+      "description": "Applications associated with this trip. Each application is owned by one traveler.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "ACTIVE",
+        "COMPLETED",
+        "CANCELLED"
+      ],
+      "default": "ACTIVE"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "name",
+    "owner_user_id",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

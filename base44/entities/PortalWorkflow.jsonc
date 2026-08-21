@@ -1,0 +1,87 @@
+{
+  "name": "PortalWorkflow",
+  "type": "object",
+  "description": "Worldz Visa (Phase 11): a versioned workflow for a PortalDefinition (\u00a79). Defines the deterministic ordered steps, selector definitions with fallbacks (\u00a7\u00a710/11), field mappings (GovernmentFormField \u2192 portal selector), document mappings, and navigation rules. The execution plan is generated from this + the package; an LLM never invents the workflow at runtime (\u00a76). Admin-managed; public read.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "portal_definition_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "description": "e.g. v1. Existing executions pin a workflow version (\u00a77)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "TESTING",
+        "ACTIVE",
+        "PAUSED",
+        "DEPRECATED"
+      ],
+      "default": "DRAFT"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "One deterministic workflow step: key (OPEN_PORTAL/SELECT_TYPE/FILL_IDENTITY/FILL_PASSPORT/FILL_TRAVEL/FILL_CONTACT/UPLOAD_PASSPORT/UPLOAD_PHOTO/UPLOAD_DOCS/REVIEW/SUBMIT/CAPTURE_RECEIPT)."
+      }
+    },
+    "field_mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Maps a GovernmentFormField code to a portal selector definition (with fallbacks). Value source is always the approved form snapshot (\u00a713)."
+      }
+    },
+    "document_mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Maps a document requirement type to a portal upload target + file constraints (max_size, allowed_types)."
+      }
+    },
+    "navigation_rules": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "portal_definition_id",
+    "version",
+    "status",
+    "steps"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

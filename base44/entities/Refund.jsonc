@@ -1,0 +1,165 @@
+{
+  "name": "Refund",
+  "type": "object",
+  "description": "Worldz Visa (Phase 10): a refund for an Order/Payment (\u00a731). State machine (\u00a732): REQUESTED \u2192 UNDER_REVIEW \u2192 APPROVED \u2192 PROCESSING \u2192 COMPLETED (or REJECTED / FAILED). The provider must confirm completion \u2014 an operator clicking 'refund' never immediately marks COMPLETED (\u00a732). Phase 2 hardening: a deterministic, conservative eligibility evaluator sets `eligibility` at request time (POTENTIALLY_ELIGIBLE / REQUIRES_HUMAN_REVIEW / NOT_ELIGIBLE); AI never independently approves a financially-consequent refund. `application_stage` + `submission_status` are captured for evidence; `policy_version` pins the refund policy in force. Type FULL/PARTIAL; components array records exactly which price components were refunded (\u00a735). Refundable amount is capped by the captured payment (\u00a754). Owner-or-admin read/create; admin approves/executes/rejects.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "order_id": {
+      "type": "string"
+    },
+    "payment_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Denormalized."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "FULL",
+        "PARTIAL"
+      ]
+    },
+    "amount_minor": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "CUSTOMER_REQUEST",
+        "APPLICATION_CANCELLED",
+        "DUPLICATE_PAYMENT",
+        "PROVIDER_FAILURE",
+        "OPERATOR_ADJUSTMENT",
+        "OTHER"
+      ]
+    },
+    "reason_detail": {
+      "type": "string"
+    },
+    "actor": {
+      "type": "string",
+      "description": "Who requested/approved."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "REQUESTED",
+        "UNDER_REVIEW",
+        "APPROVED",
+        "PROCESSING",
+        "COMPLETED",
+        "FAILED",
+        "REJECTED"
+      ],
+      "default": "REQUESTED"
+    },
+    "eligibility": {
+      "type": "string",
+      "enum": [
+        "POTENTIALLY_ELIGIBLE",
+        "REQUIRES_HUMAN_REVIEW",
+        "NOT_ELIGIBLE"
+      ],
+      "description": "Deterministic, conservative initial assessment set at request time. A human still decides approval."
+    },
+    "eligibility_notes": {
+      "type": "string",
+      "description": "Why the evaluator set this eligibility tier."
+    },
+    "application_stage": {
+      "type": "string",
+      "description": "Application case state snapshot at refund request (evidence)."
+    },
+    "submission_status": {
+      "type": "string",
+      "description": "Whether the case was already submitted to the government (evidence)."
+    },
+    "policy_version": {
+      "type": "string",
+      "description": "Refund policy version in force at request time."
+    },
+    "reviewer": {
+      "type": "string",
+      "description": "Admin who approved/rejected."
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "provider_refund_id": {
+      "type": "string"
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Which price components were refunded (\u00a735)."
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "order_id",
+    "payment_id",
+    "traveler_id",
+    "type",
+    "amount_minor",
+    "currency",
+    "reason",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

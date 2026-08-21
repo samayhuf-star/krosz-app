@@ -1,0 +1,92 @@
+{
+  "name": "TrackingEvent",
+  "type": "object",
+  "description": "Worldz Visa (Phase 19): a single tracking event for an application/submission after submission (\u00a721). Stores both the normalized internal status and the provider raw status verbatim (\u00a720). Deduplicated by dedup_key (application_id + normalized_status + raw_status + occurred_at) so polling retries never create duplicate timeline rows (\u00a723). Owner-of-application-or-admin (traveler_id denormalized).",
+  "properties": {
+    "application_id": {
+      "type": "string"
+    },
+    "traveler_id": {
+      "type": "string",
+      "description": "Denormalized for access checks."
+    },
+    "submission_id": {
+      "type": "string"
+    },
+    "normalized_status": {
+      "type": "string",
+      "description": "Normalized internal status (\u00a719/\u00a720)."
+    },
+    "raw_status": {
+      "type": "string",
+      "description": "Authority/provider raw status text, preserved (\u00a720)."
+    },
+    "raw_provider": {
+      "type": "string",
+      "description": "Provider key that produced this raw status."
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "GOVERNMENT_API",
+        "PARTNER_API",
+        "PORTAL",
+        "EMAIL",
+        "MANUAL",
+        "MOCK",
+        "SYSTEM"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "dedup_key": {
+      "type": "string",
+      "description": "Stable dedup key (application_id + normalized_status + raw_status + occurred_at)."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "application_id",
+    "traveler_id",
+    "normalized_status",
+    "source",
+    "occurred_at",
+    "dedup_key"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

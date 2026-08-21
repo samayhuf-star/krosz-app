@@ -1,0 +1,130 @@
+{
+  "name": "Tenant",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "name": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "onboarding",
+        "active",
+        "suspended",
+        "archived"
+      ],
+      "default": "onboarding"
+    },
+    "white_label_account_id": {
+      "type": "string"
+    },
+    "members": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "plan": {
+      "type": "string",
+      "default": "foundation"
+    },
+    "account_memory": {
+      "type": "object",
+      "description": "Account-level Business Memory: confirmed preferences reused across every business the owner launches (preferred_language, country, currency, timezone, branding_preferences, contact_*, billing_info). Inferred answers include confidence/source/reason; only confirmed values are persisted here.",
+      "properties": {
+        "preferred_language": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "branding_preferences": {
+          "type": "string"
+        },
+        "contact_name": {
+          "type": "string"
+        },
+        "contact_email": {
+          "type": "string"
+        },
+        "contact_phone": {
+          "type": "string"
+        },
+        "billing_info": {
+          "type": "object"
+        }
+      }
+    }
+  },
+  "required": [
+    "name",
+    "slug",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.members": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

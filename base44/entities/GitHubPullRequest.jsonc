@@ -1,0 +1,105 @@
+{
+  "name": "GitHubPullRequest",
+  "type": "object",
+  "description": "Krosz Engineering: cached snapshot of an open pull request synced from the Samayhuf-star/krosz-app GitHub repo via the shared GitHub connector. Kept fresh by a 15-minute scheduled workflow plus on-demand admin refresh; the /admin/pull-requests dashboard reads this cache for instant load. Service role writes from the workflow; admin-only access.",
+  "properties": {
+    "repo": {
+      "type": "string",
+      "description": "owner/name, e.g. Samayhuf-star/krosz-app"
+    },
+    "pr_number": {
+      "type": "number"
+    },
+    "title": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "open",
+        "closed",
+        "merged"
+      ],
+      "default": "open"
+    },
+    "draft": {
+      "type": "boolean",
+      "default": false
+    },
+    "html_url": {
+      "type": "string"
+    },
+    "author_login": {
+      "type": "string"
+    },
+    "author_avatar": {
+      "type": "string"
+    },
+    "head_branch": {
+      "type": "string"
+    },
+    "base_branch": {
+      "type": "string"
+    },
+    "created_at_iso": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at_iso": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "mergeable_state": {
+      "type": "string"
+    },
+    "comments": {
+      "type": "number",
+      "default": 0
+    },
+    "review_comments": {
+      "type": "number",
+      "default": 0
+    },
+    "labels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "fetched_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "repo",
+    "pr_number",
+    "title",
+    "state",
+    "html_url",
+    "author_login",
+    "fetched_at"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

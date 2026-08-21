@@ -1,0 +1,47 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "*/15 * * * *",
+      "one_time_date": null,
+      "timezone": "Asia/Calcutta",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "github_pr_sync",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "sync_prs": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "githubPullRequests",
+            "args": {
+              "action": "sync"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Sync pull requests",
+            "description": "Cache open PRs from GitHub"
+          }
+        }
+      }
+    ]
+  },
+  "name": "GitHub PR Sync",
+  "description": "Polls open pull requests from Samayhuf-star/krosz-app every 15 minutes and caches them for the /admin/pull-requests dashboard."
+}

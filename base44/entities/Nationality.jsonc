@@ -1,0 +1,71 @@
+{
+  "name": "Nationality",
+  "type": "object",
+  "description": "Worldz Visa catalog: a structured nationality / citizenship, distinct from the destination Country entity. A nationality references a country (country_code) and the passport country (passport_country_code) and supports dual nationality. Referenced by VisaRoute.nationality and the Traveler profile. Public read, admin-managed.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "code": {
+      "type": "string",
+      "description": "Stable identifier, typically the ISO 3166-1 alpha-2 of the citizenship country, upper-case."
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name, e.g. 'Indian'."
+    },
+    "country_code": {
+      "type": "string",
+      "description": "ISO alpha-2 of the underlying country (references Country.code)."
+    },
+    "passport_country_code": {
+      "type": "string",
+      "description": "ISO alpha-2 of the issuing passport country (usually equals country_code)."
+    },
+    "dual_nationality_supported": {
+      "type": "boolean",
+      "default": false
+    },
+    "flag_emoji": {
+      "type": "string"
+    },
+    "passport_power_note": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "code",
+    "name",
+    "country_code"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

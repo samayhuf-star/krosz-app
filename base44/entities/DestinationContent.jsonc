@@ -1,0 +1,104 @@
+{
+  "name": "DestinationContent",
+  "type": "object",
+  "description": "Worldz Visa (Phase 21): editorial + SEO content overlay for a destination (country_code). CONTENT \u2260 REGULATORY DATA: visa rules, fees, processing and requirements come from the existing Visa Intelligence domain (VisaType / VisaRoute / VisaPrice / VisaRequirementsVersion). This entity holds only editorial text (intro, overview, how_it_works, travel_notes, important_notes, faq), related-destination config, and SEO metadata. One row per country_code (+ optional language). Public read so destination pages render for anonymous visitors; admin-managed so CONTENT_EDITOR / SEO_MANAGER cannot touch regulatory entities (\u00a738/\u00a739). status gates indexability: only PUBLISHED rows feed the public sitemap and SEO meta; DRAFT is admin-only.",
+  "properties": {
+    "country_code": {
+      "type": "string",
+      "description": "ISO alpha-2 destination. References Country.code (single source of truth)."
+    },
+    "slug": {
+      "type": "string",
+      "description": "SEO-friendly slug for /visa/:slug. Defaults to slugified country name; override allowed."
+    },
+    "language": {
+      "type": "string",
+      "default": "en",
+      "description": "Locale code for future i18n (\u00a741). 'en' by default."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "PUBLISHED",
+        "ARCHIVED"
+      ],
+      "default": "DRAFT"
+    },
+    "intro": {
+      "type": "string"
+    },
+    "overview": {
+      "type": "string"
+    },
+    "visa_summary": {
+      "type": "string",
+      "description": "Short human summary shown above visa options. Editorial only \u2014 not regulatory."
+    },
+    "how_it_works": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Step list [{title, description}]."
+    },
+    "travel_notes": {
+      "type": "string"
+    },
+    "important_notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "faq": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "[{question, answer}]. Powers FAQPage structured data."
+    },
+    "related_destinations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Country codes of related destinations (\u00a716). Editorial/config override; engine falls back to regional similarity."
+    },
+    "seo": {
+      "type": "object",
+      "description": "{ title, description, canonical_path, og_title, og_description, image_url, robots }. Empty fields fall back to engine-generated defaults."
+    },
+    "content_quality_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 heuristic used to gate indexability (\u00a724). Thin pages are not surfaced to sitemap/search."
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "country_code",
+    "slug",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

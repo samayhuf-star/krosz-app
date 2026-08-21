@@ -1,0 +1,228 @@
+{
+  "name": "IndustryBlueprint",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "tenant_id": {
+      "type": "string",
+      "description": "'system' for the managed public library. A tenant id for a private tenant-specific override."
+    },
+    "industry_key": {
+      "type": "string",
+      "description": "Stable catalog key, e.g. gym, restaurant, dentist."
+    },
+    "industry_label": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "superseded",
+        "archived"
+      ],
+      "default": "draft",
+      "description": "Only one active version per industry_key (+tenant) at a time. New improvements fork a new version; prior active becomes superseded \u2014 history is never overwritten."
+    },
+    "business_model": {
+      "type": "string"
+    },
+    "customer_personas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "typical_services": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "pricing_models": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sales_funnel": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "lead_sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "website_structure": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "seo_strategy": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "crm_pipeline": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "email_sequences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "marketing_calendar": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "kpis": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "compliance_reminders": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "common_automations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "typical_ai_employees": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Suggested executive roles / agents tuned for this industry."
+    },
+    "suggested_integrations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "business_risks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "growth_strategies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "expansion_strategies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "benchmarks_ref": {
+      "type": "string",
+      "description": "Pointer to the IndustryBenchmark industry_key used for this blueprint."
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "ai_generated": {
+      "type": "boolean",
+      "default": false
+    },
+    "human_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "quality_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 library quality heuristic."
+    },
+    "usage_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Times a business personalized into this blueprint."
+    },
+    "success_metrics": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Aggregated success outcomes from businesses using this blueprint (launches completed, approvals, feedback)."
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "tenant_id",
+    "industry_key",
+    "industry_label",
+    "version",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.tenant_id": "system"
+        },
+        {
+          "data.tenant_id": "{{user.data.tenant_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
