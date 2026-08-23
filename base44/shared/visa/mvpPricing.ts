@@ -6,7 +6,7 @@
 // public/actionable; adding a country here MUST NOT bypass passport-submission,
 // biometrics, physical-document, freshness, or verification checks.
 
-// 62 electronic/low-friction candidates. This lets SEO/discovery and the visa
+// 65 electronic/low-friction candidates. This lets SEO/discovery and the visa
 // engine expand without inventing pricing. Checkout pricing remains limited to
 // PRICE entries below until government + service fees are verified country-by-country.
 export const KROSZ_MVP_COUNTRIES = [
