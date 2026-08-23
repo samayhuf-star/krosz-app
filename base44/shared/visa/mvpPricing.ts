@@ -1,10 +1,29 @@
-// Krosz India-first MVP commercial boundary.
-// Only these 10 destinations are customer-actionable at launch. All customer
-// prices are projected in INR. Government fee and Krosz service fee stay
-// separate; the original regulatory/provider data remains available internally.
+// Krosz India-first commercial boundary.
+// Discovery/eligibility coverage is intentionally broader than the currently
+// priced checkout set. The launch list below is based on the current Government
+// of India MEA low-friction/e-Visa universe for Indian ordinary passport holders.
+// Country-specific capability/verification gates still decide whether a route is
+// public/actionable; adding a country here MUST NOT bypass passport-submission,
+// biometrics, physical-document, freshness, or verification checks.
 
-export const KROSZ_MVP_COUNTRIES = ["AE", "VN", "ID", "TH", "MY", "LK", "TR", "AZ", "GE", "KH"] as const;
+// 62 electronic/low-friction candidates. This lets SEO/discovery and the visa
+// engine expand without inventing pricing. Checkout pricing remains limited to
+// PRICE entries below until government + service fees are verified country-by-country.
+export const KROSZ_MVP_COUNTRIES = [
+  "AL", "AO", "AG", "AR", "AM", "AU", "AZ", "BH", "BJ", "BW", "BF", "KH",
+  "CM", "CL", "CI", "CU", "DJ", "EG", "ET", "GA", "GE", "GQ", "HK", "IL",
+  "ID", "JP", "JO", "KZ", "KE", "KG", "LA", "MW", "MY", "MD", "MR", "MN",
+  "MA", "MZ", "MM", "NA", "NG", "NZ", "OM", "PH", "GN", "RU", "ST", "SG",
+  "ZA", "SS", "LK", "SR", "SY", "TW", "TJ", "TZ", "TH", "TG", "TR", "AE",
+  "UG", "UA", "UZ", "VN", "ZM"
+] as const;
 export const KROSZ_MVP_SET = new Set<string>(KROSZ_MVP_COUNTRIES as readonly string[]);
+
+// The original ten destinations have reviewed INR checkout benchmarks. New
+// launch candidates may be discoverable/actionable only when their verified
+// capability allows it; no price is fabricated for them.
+export const KROSZ_PRICED_COUNTRIES = ["AE", "VN", "ID", "TH", "MY", "LK", "TR", "AZ", "GE", "KH"] as const;
+export const KROSZ_PRICED_SET = new Set<string>(KROSZ_PRICED_COUNTRIES as readonly string[]);
 
 export interface MvpPriceBenchmark {
   country_code: string;
@@ -36,6 +55,10 @@ const PRICE: Record<string, Omit<MvpPriceBenchmark, "country_code">> = {
 
 export function isKroszMvpCountry(code: any): boolean {
   return KROSZ_MVP_SET.has(String(code || "").toUpperCase());
+}
+
+export function hasKroszVerifiedPrice(code: any): boolean {
+  return KROSZ_PRICED_SET.has(String(code || "").toUpperCase());
 }
 
 export function mvpPricingFor(code: any): MvpPriceBenchmark | null {
