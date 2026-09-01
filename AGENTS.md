@@ -32,3 +32,10 @@ npx skills add base44/skills
 - Prefer the existing Base44 CLI workflow over adding new npm scripts for Base44-specific tasks.
 - Reuse the existing SDK client and Vite plugin patterns before adding new Base44 integration paths.
 - Run the relevant checks from `package.json` before finishing code changes.
+
+## Base44 Sandbox
+
+- Start the preview with `docker compose -f docker-compose.base44.yml up -d`; it exposes the Vite development server on host port 3000.
+- The preview runs directly from the bind-mounted repository with polling enabled, so source edits hot-reload without rebuilding the image.
+- Verify both normal and proxied host access with `curl http://localhost:3000/` and `curl -H 'Host: external-preview.example.com' http://localhost:3000/`.
+- Public routes tolerate an unavailable Base44 backend; authenticated and data-backed features require a configured Base44 backend.
