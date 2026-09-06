@@ -24,7 +24,7 @@ export default function TravelTools() {
   const [mode,setMode]=useState(''); const [result,setResult]=useState(null); const [busy,setBusy]=useState(false); const [error,setError]=useState('');
   const title=useMemo(()=>mode==='photo'?'Visa Photo Checker':'Passport Scan Checker',[mode]);
   async function inspect(file){ if(!file)return; setBusy(true); setError(''); setResult(null); try { setResult(mode==='photo'?await inspectVisaPhoto(file):await inspectPassportImage(file)); } catch(e){ setError(e?.message||'Could not inspect this file.'); } finally{setBusy(false);} }
-  const destination=(kind)=>kind==='apply'?'/apply':kind==='documents'?'/documents':kind==='destinations'?'/destinations':null;
+  const destination=(kind)=>kind==='apply'?'/login?returnTo=%2Fapply':kind==='documents'?'/login?returnTo=%2Fdocuments':kind==='destinations'?'/search':null;
   return <main className="min-h-screen bg-[#fffaf6] text-slate-950">
     <section className="mx-auto max-w-6xl px-5 pb-12 pt-16 sm:pt-24">
       <span className="rounded-full border border-orange-200 bg-white px-3 py-1 text-xs font-semibold text-orange-700">Free Krosz travel tools</span>
