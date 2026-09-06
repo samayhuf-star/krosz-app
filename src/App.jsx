@@ -29,6 +29,8 @@ const Destinations = lazy(() => import('@/pages/visa/Destinations'));
 const VisaHomepage = lazy(() => import('@/pages/visa/VisaHomepage'));
 const About = lazy(() => import('@/pages/About'));
 const Contact = lazy(() => import('@/pages/Contact'));
+const Pricing = lazy(() => import('@/pages/Pricing'));
+const Blog = lazy(() => import('@/pages/Blog'));
 const DestinationPage = lazy(() => import('@/pages/visa/DestinationPage'));
 const SearchResultsPage = lazy(() => import('@/pages/visa/SearchResultsPage'));
 const SavedDestinations = lazy(() => import('@/pages/visa/SavedDestinations'));
@@ -121,6 +123,8 @@ const AuthenticatedApp = () => {
       <Route path="/" element={<VisaHomepage />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/pricing" element={<Pricing />} />
+      <Route path="/blog" element={<Blog />} />
       <Route path="/visa/:slug" element={<DestinationPage />} />
       <Route path="/visa/:slug/:seg" element={<DestinationPage />} />
       <Route path="/search" element={<SearchResultsPage />} />
