@@ -58,7 +58,7 @@ export default function Contact() {
             </div>
           </div>
 
-          <form onSubmit={submit} className="rounded-2xl border border-slate-200 bg-white p-6 space-y-4">
+          <form method="post" onSubmit={submit} className="rounded-2xl border border-slate-200 bg-white p-6 space-y-4">
             <label className="block">
               <span className="text-xs font-medium text-slate-500">Name</span>
               <input value={name} onChange={(e) => setName(e.target.value)} required className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-emerald-500" />
