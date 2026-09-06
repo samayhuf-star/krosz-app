@@ -234,7 +234,7 @@ export default function VisaHomepage() {
           <div className="mt-6 overflow-hidden rounded-[36px] border border-[#D6E4FF]/70 bg-gradient-to-br from-[#E7F0FE] via-white to-[#D6E4FF] px-6 py-12 text-center shadow-[0_25px_70px_-45px_rgba(0,108,236,.4)] sm:px-10 sm:py-16">
             <h2 className="text-3xl font-bold tracking-tight text-slate-950">Where are you going next?</h2>
             <p className="mx-auto mt-2 max-w-xl text-sm text-slate-600">Start with your destination and Krosz will show the visa route available in the current catalog.</p>
-            <Link to="/apply" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#003580] px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#00225A]">Find my visa <ArrowRight size={15} /></Link>
+            <Link to="/tools" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#003580] px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#00225A]">Find my visa <ArrowRight size={15} /></Link>
           </div>
         </section>
       </main>
