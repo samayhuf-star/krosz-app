@@ -70,7 +70,7 @@ export default function VisaHomepage() {
             <div className="mt-12">
               <div className="flex items-end justify-between gap-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Powered by Krosz technology</p>
-                <Link to="/apply" className="text-[11px] font-semibold text-[#003580] hover:text-[#00225A]">How it works →</Link>
+                <Link to="/about" className="text-[11px] font-semibold text-[#003580] hover:text-[#00225A]">How it works →</Link>
               </div>
               <div className="mt-3 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 sm:grid-cols-4">
                 {[
@@ -93,7 +93,7 @@ export default function VisaHomepage() {
             <div className="mx-auto mt-12 max-w-5xl">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Popular from India</p>
-                <Link to="/apply" className="text-xs font-semibold text-[#003580] hover:text-[#00225A]">Explore all <span aria-hidden>→</span></Link>
+                <Link to="/search" className="text-xs font-semibold text-[#003580] hover:text-[#00225A]">Explore all <span aria-hidden>→</span></Link>
               </div>
               <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
                 {QUICK_DESTINATIONS.map((d) => (
@@ -121,7 +121,7 @@ export default function VisaHomepage() {
               <p className="text-xs font-bold uppercase tracking-[0.17em] text-[#003580]">One guided journey</p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">From “do I need a visa?” to “what happens next?”</h2>
               <p className="mt-4 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">Krosz keeps visa intelligence, traveler details, documents, review and case tracking in one place. When an execution provider is not verified, we show guidance instead of pretending we can submit.</p>
-              <Link to="/apply" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#003580] px-5 py-3 text-sm font-semibold text-white hover:bg-[#00225A]">Check my destination <ArrowRight size={15} /></Link>
+              <Link to="/tools" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#003580] px-5 py-3 text-sm font-semibold text-white hover:bg-[#00225A]">Check my destination <ArrowRight size={15} /></Link>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -167,7 +167,7 @@ export default function VisaHomepage() {
                   <p className="mt-4 text-xs leading-5 text-slate-400">Krosz keeps automated checks, uncertainty and human review separate. If something cannot be verified confidently, it is flagged instead of guessed.</p>
                 </div>
 
-                <Link to="/apply" className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#003580] px-5 py-3 text-sm font-bold text-white hover:bg-[#006CEC]">Check my visa readiness <ArrowRight size={15} /></Link>
+                <Link to="/login?returnTo=%2Fapply" className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#003580] px-5 py-3 text-sm font-bold text-white hover:bg-[#006CEC]">Sign in to check visa readiness <ArrowRight size={15} /></Link>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
