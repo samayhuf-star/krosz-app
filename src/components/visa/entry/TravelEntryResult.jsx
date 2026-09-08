@@ -128,11 +128,18 @@ export default function TravelEntryResult({ entry, country, onStart, compact = f
       {!compact && entry.visa_required && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <span className="text-xs text-slate-500">We can:</span>
-          {[['prepare', 'Prepare'], ['prefill', 'Prefill'], ['pay', 'Pay'], ['submit', 'Submit'], ['track', 'Track']].map(([k, label]) => (
-            <span key={k} className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${cap[k] === 'YES' ? 'border-orange-200 bg-orange-50 text-orange-700' : cap[k] === 'PROVIDER' ? 'border-blue-200 bg-blue-50 text-blue-700' : cap[k] === 'MANUAL' ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-slate-200 bg-slate-50 text-slate-400'}`}>
-              {label}{cap[k] && cap[k] !== 'NO' ? `: ${cap[k]}` : ''}
-            </span>
-          ))}
+          {[['prepare', 'Prepare'], ['prefill', 'Prefill'], ['pay', 'Pay'], ['submit', 'Submit'], ['track', 'Track']].map(([k, label]) => {
+            const v = cap[k];
+            const active = v === 'YES' || v === 'PROVIDER' || v === 'MANUAL';
+            const why = active
+              ? `${label}: ${v === 'YES' ? 'Krosz-supported' : v === 'PROVIDER' ? 'handled by the verified provider' : 'performed manually by a Krosz operator'}`
+              : `${label} is not available for this route — it requires verified provider support, which is still being confirmed for this destination.`;
+            return (
+              <span key={k} title={why} className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${v === 'YES' ? 'border-orange-200 bg-orange-50 text-orange-700' : v === 'PROVIDER' ? 'border-blue-200 bg-blue-50 text-blue-700' : v === 'MANUAL' ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-slate-200 bg-slate-50 text-slate-400 cursor-help'}`}>
+                {label}{v && v !== 'NO' ? `: ${v}` : ''}
+              </span>
+            );
+          })}
         </div>
       )}
 

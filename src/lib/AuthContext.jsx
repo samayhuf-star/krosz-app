@@ -122,16 +122,17 @@ export const AuthProvider = ({ children }) => {
     checkAppState();
   }, [checkAppState]);
 
-  const logout = useCallback((shouldRedirect = true) => {
+  // redirect: false → clear session, no redirect. true (default) → land on the
+  // public home screen. A string path → land there (e.g. AdminLogin passes
+  // '/admin' to re-open the admin sign-in). Never redirect back to the current
+  // (often protected) page, or the now-signed-out user gets bounced to /login.
+  const logout = useCallback((redirect = true) => {
     setUser(null);
     setIsAuthenticated(false);
-    
-    if (shouldRedirect) {
-      // Use the SDK's logout method which handles token cleanup and redirect
-      base44.auth.logout(window.location.href);
-    } else {
-      // Just remove the token without redirect
+    if (redirect === false) {
       base44.auth.logout();
+    } else {
+      base44.auth.logout(redirect === true ? '/' : redirect);
     }
   }, []);
 

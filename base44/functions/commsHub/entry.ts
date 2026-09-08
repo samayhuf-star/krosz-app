@@ -59,6 +59,20 @@ async function getBusiness(svc: any, base44: any, businessId: string) {
   return { business: b, tenant_id: b.tenant_id, business_id: businessId };
 }
 
+// Enforce that the caller owns the target mailbox before any mutation or send.
+// Mailboxes are fetched with the service role (RLS-bypassing), so a user-supplied
+// mailbox_id from another tenant would otherwise let a caller send, alter, or
+// delete a victim's mailbox. Admins bypass the tenant check.
+function assertMailboxOwner(user: any, m: any): void {
+  if (user?.role === "admin") return;
+  if (!m) throw Object.assign(new Error("Mailbox not found"), { code: "NOT_FOUND" });
+  const tenantId = user?.data?.tenant_id;
+  if (tenantId && m.tenant_id !== tenantId) throw Object.assign(new Error("Forbidden"), { code: "FORBIDDEN" });
+}
+function ownerErr(e: any): Response {
+  return Response.json({ error: e?.message || "Forbidden" }, { status: e?.code === "NOT_FOUND" ? 404 : 403 });
+}
+
 async function defaultProviderConfig(svc: any, businessId: string): Promise<any | null> {
   const rows = await svc.entities.EmailProviderConfig.filter({ business_id: businessId });
   return rows.find((p: any) => p.is_default && p.is_active) || rows.find((p: any) => p.is_active) || rows[0] || null;
@@ -290,21 +304,24 @@ export default async function (req: Request): Promise<Response> {
     // ---------- UPDATE MAILBOX (aliases/forwarding/auto-reply/catch-all/quota/members) ----------
     if (action === 'updateMailbox') {
       const { mailbox_id, patch } = body; if (!mailbox_id || !patch) return Response.json({ error: 'mailbox_id and patch required' }, { status: 400 });
-      const m: any = await svc.entities.EmailMailbox.get(mailbox_id);
+      const m: any = await svc.entities.EmailMailbox.get(mailbox_id).catch(() => null);
+      try { assertMailboxOwner(user, m); } catch (e: any) { return ownerErr(e); }
       const updated = await svc.entities.EmailMailbox.update(mailbox_id, { ...patch } as any);
       await audit(svc, { tenant_id: m.tenant_id, business_id: m.business_id, mailbox_id, actor, action: 'mailbox.updated', metadata: { fields: Object.keys(patch || {}) } });
       return Response.json({ mailbox: updated });
     }
 
     if (action === 'suspendMailbox') {
-      const { mailbox_id, resume } = body; const m: any = await svc.entities.EmailMailbox.get(mailbox_id);
+      const { mailbox_id, resume } = body; const m: any = await svc.entities.EmailMailbox.get(mailbox_id).catch(() => null);
+      try { assertMailboxOwner(user, m); } catch (e: any) { return ownerErr(e); }
       const updated = await svc.entities.EmailMailbox.update(mailbox_id, { status: resume ? 'active' : 'suspended' } as any);
       await audit(svc, { tenant_id: m.tenant_id, business_id: m.business_id, mailbox_id, actor, action: resume ? 'mailbox.resumed' : 'mailbox.suspended' });
       return Response.json({ mailbox: updated });
     }
 
     if (action === 'resetMailboxPassword') {
-      const { mailbox_id } = body; const m: any = await svc.entities.EmailMailbox.get(mailbox_id);
+      const { mailbox_id } = body; const m: any = await svc.entities.EmailMailbox.get(mailbox_id).catch(() => null);
+      try { assertMailboxOwner(user, m); } catch (e: any) { return ownerErr(e); }
       await svc.entities.EmailMailbox.update(mailbox_id, { auth: { ...(m.auth || {}), app_password_enabled: true } } as any);
       await audit(svc, { tenant_id: m.tenant_id, business_id: m.business_id, mailbox_id, actor, action: 'mailbox.password_reset' });
       await logTelemetry(svc, { tenant_id: m.tenant_id, business_id: m.business_id, mailbox_id, kind: 'security', status: 'success', actor, metadata: { action: 'password_reset' } });
@@ -312,7 +329,8 @@ export default async function (req: Request): Promise<Response> {
     }
 
     if (action === 'deleteMailbox') {
-      const { mailbox_id } = body; const m: any = await svc.entities.EmailMailbox.get(mailbox_id);
+      const { mailbox_id } = body; const m: any = await svc.entities.EmailMailbox.get(mailbox_id).catch(() => null);
+      try { assertMailboxOwner(user, m); } catch (e: any) { return ownerErr(e); }
       const updated = await svc.entities.EmailMailbox.update(mailbox_id, { status: 'deleted' } as any);
       await audit(svc, { tenant_id: m.tenant_id, business_id: m.business_id, mailbox_id, actor, action: 'mailbox.deleted' });
       dispatch('MailboxDeleted', { tenantId: m.tenant_id, businessId: m.business_id, actor, payload: { mailbox_id, email: m.email_address } });
@@ -322,7 +340,8 @@ export default async function (req: Request): Promise<Response> {
     // ---------- SYNC MAILBOX ----------
     if (action === 'syncMailbox') {
       const { mailbox_id } = body; if (!mailbox_id) return Response.json({ error: 'mailbox_id required' }, { status: 400 });
-      const m: any = await svc.entities.EmailMailbox.get(mailbox_id);
+      const m: any = await svc.entities.EmailMailbox.get(mailbox_id).catch(() => null);
+      try { assertMailboxOwner(user, m); } catch (e: any) { return ownerErr(e); }
       if (m.status !== 'active') return Response.json({ error: `Mailbox is ${m.status}; cannot sync.` }, { status: 409 });
       const pc: any = await svc.entities.EmailProviderConfig.get(m.provider_config_id);
       const adapter = getProvider(pc?.provider_id || 'generic_imap_smtp');
@@ -358,7 +377,9 @@ export default async function (req: Request): Promise<Response> {
     if (action === 'sendMessage') {
       const { business_id, mailbox_id, to_addr, cc, subject, body: text, attachments, draft, scheduled_at } = body;
       if (!business_id || !mailbox_id || !Array.isArray(to_addr) || !subject) return Response.json({ error: 'business_id, mailbox_id, to_addr[], subject required' }, { status: 400 });
-      const m: any = await svc.entities.EmailMailbox.get(mailbox_id);
+      const m: any = await svc.entities.EmailMailbox.get(mailbox_id).catch(() => null);
+      try { assertMailboxOwner(user, m); } catch (e: any) { return ownerErr(e); }
+      if (m.business_id !== business_id) return Response.json({ error: 'Mailbox does not belong to this business' }, { status: 403 });
       const pc: any = await svc.entities.EmailProviderConfig.get(m.provider_config_id);
       const adapter = getProvider(pc?.provider_id || 'generic_imap_smtp');
       const t0 = Date.now();

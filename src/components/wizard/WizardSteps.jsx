@@ -342,6 +342,7 @@ export function StepReview({ ctx, caseRow, form, confirmed, setConfirmed, onRead
         <span>I confirm that the information and documents provided are accurate.</span>
       </label>
 
+      {(!checking && readiness?.ready) && <p className="mt-3 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">Refund: government fee is generally non-refundable after submission; the Krosz service fee may be refundable before submission. SLA: typical Krosz review ~1 business day; government processing varies by destination.</p>}
       {submitCapable && <p className="mt-3 rounded-lg bg-emerald-50 p-3 text-xs text-emerald-800">A verified automated submission is available for this journey.</p>}
     </Section>
   );
@@ -353,6 +354,7 @@ export function StepPayment({ ctx, caseRow }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [done, setDone] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const [gate, setGate] = useState(null);
   if (!fee.available) return <Section title="Payment"><p className="text-sm text-amber-700">Fee currently unavailable. You can continue — payment will be collected later if required.</p></Section>;
   const pay = async () => {
@@ -362,10 +364,20 @@ export function StepPayment({ ctx, caseRow }) {
       setGate(dg);
       if (!dg?.allowed) { setErr(`Payment unlocks at 90/100 with zero blockers. Current score: ${dg?.score ?? '—'}/100.`); return; }
       const order = await createOrder(caseRow.id).catch(() => null);
-      if (order?.order?.id) { await createCheckout(order.order.id); setDone(true); base44.analytics?.track?.({ eventName: 'PAYMENT_STARTED', properties: { case_id: caseRow.id, digital_quality_score: dg.score } }); }
-      else setErr('Could not start payment. Try again later.');
-    } catch (e) { setErr(e?.message || 'Payment failed'); }
-    finally { setBusy(false); }
+      if (!order?.order?.id) { setErr('Could not start payment. Try again later.'); return; }
+      const res = await createCheckout(order.order.id).catch((e) => { setErr(e?.message || 'Payment failed'); return null; });
+      if (!res) return;
+      base44.analytics?.track?.({ eventName: 'PAYMENT_STARTED', properties: { case_id: caseRow.id, digital_quality_score: dg.score } });
+      // Real provider (PayU) → send the browser to the provider's hosted checkout
+      // (via the payuRedirect self-submitting form). The authoritative
+      // Payment→SUCCEEDED / Order→PAID transition happens ONLY on the verified
+      // server-side payuWebhook callback — never in the browser. A sandbox/mock
+      // checkout returns a mock:// URL, so we simulate completion in-app instead.
+      const url = res?.checkout_url || '';
+      if (/^https?:\/\//i.test(url)) { setRedirecting(true); window.location.href = url; return; }
+      setDone(true);
+      } catch (e) { setErr(e?.message || 'Payment failed'); }
+      finally { setBusy(false); }
   };
   return (
     <Section title="Payment" desc="Krosz accepts payment only after digital verification reaches 90/100 or higher with zero blocking issues.">
@@ -376,8 +388,10 @@ export function StepPayment({ ctx, caseRow }) {
         <div className="mt-2 border-t border-slate-100 pt-2"><Row label="Total" value={fmtMinor(fee.total_minor, fee.currency)} /></div>
       </div>
       {gate && <div className={`mt-3 rounded-lg p-3 text-xs ${gate.allowed ? 'bg-orange-50 text-orange-800' : 'bg-amber-50 text-amber-800'}`}><span className="font-semibold">Digital Application Quality: {gate.score}/100.</span> Zero blockers: {gate.zero_blockers ? 'Yes' : 'No'}.</div>}
-      <p className="mt-3 text-xs leading-5 text-slate-500">After successful payment, a Krosz Visa Approver Manager performs the final human review before your case can enter managed submission. If we exceptionally cannot proceed before government submission, the case goes to CEO review for the eligible refund process.</p>
-      {done ? <p className="mt-3 flex items-center gap-2 text-sm text-orange-700"><CheckCircle2 size={16} /> Payment initiated. After confirmation, your application enters Visa Approver Manager review.</p>
+      <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600"><p className="font-semibold">Secure payment</p><p className="mt-0.5">If a live PayU merchant is configured you'll be redirected to PayU's secure payment page (settled in INR) and your payment is confirmed by a verified server-side callback. In the sandbox build a test payment is simulated here and no real money is charged.</p></div>
+      <p className="mt-2 text-[11px] leading-5 text-slate-500">Refund policy: government fees are generally non-refundable once the application is submitted; the Krosz service fee may be refundable before submission (see the refund policy for this route). Typical Krosz review: ~1 business day; government processing time varies by destination. After the test payment is confirmed, a Krosz Visa Approver Manager performs the final human review before your case enters managed submission. If we cannot proceed before government submission, the case goes to CEO review for the eligible refund process.</p>
+      {redirecting ? <p className="mt-3 flex items-center gap-2 text-sm text-emerald-700"><Loader2 size={16} className="animate-spin" /> Redirecting to PayU's secure payment page…</p>
+        : done ? <p className="mt-3 flex items-center gap-2 text-sm text-orange-700"><CheckCircle2 size={16} /> Test payment initiated (sandbox — no real charge). After a Krosz operator confirms it, your application enters Visa Approver Manager review.</p>
         : <button onClick={pay} disabled={busy} className="mt-3 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50">{busy ? <Loader2 size={14} className="animate-spin" /> : <Wallet />} Pay {fmtMinor(fee.total_minor, fee.currency)}</button>}
       {err && <p className="mt-2 text-xs text-rose-600">{err}</p>}
     </Section>
