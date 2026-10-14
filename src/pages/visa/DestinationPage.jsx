@@ -126,11 +126,13 @@ export default function DestinationPage() {
       return;
     }
     setStarting(true);
+    setError('');
     try {
       const res = await applicationCaseCreate({ nationality, destination: page.country.code, purpose, visa_type_key: option?.visa_type_key, traveler_id: primary?.id, idempotency_key: `autopilot_${primary?.id || 'self'}_${page.country.code}_${purpose}_${new Date().toISOString().slice(0,10)}` });
       trackDiscovery('APPLICATION_CREATED', { destination: page.country.code });
       const id = res?.case?.id;
       if (id) navigate(`/wizard/${id}`);
+      else setError(res?.error || 'Could not start application. Please try again.');
     } catch (e) { setError(e?.message || 'Could not start application'); }
     finally { setStarting(false); }
   };
@@ -151,6 +153,12 @@ export default function DestinationPage() {
   return (
     <div className="min-h-screen bg-[#fcfbf9]">
       <DiscoveryHeader />
+      {error && (
+        <div role="alert" className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-xl items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 shadow-lg">
+          <span className="flex-1">{error}</span>
+          <button onClick={() => setError('')} className="text-xs font-semibold text-rose-700 hover:underline">Dismiss</button>
+        </div>
+      )}
       <nav aria-label="Breadcrumb" className="mx-auto flex max-w-6xl items-center gap-1.5 px-5 pt-5 text-xs text-slate-400">
         <Link to="/" className="hover:text-slate-700">Home</Link><ChevronRight size={12} />
         <span className="text-slate-600">{c.name} Visa</span>

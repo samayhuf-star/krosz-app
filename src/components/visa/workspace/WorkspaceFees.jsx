@@ -14,9 +14,11 @@ export default function WorkspaceFees({ quote }) {
       </div>
     );
   }
-  const components = quote.components || [];
-  const gov = components.filter((c) => c.government_fee_basis).reduce((n, c) => n + (c.amount_minor || 0), 0);
-  const service = components.filter((c) => !c.government_fee_basis && c.type !== 'TAX' && c.type !== 'DISCOUNT').reduce((n, c) => n + (c.amount_minor || 0), 0);
+  // getQuote() nests the line items under quote.price.components.
+  const components = quote.price?.components || quote.components || [];
+  const isGov = (c) => c.type === 'GOVERNMENT_FEE' || !!c.government_fee_basis;
+  const gov = components.filter(isGov).reduce((n, c) => n + (c.amount_minor || 0), 0);
+  const service = components.filter((c) => !isGov(c) && c.type !== 'TAX' && c.type !== 'DISCOUNT').reduce((n, c) => n + (c.amount_minor || 0), 0);
   const optional = components.filter((c) => c.type === 'DISCOUNT').reduce((n, c) => n + (c.amount_minor || 0), 0);
 
   return (
@@ -25,7 +27,7 @@ export default function WorkspaceFees({ quote }) {
       <div className="mt-3 space-y-2">
         <Row icon={Landmark} label="Government fee" value={fmt(gov, quote.currency)} />
         <Row icon={Wallet} label="Service fee" value={fmt(service, quote.currency)} />
-        {optional > 0 && <Row icon={Sparkles} label="Optional services" value={`− ${fmt(optional, quote.currency)}`} />}
+        {optional > 0 && <Row icon={Sparkles} label="Discount" value={`− ${fmt(optional, quote.currency)}`} />}
         <div className="my-2 border-t border-slate-100" />
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold text-slate-900">Total</span>

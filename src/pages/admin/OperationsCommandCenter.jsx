@@ -75,7 +75,7 @@ export default function OperationsCommandCenter() {
                 <div key={i} className="flex items-start gap-3 px-4 py-2.5 text-sm">
                   <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${m.severity === 'CRITICAL' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>{m.type.replace(/_/g, ' ')}</span>
                   <span className="text-slate-700">{m.detail}</span>
-                  <Link to={`/admin/operations/${m.application_id}`} className="ml-auto font-medium text-orange-700 hover:underline">APP-{String(m.application_id).slice(-6).toUpperCase()}</Link>
+                  <Link to={`/admin/cases/${m.application_id}`} className="ml-auto font-medium text-orange-700 hover:underline">APP-{String(m.application_id).slice(-6).toUpperCase()}</Link>
                 </div>
               ))}
             </div>
@@ -99,13 +99,13 @@ export default function OperationsCommandCenter() {
               {rows.map((r) => (
                 <tr key={r.application_id} className={`hover:bg-slate-50 ${r.stuck?.flag ? 'bg-rose-50/40' : ''}`}>
                   <td className="px-3 py-2.5"><span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">{r.priority_score}</span></td>
-                  <td className="px-3 py-2.5"><Link to={`/admin/operations/${r.ops_case_id || r.application_id}`} className="font-medium text-orange-700 hover:underline">{r.order_number || `APP-${String(r.application_id).slice(-6).toUpperCase()}`}</Link></td>
+                  <td className="px-3 py-2.5"><Link to={r.ops_case_id ? `/admin/operations/${r.ops_case_id}` : `/admin/cases/${r.application_id}`} className="font-medium text-orange-700 hover:underline">{r.order_number || `APP-${String(r.application_id).slice(-6).toUpperCase()}`}</Link></td>
                   <td className="px-3 py-2.5 text-sm text-slate-700">{r.destination}</td>
                   <td className="px-3 py-2.5 text-sm"><span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">{r.stage_label}</span></td>
                   <td className="px-3 py-2.5 text-sm text-slate-700">{r.next_action}</td>
                   <td className="px-3 py-2.5 text-sm"><span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${OWNER_TONE[r.action_owner] || OWNER_TONE.SYSTEM}`}>{r.action_owner.replace(/_/g,' ')}</span></td>
                   <td className="px-3 py-2.5 text-sm"><span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${SLA_TONE[r.sla?.state] || SLA_TONE['N/A']}`}>{r.sla?.state || 'N/A'}</span></td>
-                  <td className="px-3 py-2.5 text-xs text-slate-500">{r.sla?.remaining_hours ? `${Math.round(r.sla.remaining_hours)}h` : '—'}</td>
+                  <td className="px-3 py-2.5 text-xs text-slate-500">{r.sla?.remainingHours != null ? `${Math.round(r.sla.remainingHours)}h` : '—'}</td>
                   <td className="px-3 py-2.5 text-xs">{r.stuck?.flag ? <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-rose-700"><AlertTriangle size={11} /> {r.stuck.reasons[0].replace(/_/g,' ')}</span> : (r.blocked ? <span className="rounded-full bg-amber-50 px-2 py-0.5 text-amber-700">Blocked</span> : '—')}</td>
                   <td className="px-3 py-2.5 text-[11px] text-slate-400">{r.last_update ? new Date(r.last_update).toLocaleString('en-IN') : '—'}</td>
                   <td className="px-3 py-2.5 text-sm"><Clock size={13} className="text-slate-400" /></td>

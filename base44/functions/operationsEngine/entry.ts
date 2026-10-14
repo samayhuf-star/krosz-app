@@ -121,14 +121,15 @@ export default async function (req) {
       const cfg = await loadLaunchConfig(sr);
       const patch = body.config || {};
       // Per-country pause / pilot / limit (recorded, auditable; never affects existing apps).
-      if (typeof patch.global_paused === "boolean") { (cfg as any).global_paused = patch.global_paused; (cfg as any).global_paused_at = patch.global_paused ? new Date().toISOString() : null; (cfg as any).global_paused_by = patch.global_paused ? user.id : null; }
+      if (typeof patch.global_paused === "boolean" && patch.global_paused !== !!(cfg as any).global_paused) { (cfg as any).global_paused = patch.global_paused; (cfg as any).global_paused_at = patch.global_paused ? new Date().toISOString() : null; (cfg as any).global_paused_by = patch.global_paused ? user.id : null; }
       if (patch.countries && typeof patch.countries === "object") {
         for (const cc of LAUNCH_COUNTRIES) {
           const c = patch.countries[cc];
           if (!c) continue;
           const prev = (cfg as any).countries = (cfg as any).countries || {};
           const row = prev[cc] || {};
-          if (typeof c.paused === "boolean") { row.paused = c.paused; row.paused_at = c.paused ? new Date().toISOString() : null; row.paused_by = c.paused ? user.id : null; row.pause_reason = c.pause_reason || (c.paused ? row.pause_reason : null); }
+          if (typeof c.paused === "boolean" && c.paused !== !!row.paused) { row.paused = c.paused; row.paused_at = c.paused ? new Date().toISOString() : null; row.paused_by = c.paused ? user.id : null; row.pause_reason = c.pause_reason || (c.paused ? row.pause_reason : null); }
+          else if (row.paused && typeof c.pause_reason === "string" && c.pause_reason) row.pause_reason = c.pause_reason;
           if (typeof c.pilot === "string") row.pilot = c.pilot;
           if (typeof c.max_paid_per_day === "number") row.max_paid_per_day = c.max_paid_per_day;
           prev[cc] = row;

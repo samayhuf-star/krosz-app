@@ -66,7 +66,13 @@ export const AuthProvider = ({ children }) => {
       });
       
       try {
-        const publicSettings = await appClient.get(`/prod/public-settings/by-id/${appParams.appId}`);
+        // Bound the probe: a request that never settles would otherwise leave
+        // isLoadingAuth true forever (blank auth pages, endless spinners).
+        let probeTimer;
+        const publicSettings = await Promise.race([
+          appClient.get(`/prod/public-settings/by-id/${appParams.appId}`),
+          new Promise((_, reject) => { probeTimer = setTimeout(() => reject(new Error('Timed out loading app settings')), 10000); }),
+        ]).finally(() => clearTimeout(probeTimer));
         setAppPublicSettings(publicSettings);
         
         // Probe the platform session even when appParams has no bearer token:

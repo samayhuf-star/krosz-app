@@ -190,7 +190,7 @@ export default function VisaWizard() {
       case 'requirements': return <StepRequirements ctx={ctx} />;
       case 'traveler_info': return <StepTravelerInfo form={form} setForm={setForm} />;
       case 'documents': return <StepDocuments ctx={ctx} caseRow={caseRow} onReadyChange={setDocumentsReady} />;
-      case 'review': return <StepReview ctx={ctx} form={form} confirmed={confirmed} setConfirmed={setConfirmed} onReadyChange={setReviewReady} />;
+      case 'review': return <StepReview ctx={ctx} caseRow={caseRow} form={form} confirmed={confirmed} setConfirmed={setConfirmed} onReadyChange={setReviewReady} />;
       case 'payment': return <StepPayment ctx={ctx} caseRow={caseRow} />;
       case 'submission': return <StepSubmission ctx={ctx} />;
       case 'confirmation': return <StepConfirmation ctx={ctx} form={form} />;

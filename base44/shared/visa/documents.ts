@@ -191,7 +191,9 @@ export async function listTravelerDocuments(svc: any, user: any, travelerId?: st
   const docs: any[] = await svc.entities.Document.filter({ traveler_id }).catch(() => []);
   const out: any[] = [];
   for (const d of docs) {
-    if (d.status === "deleted") continue;
+    // "archived" is what deleteDocument sets when the file is still attached to an
+    // application; it must disappear from the vault like a hard delete.
+    if (d.status === "deleted" || d.status === "archived") continue;
     let current: any = null;
     if (d.current_version_id) current = await svc.entities.DocumentVersion.get(d.current_version_id).catch(() => null);
     const usage = await svc.entities.ApplicationDocument.filter({ document_id: d.id }).catch(() => []);

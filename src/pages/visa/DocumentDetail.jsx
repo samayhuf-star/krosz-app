@@ -17,7 +17,7 @@ export default function DocumentDetail() {
     if (!id) return;
     setLoading(true);
     getDocument(id)
-      .then((d) => { setDoc(d); setActiveVersionId(d.current_version_id); })
+      .then((r) => { const d = r?.document || r; setDoc(d); setActiveVersionId(d?.current_version_id); })
       .catch((e) => setErr(e?.message || 'Failed to load'))
       .finally(() => setLoading(false));
   }, [id]);

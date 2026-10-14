@@ -41,7 +41,8 @@ export default function VisaSearchBar({ defaultValue = '', onSelect = null, auto
 
   useEffect(() => {
     const term = q.trim();
-    if (term.length < 2) { setHits([]); setOpen(false); return; }
+    // Bump reqId so an in-flight request for a longer term cannot reopen stale results.
+    if (term.length < 2) { reqId.current++; setLoading(false); setHits([]); setOpen(false); return; }
     setShowTop(false);
     const id = ++reqId.current;
     setLoading(true);

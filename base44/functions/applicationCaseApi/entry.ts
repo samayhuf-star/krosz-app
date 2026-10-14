@@ -134,6 +134,7 @@ export default async function (req: Request): Promise<Response> {
       }
       const traveler = body.traveler_id ? await svc.entities.Traveler.get(body.traveler_id).catch(() => null) : await ensureTravelerForUser(svc, user, { nationality: body.nationality || "IN" });
       if (!traveler) return Response.json({ error: "Traveler profile required" }, { status: 400 });
+      if (user.role !== "admin" && traveler.user_id !== user.id && traveler.created_by_id !== user.id) return Response.json({ error: "Forbidden" }, { status: 403 });
       const entry: any = await resolveTravelEntry(svc, { destination: body.destination, nationality: body.nationality, purpose: body.purpose, departure_country: body.departure_country, travel_dates: body.travel_dates, traveler_attributes: body.traveler_attributes });
       const { bindings, providersByKey } = await loadRoutingContext(svc, entry.input.destination, entry.journey_type, entry.input.nationality);
       const provider_snapshot = resolveProviderSnapshot(bindings, providersByKey, entry);
@@ -395,7 +396,7 @@ export default async function (req: Request): Promise<Response> {
       const now = new Date().toISOString();
       if (f.review_status || f.payment_status || f.document_status || f.action_required || f.blocked || f.overdue) {
         page = rows.filter((r: any) => {
-          const cv: any = { state: r.case_state, execution_capability: r.execution_capability, snapshot: r.case_snapshot, created_at: r.created_date, paid_at: r.paid_at };
+          const cv: any = { state: r.case_state, execution_capability: r.execution_capability, snapshot: r.case_snapshot, created_at: r.created_date, paid_at: r.paid_at, review: r.metadata?.review, review_approved: r.metadata?.review_approved };
           const gates = reviewGatesFor(cv);
           const hasOpenGate = gates.some((g: any) => g.status === "OPEN");
           if (f.review_status === "open" && !hasOpenGate) return false;
@@ -579,7 +580,7 @@ export default async function (req: Request): Promise<Response> {
       if (!ex) return Response.json({ error: "Exception not found" }, { status: 404 });
       const patch: any = {};
       if (body.status) patch.status = body.status;
-      if (body.owner_id) patch.owner_id = body.owner_id;
+      if (body.owner_id) patch.owner_id = body.owner_id === "self" ? user.id : body.owner_id;
       if (body.resolution) patch.resolution = body.resolution;
       if (body.status === "RESOLVED" || body.status === "DISMISSED") patch.resolved_at = new Date().toISOString();
       const updated = await svc.entities.CaseException.update(body.exception_id, patch).catch(() => null);

@@ -80,6 +80,9 @@ const OperationsTaskDetail = lazy(() => import('@/pages/visa/OperationsTaskDetai
 const OperationsCommandCenter = lazy(() => import('@/pages/admin/OperationsCommandCenter'));
 const LaunchControlTower = lazy(() => import('@/pages/admin/LaunchControlTower'));
 const PullRequestsAdmin = lazy(() => import('@/pages/admin/PullRequestsAdmin'));
+const AdminFailures = lazy(() => import('@/pages/admin/AdminFailures'));
+const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'));
+const AdminEngineHealth = lazy(() => import('@/pages/admin/AdminEngineHealth'));
 const TravelTools = lazy(() => import('@/pages/visa/TravelTools'));
 const HelpCenter = lazy(() => import('@/pages/visa/HelpCenter'));
 const LegalLayout = lazy(() => import('@/pages/legal/LegalLayout'));
@@ -154,6 +157,7 @@ const AuthenticatedApp = () => {
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/support" element={<SupportCenter />} />
           <Route path="/help" element={<HelpCenter />} />
+          <Route path="/help/:slug" element={<HelpArticleDetail />} />
           <Route path="/profile/notifications" element={<NotificationPreferences />} />
           <Route path="/home" element={<AccountDashboard />} />
           <Route path="/travelers" element={<Travelers />} />
@@ -194,6 +198,9 @@ const AuthenticatedApp = () => {
           <Route path="/admin/operations-command-center" element={<OperationsCommandCenter />} />
           <Route path="/admin/control-tower" element={<LaunchControlTower />} />
           <Route path="/admin/pull-requests" element={<PullRequestsAdmin />} />
+          <Route path="/admin/failures" element={<AdminFailures />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/engine-health" element={<AdminEngineHealth />} />
           </Route>
         </Route>
       </Route>

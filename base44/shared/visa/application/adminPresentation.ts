@@ -120,7 +120,9 @@ export function slaFor(c: any, opts: { now?: string; expected_days?: number } = 
   const age_ms = created ? now - new Date(created).getTime() : 0;
   const age_days = Math.max(0, Math.floor(age_ms / 86400000));
   const st: CaseState = (c?.state || c?.case_state) as CaseState;
-  const expected = opts.expected_days ?? Number(c?.ops_expected_duration_days) ?? Number(c?.snapshot?.processing?.expected_days) ?? 15;
+  // Number(undefined) is NaN, which `??` does not skip, so coerce once and fall back on non-finite values.
+  const expectedRaw = Number(opts.expected_days ?? c?.ops_expected_duration_days ?? c?.snapshot?.processing?.expected_days);
+  const expected = Number.isFinite(expectedRaw) && expectedRaw > 0 ? expectedRaw : 15;
   const terminal = TERMINAL_CASE.includes(st);
   const processing = st === "SUBMITTED" || st === "PROCESSING";
   const overdue = !terminal && processing && age_days > expected;

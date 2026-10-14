@@ -361,9 +361,17 @@ export function StepPayment({ ctx, caseRow }) {
       const dg = await getPaymentGate(caseRow.id);
       setGate(dg);
       if (!dg?.allowed) { setErr(`Payment unlocks at 90/100 with zero blockers. Current score: ${dg?.score ?? '—'}/100.`); return; }
-      const order = await createOrder(caseRow.id).catch(() => null);
-      if (order?.order?.id) { await createCheckout(order.order.id); setDone(true); base44.analytics?.track?.({ eventName: 'PAYMENT_STARTED', properties: { case_id: caseRow.id, digital_quality_score: dg.score } }); }
-      else setErr('Could not start payment. Try again later.');
+      const order = await createOrder(caseRow.id);
+      const o = order?.order || order;
+      if (!o?.id) { setErr('Could not start payment. Try again later.'); return; }
+      if (order.no_payment || o.status === 'COMPLETED' || o.status === 'PAID') { window.location.assign(`/orders/${o.id}/confirmation`); return; }
+      const ck = await createCheckout(o.id);
+      if (ck?.already_paid) { window.location.assign(`/orders/${o.id}/confirmation`); return; }
+      base44.analytics?.track?.({ eventName: 'PAYMENT_STARTED', properties: { case_id: caseRow.id, digital_quality_score: dg.score } });
+      // Send the traveler to the provider's payment page; without this the
+      // checkout was created but nobody was ever taken to it.
+      if (ck?.checkout_url) { window.location.assign(ck.checkout_url); return; }
+      setDone(true);
     } catch (e) { setErr(e?.message || 'Payment failed'); }
     finally { setBusy(false); }
   };

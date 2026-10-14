@@ -144,7 +144,7 @@ function Row({ label, value }) {
   const danger = !!value && value !== 'OK';
   return <div className="flex items-center justify-between gap-2 px-1 py-0.5"><dt className="text-[11px] text-slate-400">{label}</dt><dd className={`text-[11px] font-medium ${danger ? 'text-rose-700' : 'text-slate-700'}`}>{String(value ?? '—')}</dd></div>;
 }
-function Metric({ label, value, danger }) {
+function Metric({ label, value, danger = false }) {
   return <div className={`rounded-xl border p-2.5 ${danger ? 'bg-rose-50 text-rose-700' : 'bg-slate-50 text-slate-700'}`}><p className="text-[10px] font-medium opacity-80">{label}</p><p className="text-lg font-bold">{value ?? 0}</p></div>;
 }
 function fmt(s) { return s ? new Date(s).toLocaleDateString('en-IN') : '—'; }

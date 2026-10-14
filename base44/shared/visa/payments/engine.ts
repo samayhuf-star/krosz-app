@@ -201,7 +201,13 @@ export async function listOrders(svc: any, user: any, opts?: { application_id?: 
     if (!app || app.created_by_id !== user.id) throw Object.assign(new Error("Forbidden"), { code: "FORBIDDEN" });
     return await svc.entities.Order.filter({ application_id: opts.application_id }, "-created_date", 100).catch(() => []);
   }
-  const travelerId = opts?.traveler_id || await travelerIdForUser(svc, user);
+  let travelerId = await travelerIdForUser(svc, user);
+  if (opts?.traveler_id && opts.traveler_id !== travelerId) {
+    // Only list another traveler's orders if that traveler belongs to this user.
+    const tr: any = await svc.entities.Traveler.get(opts.traveler_id).catch(() => null);
+    if (!tr || (tr.user_id !== user.id && tr.created_by_id !== user.id)) throw Object.assign(new Error("Forbidden"), { code: "FORBIDDEN" });
+    travelerId = opts.traveler_id;
+  }
   if (!travelerId) return [];
   return await svc.entities.Order.filter({ traveler_id: travelerId }, "-created_date", 100).catch(() => []);
 }
@@ -303,7 +309,11 @@ export async function reconcilePayment(svc: any, user: any, opts: { payment_id: 
 
   let status: PaymentStatus = payment.status;
   // Operator-confirmed manual payment → SUCCEEDED (recorded with external_reference).
-  if ((provider.adapter_key === "visa_payment_manual" && opts.confirmed) || opts.provider_event?.status === "SUCCEEDED") {
+  // `confirmed` and `provider_event` come straight from the request body, so only
+  // admins (operators, and the Stripe webhook's system identity) may assert a
+  // success. Customers are reconciled from the provider's own status only.
+  const trustedCaller = user?.role === "admin";
+  if (trustedCaller && ((provider.adapter_key === "visa_payment_manual" && opts.confirmed) || opts.provider_event?.status === "SUCCEEDED")) {
     status = "SUCCEEDED";
   } else {
     const s = await adapter.getStatus(ctx, { provider_payment_id: payment.provider_payment_id }).catch(() => null);
@@ -493,6 +503,13 @@ export async function rejectRefund(svc: any, user: any, refundId: string, reason
   const order: any = await svc.entities.Order.get(r.order_id).catch(() => null);
   if (order && order.status === "REFUND_PENDING") await svc.entities.Order.update(order.id, { status: "PAID" }).catch(() => {});
   await auditPay(svc, user, "refund.rejected", r.id, r.traveler_id, r.application_id, { refund_id: r.id, reason });
+  try {
+    const { sendRefundStatus } = await import("../../mail/templates.ts");
+    const appRow: any = r.application_id ? (await svc.entities.VisaApplication.filter({ id: r.application_id }).catch(() => []))[0] : null;
+    const uRows: any[] = appRow?.created_by_id ? await svc.entities.User.filter({ id: appRow.created_by_id }).catch(() => []) : [];
+    const email = uRows[0]?.email || "";
+    if (email) { const name = (uRows[0]?.full_name || "").split(" ")[0] || "there"; await sendRefundStatus(email, name, order?.order_number || r.order_id, "Rejected", r.amount_minor, r.currency, `This refund wasn't approved. Reason: ${reason}. You can reply to your support ticket if you disagree.`); }
+  } catch {}
   return { refund: await svc.entities.Refund.get(r.id) };
 }
 
@@ -509,7 +526,7 @@ export async function startReviewRefund(svc: any, user: any, refundId: string): 
     const appRow: any = r.application_id ? (await svc.entities.VisaApplication.filter({ id: r.application_id }).catch(() => []))[0] : null;
     const uRows: any[] = appRow?.created_by_id ? await svc.entities.User.filter({ id: appRow.created_by_id }).catch(() => []) : [];
     const email = uRows[0]?.email || "";
-    if (email) { const name = (uRows[0]?.full_name || "").split(" ")[0] || "there"; await sendRefundStatus(email, name, order?.order_number || r.order_id, "Rejected", r.amount_minor, r.currency, `This refund wasn't approved. Reason: ${reason}. You can reply to your support ticket if you disagree.`); }
+    if (email) { const name = (uRows[0]?.full_name || "").split(" ")[0] || "there"; await sendRefundStatus(email, name, r.order_id, "Under review", r.amount_minor, r.currency, "Our team is reviewing your refund request. We'll email you as soon as a decision is made."); }
   } catch {}
   return { refund: await svc.entities.Refund.get(r.id) };
 }
