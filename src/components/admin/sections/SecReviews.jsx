@@ -7,10 +7,9 @@ export default function SecReviews({ d, reload, caseId }) {
   const { toast } = useToast();
   const [busy, setBusy] = useState('');
   const gates = d.review_gates || [];
-  const decide = async (decision, notes) => {
+  const decide = async (gateType, decision, notes) => {
     setBusy(decision);
-    const gate = gates.find((g) => g.status === 'OPEN');
-    try { await adminReviewDecision({ id: caseId, decision, gate_type: gate?.gate_type, notes }); toast({ title: `Review ${decision.toLowerCase()}` }); reload(); }
+    try { await adminReviewDecision({ id: caseId, decision, gate_type: gateType, notes }); toast({ title: `Review ${decision.toLowerCase()}` }); reload(); }
     catch (e) { toast({ title: 'Failed', description: e?.message, variant: 'destructive' }); }
     finally { setBusy(''); }
   };
@@ -25,9 +24,9 @@ export default function SecReviews({ d, reload, caseId }) {
           </div>
           {g.status === 'OPEN' && (
             <div className="mt-3 flex gap-1.5">
-              <button onClick={() => decide('APPROVED', 'Approved')} disabled={!!busy} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs text-emerald-700 hover:bg-emerald-50 disabled:opacity-50">{busy === 'APPROVED' ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Approve</button>
-              <button onClick={() => decide('REJECTED', 'Rejected')} disabled={!!busy} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs text-rose-700 hover:bg-rose-50 disabled:opacity-50">{busy === 'REJECTED' ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />} Reject</button>
-              <button onClick={() => decide('REQUEST_CHANGES', 'Changes requested')} disabled={!!busy} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs text-amber-700 hover:bg-amber-50 disabled:opacity-50">Request changes</button>
+              <button onClick={() => decide(g.gate_type, 'APPROVED', 'Approved')} disabled={!!busy} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs text-emerald-700 hover:bg-emerald-50 disabled:opacity-50">{busy === 'APPROVED' ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Approve</button>
+              <button onClick={() => decide(g.gate_type, 'REJECTED', 'Rejected')} disabled={!!busy} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs text-rose-700 hover:bg-rose-50 disabled:opacity-50">{busy === 'REJECTED' ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />} Reject</button>
+              <button onClick={() => decide(g.gate_type, 'REQUEST_CHANGES', 'Changes requested')} disabled={!!busy} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs text-amber-700 hover:bg-amber-50 disabled:opacity-50">Request changes</button>
             </div>
           )}
         </div>

@@ -29,7 +29,7 @@ export default function AdminRefunds() {
   const execute = (id) => run(() => base44.functions.invoke('visaApi', { action: 'execute-refund', refund_id: id }).then((r) => r.data ?? r), id, 'execute');
   const review = (id) => run(() => adminReviewRefund(id), id, 'review');
   const reject = (id, rsn) => run(() => adminRejectRefund(id, rsn), id, 'reject');
-  const evidence = async (id, orderId) => { setPackFor(id); setPack(null); try { const r = await adminEvidencePack({ refund_id: id, order_id: orderId }); setPack(r.pack); } catch (e) { setErr(e?.message); } };
+  const evidence = async (id, orderId) => { setPackFor(id); setPack(null); try { const r = await adminEvidencePack({ refund_id: id, order_id: orderId }); setPack(r.pack); } catch (e) { setPackFor(null); setErr(e?.message || 'Could not load evidence pack'); } };
 
   return (
     <div>
@@ -66,7 +66,7 @@ export default function AdminRefunds() {
                         {(r.status === 'REQUESTED' || r.status === 'UNDER_REVIEW') && <button onClick={() => { setRejectId(r.id); setReason(''); }} className="rounded bg-rose-100 px-2 py-1 text-[11px] font-medium text-rose-700 hover:bg-rose-200">Reject</button>}
                         <button onClick={() => evidence(r.id, rows.find((x) => x.id === r.id)?.order_id)} className="rounded border border-slate-200 px-2 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50">Evidence</button>
                       </div>
-                      {busy.startsWith(`:${r.id}`) && <Loader2 size={12} className="mt-1 ml-auto animate-spin text-slate-400" />}
+                      {busy.endsWith(`:${r.id}`) && <Loader2 size={12} className="mt-1 ml-auto animate-spin text-slate-400" />}
                     </td>
                   </tr>
                 ))}

@@ -110,8 +110,16 @@ export default function UnifiedWizard() {
         'travel.departure_date': form.departure || '',
         'travel.return_date': form.return || '',
       }).catch(() => {});
-      const state = ctx?.case_view?.state || caseRow?.case_state;
-      if (state === 'DRAFT') await applicationCaseTransition({ id: caseRow.id, to: 'INTAKE', idempotency_key: `step_INTAKE_${caseRow.id}` });
+      // Advance the case engine to the documents stage the same way VisaWizard
+      // does. Stopping at INTAKE left Submit asking for INTAKE -> READY_FOR_SUBMISSION,
+      // which the engine rejects.
+      let state = ctx?.case_view?.state || caseRow?.case_state;
+      if (state === 'DRAFT') { await applicationCaseTransition({ id: caseRow.id, to: 'INTAKE', idempotency_key: `step_INTAKE_${caseRow.id}` }); state = 'INTAKE'; }
+      if (state === 'INTAKE') { await applicationCaseTransition({ id: caseRow.id, to: 'ELIGIBILITY_REVIEW', idempotency_key: `step_ELIGIBILITY_REVIEW_${caseRow.id}` }); state = 'ELIGIBILITY_REVIEW'; }
+      if (state === 'ELIGIBILITY_REVIEW') {
+        const docsState = (ctx?.required_docs || []).length > 0 ? 'DOCUMENTS_REQUIRED' : 'DOCUMENTS_REVIEW';
+        await applicationCaseTransition({ id: caseRow.id, to: docsState, idempotency_key: `step_${docsState}_${caseRow.id}` });
+      }
       const context = await applicationCaseContext(caseRow.id);
       setCtx(context);
       // Fail closed: force a fresh check on the Documents step rather than
@@ -128,8 +136,8 @@ export default function UnifiedWizard() {
     setError(''); setBusy(true);
     try {
       const state = ctx?.case_view?.state || caseRow?.case_state;
-      if (state === 'DOCUMENTS_REQUIRED' || state === 'DOCUMENTS_REVIEW') {
-        await applicationCaseTransition({ id: caseRow.id, to: 'DOCUMENTS_REVIEW', idempotency_key: `step_DR_${caseRow.id}` }).catch(() => {});
+      if (state === 'DOCUMENTS_REQUIRED') {
+        await applicationCaseTransition({ id: caseRow.id, to: 'DOCUMENTS_REVIEW', idempotency_key: `step_DR_${caseRow.id}` });
       }
       const context = await applicationCaseContext(caseRow.id);
       setCtx(context);
@@ -171,7 +179,7 @@ export default function UnifiedWizard() {
     const prev = Math.max(1, step - 1);
     // Same fail-closed reset when navigating backward, so re-entering a step
     // never inherits a stale "ready" reading from before.
-    if (prev === 2) setPassportReady(false);
+    if (prev === 2) setPassportReady(!!(/** @type {any} */ (form))?.passport?.confirmed);
     if (prev === 3) setDocumentsReady(false);
     setStep(prev);
   };

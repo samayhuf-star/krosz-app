@@ -96,7 +96,7 @@ export default function VisaProviders() {
           requests {pw.requests_total ?? 0} · timeouts {pw.timeout_total ?? 0} · last success {pw.last_success_at || '—'} · last failure {pw.last_failure_at || '—'}
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
-          <button onClick={() => pipeworxResetHealth()} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"><ShieldAlert size={13} /> Reset circuit &amp; metrics</button>
+          <button onClick={async () => { try { await pipeworxResetHealth(); } catch { /* surfaced by refresh below */ } finally { refresh(); } }} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"><ShieldAlert size={13} /> Reset circuit &amp; metrics</button>
           <button onClick={runTests} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"><Database size={13} /> Run provider contract tests</button>
         </div>
         {tests && tests.results && (
@@ -141,7 +141,7 @@ export default function VisaProviders() {
         <div className="rounded-2xl border border-slate-200 bg-white p-5">
           <div className="flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Database size={16} /> Provider cache ({cache.length})</h2>
-            <button onClick={() => pipeworxInvalidate({})} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"><Trash2 size={13} /> Invalidate all</button>
+            <button onClick={async () => { try { await pipeworxInvalidate({}); } catch { /* surfaced by refresh below */ } finally { refresh(); } }} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"><Trash2 size={13} /> Invalidate all</button>
           </div>
           <div className="mt-3 max-h-80 overflow-y-auto divide-y divide-slate-100">
             {cache.length === 0 && <p className="py-6 text-center text-xs text-slate-400">Cache empty.</p>}

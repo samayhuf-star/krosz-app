@@ -65,7 +65,12 @@ export default async function (req: Request): Promise<Response> {
     // app.
     const systemUser = { id: "stripe-webhook", role: "admin", email: "stripe-webhook@krosz.com" };
 
-    if (type === "checkout.session.completed" || type === "payment_intent.succeeded") {
+    if (type === "checkout.session.completed" || type === "checkout.session.async_payment_succeeded" || type === "payment_intent.succeeded") {
+      // A completed Checkout Session can still be unpaid (delayed payment
+      // methods); those settle later via async_payment_succeeded.
+      if (type.startsWith("checkout.session.") && data.payment_status !== "paid" && data.payment_status !== "no_payment_required") {
+        return Response.json({ received: true, matched: false, status: "awaiting_payment" });
+      }
       const piId = type === "payment_intent.succeeded" ? data.id : data.payment_intent;
       const sessionId = data.id || null;
       let payment = piId ? (await svc.entities.Payment.filter({ provider_payment_id: piId }).catch(() => []))[0] : null;
@@ -73,7 +78,11 @@ export default async function (req: Request): Promise<Response> {
       if (!payment) return Response.json({ received: true, matched: false });
       try {
         await reconcilePayment(svc, systemUser, { payment_id: payment.id, provider_event: { status: "SUCCEEDED" } });
-      } catch (e: any) { console.error("stripeWebhook reconcile failed", e?.message || e); }
+      } catch (e: any) {
+        console.error("stripeWebhook reconcile failed", e?.message || e);
+        // Non-2xx so Stripe retries; reconcile is a no-op once the payment is SUCCEEDED.
+        return Response.json({ received: true, matched: true, error: "reconcile_failed" }, { status: 500 });
+      }
       return Response.json({ received: true, matched: true, status: "succeeded" });
     }
 

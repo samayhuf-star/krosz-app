@@ -76,13 +76,13 @@ export default function Travelers() {
           <DetailCard traveler={detail.traveler} passports={detail.passports} applications={detail.applications}
             onEdit={() => setEditing(true)}
             onArchive={() => accountArchiveTraveler(selectedId).then(load).catch((e) => setErr(e?.message || 'Could not archive this traveler.'))}
-            onPrimary={() => accountSetPrimary(selectedId).then(load).catch((e) => setErr(e?.message || 'Could not update the primary traveler.'))}
+            onPrimary={() => accountSetPrimary(selectedId).then(() => { load(); loadDetail(); }).catch((e) => setErr(e?.message || 'Could not update the primary traveler.'))}
             onPassportSaved={loadDetail} />
         </div>
       )}
 
       {editing && detail?.traveler && (
-        <TravelerForm traveler={detail.traveler} onClose={() => setEditing(false)} onSaved={() => { setEditing(false); load(); }} />
+        <TravelerForm traveler={detail.traveler} onClose={() => setEditing(false)} onSaved={() => { setEditing(false); load(); loadDetail(); }} />
       )}
     </div>
   );

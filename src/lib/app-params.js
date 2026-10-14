@@ -5,7 +5,24 @@ const memoryStorage = {
 	setItem(key, value) { memoryValues.set(key, String(value)); },
 	removeItem(key) { memoryValues.delete(key); },
 };
-const storage = isNode ? memoryStorage : window.localStorage;
+// Reading window.localStorage throws when the browser blocks site storage
+// (e.g. "Block all cookies"). This module loads before React mounts, so an
+// unguarded access white-screens the whole app; fall back to memory instead.
+const resolveStorage = () => {
+	if (isNode) return memoryStorage;
+	try {
+		const ls = window.localStorage;
+		ls.getItem('base44_storage_probe');
+		return {
+			getItem(key) { try { return ls.getItem(key); } catch { return memoryStorage.getItem(key); } },
+			setItem(key, value) { try { ls.setItem(key, value); } catch { memoryStorage.setItem(key, value); } },
+			removeItem(key) { try { ls.removeItem(key); } catch { memoryStorage.removeItem(key); } },
+		};
+	} catch {
+		return memoryStorage;
+	}
+};
+const storage = resolveStorage();
 const viteEnv = /** @type {Record<string, string | undefined>} */ (Reflect.get(import.meta, 'env') || {});
 const DEFAULT_APP_ID = '6a7a236310d39c4c5cb1f566';
 const previewAppId = isNode ? undefined : window.location.hostname.match(/^preview(?:-sandbox)?--[^.]*?([a-f0-9]{24})\.(?:base44-preview|base44)\.app$/i)?.[1];

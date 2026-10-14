@@ -409,7 +409,9 @@ export async function getTravelerStatus(svc: any, user: any, application_id: str
     svc.entities.ApplicationAction.filter({ application_id, status: "OPEN" }).catch(() => []),
     svc.entities.ApplicationTimelineEvent.filter({ application_id, visibility: "CUSTOMER" }, "-occurred_at", 100).catch(() => []),
   ]);
-  const c = user.role === "admin" ? await getCase(svc, application_id) : null;
+  // Ownership is verified above. Only the decision/status fields of the ops case
+  // are returned, so the traveler can see their approved/refused outcome.
+  const c = await getCase(svc, application_id);
   return {
     application: app,
     current_status: c?.normalized_status || (timeline[0]?.event_type || "SUBMITTED"),

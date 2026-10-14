@@ -16,10 +16,13 @@ export default function NotificationPreferences() {
   const [prefs, setPrefs] = useState(null);
   const [saving, setSaving] = useState(false);
   const [lang, setLang] = useState('en');
+  const [loadErr, setLoadErr] = useState('');
 
-  useEffect(() => {
-    getNotificationPreferences().then((p) => { setPrefs(p); setLang(p.language || 'en'); }).catch(() => {});
-  }, []);
+  const loadPrefs = () => {
+    setLoadErr('');
+    getNotificationPreferences().then((p) => { setPrefs(p); setLang(p?.language || 'en'); }).catch((e) => setLoadErr(e?.message || 'Could not load your notification preferences.'));
+  };
+  useEffect(() => { loadPrefs(); }, []);
 
   const toggle = (cat, channel) => {
     if (!prefs) return;
@@ -36,6 +39,7 @@ export default function NotificationPreferences() {
     setNotificationPreferences(strip(next));
   };
 
+  if (!prefs && loadErr) return <div className="px-4 md:px-8"><PageHeader title="Notification preferences" /><p className="text-sm text-rose-600">{loadErr}</p><button onClick={loadPrefs} className="mt-2 text-sm font-medium text-orange-700 hover:underline">Try again</button></div>;
   if (!prefs) return <div className="px-4 md:px-8"><PageHeader title="Notification preferences" /><p className="text-sm text-slate-500">Loading…</p></div>;
 
   return (

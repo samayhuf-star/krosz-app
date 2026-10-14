@@ -130,7 +130,7 @@ function UploadModal({ config, travelerId, onClose, onDone }) {
     if (!type) { setErr('Select a document type'); return; }
     if (file.size > max * 1024 * 1024) { setErr(`File exceeds ${max}MB`); return; }
     if (!(config?.allowed_mime || []).includes(file.type)) { setErr('Unsupported file type'); return; }
-    const validationError = await validateSelectedFile(file);
+    const validationError = await validateSelectedFile(file, type);
     if (validationError) { setErr(validationError); return; }
     setBusy(true);
     try {
@@ -183,7 +183,7 @@ function UploadModal({ config, travelerId, onClose, onDone }) {
   );
 }
 
-async function validateSelectedFile(file) {
+async function validateSelectedFile(file, type) {
   const header = new Uint8Array(await file.slice(0, 12).arrayBuffer());
   const isPdf = header[0] === 0x25 && header[1] === 0x50 && header[2] === 0x44 && header[3] === 0x46;
   const isJpeg = header[0] === 0xff && header[1] === 0xd8 && header[2] === 0xff;
@@ -198,7 +198,13 @@ async function validateSelectedFile(file) {
       img.src = url;
     });
     if (!dimensions) return 'This image cannot be read. Choose a clear passport photo or scan.';
-    if (dimensions.width < 800 || dimensions.height < 500) return 'This image is too small for reliable document review. Use a clearer, higher-resolution scan.';
+    // Visa photos are commonly 600x600 or smaller, so they get their own floor.
+    // For scans, compare long/short edges so portrait scans are not rejected.
+    const longEdge = Math.max(dimensions.width, dimensions.height);
+    const shortEdge = Math.min(dimensions.width, dimensions.height);
+    if (type === 'PHOTO') {
+      if (shortEdge < 300) return 'This photo is too small. Use a photo at least 300 pixels on each side.';
+    } else if (longEdge < 800 || shortEdge < 500) return 'This image is too small for reliable document review. Use a clearer, higher-resolution scan.';
   }
   return '';
 }

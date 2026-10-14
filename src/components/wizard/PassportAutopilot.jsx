@@ -55,7 +55,10 @@ export default function PassportAutopilot({ caseRow, ctx, form, setForm, onReady
     for (const item of result?.extractions || []) next[item.field_name] = cleanValue(item.normalized_value || item.field_value);
     setFields(next);
     const needsReview = result?.intelligence?.status !== 'ready' || (result?.findings || []).some((f) => f.blocking && !f.resolved);
-    onReadyChange?.(!needsReview);
+    // Only ever revoke readiness here. Readiness is granted by confirm() /
+    // confirmManual(), so the traveler cannot continue before the details are
+    // confirmed and saved to their profile.
+    if (needsReview) onReadyChange?.(false);
     return result;
   };
 
@@ -175,7 +178,8 @@ export default function PassportAutopilot({ caseRow, ctx, form, setForm, onReady
           verification_status: 'verified', confidence: 1, source: 'extraction',
         }).catch(() => {});
       }
-      setForm({ ...form, traveler_info: { ...(form.traveler_info || {}), first_name: travelerPatch.first_name, last_name: travelerPatch.last_name, dob: fields.date_of_birth, passport_number: fields.passport_number }, passport: { version_id: versionId } });
+      const nextForm = { ...form, traveler_info: { ...(form.traveler_info || {}), first_name: travelerPatch.first_name, last_name: travelerPatch.last_name, dob: fields.date_of_birth, passport_number: fields.passport_number }, passport: { version_id: versionId } };
+      setForm(nextForm);
       await validateApplicationDocuments(caseRow.id).catch(() => {});
       // Always refresh intelligence after confirmation so the UI reflects the
       // reconciled findings (remediated blockers are now resolved server-side).
@@ -187,6 +191,9 @@ export default function PassportAutopilot({ caseRow, ctx, form, setForm, onReady
       const stillBlocking = (refreshed?.findings || []).filter((f) => f.blocking && !f.resolved);
       setConfirmed(stillBlocking.length === 0);
       onReadyChange?.(stillBlocking.length === 0);
+      // Remember the confirmation in the saved wizard form so Save & exit / Back
+      // does not force a re-upload.
+      if (stillBlocking.length === 0) setForm({ ...nextForm, passport: { ...nextForm.passport, confirmed: true } });
       if (stillBlocking.length === 0) {
         setStatus({ tone: 'success', message: 'Passport details confirmed and saved successfully.' });
       } else {
@@ -287,7 +294,7 @@ export default function PassportAutopilot({ caseRow, ctx, form, setForm, onReady
         {blocking.length > 0 && <p className="mt-3 rounded-lg bg-amber-50 p-3 text-xs text-amber-800">We found {blocking.length} item{blocking.length === 1 ? '' : 's'} that need your review. Correct the highlighted details, then save.</p>}
         <button type="button" onClick={confirm} disabled={busy || (confirmed && blocking.length === 0)} className="mt-4 inline-flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700 disabled:opacity-50"><ShieldCheck size={15} /> {busy ? 'Saving…' : confirmed && blocking.length === 0 ? 'Confirmed and saved' : blocking.length > 0 ? 'Save corrections and re-check' : 'Confirm passport details'}</button>
       </div>}
-      {manual && extractions.length === 0 && (
+      {manual && (
         <div className="rounded-xl border border-slate-200 p-4">
           <div className="flex items-center justify-between gap-3"><h3 className="text-sm font-semibold text-slate-900">Enter passport details</h3><span className="text-xs text-slate-500">Type the details from your photo page</span></div>
           <p className="mt-1 text-xs text-slate-500">These are saved to the traveler profile and used to pre-fill the application. You can still upload a scanned photo later in the Documents step.</p>

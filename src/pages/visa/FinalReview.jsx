@@ -83,6 +83,12 @@ export default function FinalReview() {
   };
 
   if (!fr && !err) return <div className="px-4 md:px-8 py-12 text-sm text-slate-500">Loading final review…</div>;
+  if (!fr) return (
+    <div className="px-4 md:px-8 py-12">
+      <Link to={`/applications/${id}/workspace`} className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900"><ArrowLeft size={14} /> Back to application</Link>
+      <p className="mt-4 text-sm text-rose-600">{err}</p>
+    </div>
+  );
 
   return (
     <div className="px-4 md:px-8 pb-24">

@@ -157,6 +157,7 @@ const AuthenticatedApp = () => {
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/support" element={<SupportCenter />} />
           <Route path="/help" element={<HelpCenter />} />
+          <Route path="/help/:slug" element={<HelpArticleDetail />} />
           <Route path="/profile/notifications" element={<NotificationPreferences />} />
           <Route path="/home" element={<AccountDashboard />} />
           <Route path="/travelers" element={<Travelers />} />
