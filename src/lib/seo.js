@@ -4,6 +4,16 @@ import { useEffect } from 'react';
 // description, canonical, OpenGraph tags, and robots. Cleans up prior injected
 // tags on unmount/re-run so SPA navigation never stacks stale metadata.
 
+// Canonical origin for public pages. Alternate hosts (e.g. enterprise.krosz.com)
+// serve the same public content, so their canonical/og:url must point at the
+// primary domain, otherwise Semrush/Google see duplicate titles and content.
+export const CANONICAL_ORIGIN = 'https://krosz.com';
+
+export function canonicalUrl(path) {
+  const p = String(path || '/');
+  return CANONICAL_ORIGIN + (p.startsWith('/') ? p : `/${p}`);
+}
+
 function upsertMeta(attr, key, content) {
   if (!content) return;
   /** @type {HTMLMetaElement | null} */
@@ -60,7 +70,7 @@ export function useSeo(seo) {
     }
     upsertMeta('name', 'robots', seo.robots || 'index,follow');
     if (seo.canonical_path) {
-      const canonical = window.location.origin + seo.canonical_path;
+      const canonical = canonicalUrl(seo.canonical_path);
       upsertLink('canonical', canonical);
       upsertMeta('property', 'og:url', canonical);
       upsertMeta('name', 'twitter:url', canonical);

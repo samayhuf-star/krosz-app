@@ -16,7 +16,7 @@ import {
 } from '@/lib/visaApi';
 import { applicationCaseCreate } from '@/lib/applicationCaseApi';
 import TravelEntryResult from '@/components/visa/entry/TravelEntryResult';
-import { useSeo, useJsonLd } from '@/lib/seo';
+import { useSeo, useJsonLd, canonicalUrl } from '@/lib/seo';
 import { trackDiscovery, setDiscoveryIntent, getDiscoveryIntent, pushRecentlyViewed } from '@/lib/discoveryIntent';
 import { useAuth } from '@/lib/AuthContext';
 
@@ -99,8 +99,8 @@ export default function DestinationPage() {
   useJsonLd('ld-breadcrumb', page?.country ? {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: window.location.origin + '/' },
-      { '@type': 'ListItem', position: 2, name: `${page.country.name} Visa`, item: window.location.href },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: canonicalUrl('/') },
+      { '@type': 'ListItem', position: 2, name: `${page.country.name} Visa`, item: canonicalUrl(page.seo?.canonical_path || `/visa/${slug}`) },
     ],
   } : null);
   useJsonLd('ld-faq', page?.content?.faq?.length ? {
@@ -112,7 +112,7 @@ export default function DestinationPage() {
     name: `${page.country.name} visa and travel guide for Indian travellers`,
     fromLocation: { '@type': 'Country', name: 'India' },
     toLocation: { '@type': 'Country', name: page.country.name },
-    url: window.location.origin + (page.seo?.canonical_path || `/visa/${slug}`),
+    url: canonicalUrl(page.seo?.canonical_path || `/visa/${slug}`),
   } : null);
 
   const intent = getDiscoveryIntent();
